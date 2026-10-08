@@ -1,0 +1,2576 @@
+[
+  {
+    "name": "1-Acetoxyhexadecane",
+    "normalized": "1 acetoxyhexadecane",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "1-Hexadecanol Acetate",
+    "normalized": "1 hexadecanol acetate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Acetylated Lanolin",
+    "normalized": "acetylated lanolin",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Acetylated Lanolin Alcohol",
+    "normalized": "acetylated lanolin alcohol",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Acetylated Wool Fat",
+    "normalized": "acetylated wool fat",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Acetylated Wool Wax",
+    "normalized": "acetylated wool wax",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Agar",
+    "normalized": "agar",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ahnfeltia Concinna",
+    "normalized": "ahnfeltia concinna",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ahnfeltiopsis Concinna Extract",
+    "normalized": "ahnfeltiopsis concinna extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Alaria Esculenta",
+    "normalized": "alaria esculenta",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Alaria Esculenta Extract",
+    "normalized": "alaria esculenta extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Algae",
+    "normalized": "algae",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Algae Bladderwrack",
+    "normalized": "algae bladderwrack",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Algae Extract",
+    "normalized": "algae extract",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Algea",
+    "normalized": "algea",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Algin",
+    "normalized": "algin",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Alginate",
+    "normalized": "alginate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Alginic Acid",
+    "normalized": "alginic acid",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Almond Oil",
+    "normalized": "almond oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Andiroba Seed Oil",
+    "normalized": "andiroba seed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Aphanothece Sacrum Polysaccharide",
+    "normalized": "aphanothece sacrum polysaccharide",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Apricot Kernel Oil",
+    "normalized": "apricot kernel oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Apricot Oil",
+    "normalized": "apricot oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Arthrospira Platensis",
+    "normalized": "arthrospira platensis",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ascophyllum",
+    "normalized": "ascophyllum",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ascophyllum Nodosum",
+    "normalized": "ascophyllum nodosum",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ascophyllum Nodosum Extract",
+    "normalized": "ascophyllum nodosum extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Asparagopsis Armata Extract",
+    "normalized": "asparagopsis armata extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Astrocaryum Murumuru Seed Butter",
+    "normalized": "astrocaryum murumuru seed butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Avocado Butter",
+    "normalized": "avocado butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Avokado Oil",
+    "normalized": "avokado oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Babassu Oil",
+    "normalized": "babassu oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Beef Tallow",
+    "normalized": "beef tallow",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Bismuth",
+    "normalized": "bismuth",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Bismuth Oxychloride",
+    "normalized": "bismuth oxychloride",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Black Kelp",
+    "normalized": "black kelp",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Bladderwrack",
+    "normalized": "bladderwrack",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Blue Algae",
+    "normalized": "blue algae",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Blue Green Algae",
+    "normalized": "blue green algae",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Borage Oil",
+    "normalized": "borage oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Brazil Nut Oil",
+    "normalized": "brazil nut oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Brown Algae",
+    "normalized": "brown algae",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Bryopsis Africana",
+    "normalized": "bryopsis africana",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Buriti Oil",
+    "normalized": "buriti oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Butyl Stearate",
+    "normalized": "butyl stearate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Butyl Stearic Acid",
+    "normalized": "butyl stearic acid",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Butyrospermum",
+    "normalized": "butyrospermum",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Butyrospermum Parkii",
+    "normalized": "butyrospermum parkii",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cacao Butter",
+    "normalized": "cacao butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cacao Seed Butter",
+    "normalized": "cacao seed butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Canola Oil",
+    "normalized": "canola oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Capea Biruncinata var. Desnuda Sonder",
+    "normalized": "capea biruncinata var desnuda sonder",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Carageenan",
+    "normalized": "carageenan",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Carageenan Moss",
+    "normalized": "carageenan moss",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Caragenan",
+    "normalized": "caragenan",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Carastay C",
+    "normalized": "carastay c",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Carrageenan",
+    "normalized": "carrageenan",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Carrageenan Gum",
+    "normalized": "carrageenan gum",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Carrageenan Moss",
+    "normalized": "carrageenan moss",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Carragenan",
+    "normalized": "carragenan",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Carrot Seed Oil",
+    "normalized": "carrot seed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Caulerpa Filiformis",
+    "normalized": "caulerpa filiformis",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Caulerpa Lentillifera Extract",
+    "normalized": "caulerpa lentillifera extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "CeraVe Oil",
+    "normalized": "cerave oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cetearyl Alcohol + Ceteareth 20",
+    "normalized": "cetearyl alcohol + ceteareth 20",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Cetyl Acetate",
+    "normalized": "cetyl acetate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Chaetomorpha Linum",
+    "normalized": "chaetomorpha linum",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cherry Seed Oil",
+    "normalized": "cherry seed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Chlamydomonas Reinhardtii Extract",
+    "normalized": "chlamydomonas reinhardtii extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Chlorella",
+    "normalized": "chlorella",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Chlorella Vulgaris Extract",
+    "normalized": "chlorella vulgaris extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Chlorophyceae",
+    "normalized": "chlorophyceae",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Chondrus Crispus",
+    "normalized": "chondrus crispus",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Chondrus Crispus Powder",
+    "normalized": "chondrus crispus powder",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Chullu Seed Oil",
+    "normalized": "chullu seed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cladophora cf. Subsimplex",
+    "normalized": "cladophora cf subsimplex",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cladophora Radiosa",
+    "normalized": "cladophora radiosa",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cladosiphon Okamuranus Extract",
+    "normalized": "cladosiphon okamuranus extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Coal Tar",
+    "normalized": "coal tar",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Cocoa Butter",
+    "normalized": "cocoa butter",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Cocoa Seed Butter",
+    "normalized": "cocoa seed butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Coconut",
+    "normalized": "coconut",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Coconut Alkanes",
+    "normalized": "coconut alkanes",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Coconut Butter",
+    "normalized": "coconut butter",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Coconut Extract",
+    "normalized": "coconut extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Coconut Fruit Extract",
+    "normalized": "coconut fruit extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Coconut Nucifera Extract",
+    "normalized": "coconut nucifera extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Coconut Oil",
+    "normalized": "coconut oil",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Cocos",
+    "normalized": "cocos",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cocos Nucifera",
+    "normalized": "cocos nucifera",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cocos Nucifera Seed Butter",
+    "normalized": "cocos nucifera seed butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Codium Fragile Extract",
+    "normalized": "codium fragile extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Coenochloris Signiensis Extract",
+    "normalized": "coenochloris signiensis extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Colloidal Sulfur",
+    "normalized": "colloidal sulfur",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Corallina Officinalis Extract",
+    "normalized": "corallina officinalis extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Corn Oil",
+    "normalized": "corn oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cotton Awws",
+    "normalized": "cotton awws",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cotton Awws Oil",
+    "normalized": "cotton awws oil",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Cotton Oil",
+    "normalized": "cotton oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cotton Seed Oil",
+    "normalized": "cotton seed oil",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Cranberry Seed Oil",
+    "normalized": "cranberry seed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Creosote",
+    "normalized": "creosote",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Cystoseira Tamariscifolia Extract",
+    "normalized": "cystoseira tamariscifolia extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "D&C Red 17",
+    "normalized": "d c red 17",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "D&C Red 21",
+    "normalized": "d c red 21",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "D&C Red 3",
+    "normalized": "d c red 3",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "D&C Red 30",
+    "normalized": "d c red 30",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "D&C Red 36",
+    "normalized": "d c red 36",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Decyl Oleate",
+    "normalized": "decyl oleate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Dictyopteris Membranacea",
+    "normalized": "dictyopteris membranacea",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Dictyopteris Polypodioides",
+    "normalized": "dictyopteris polypodioides",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Dilsea Carnosa Extract",
+    "normalized": "dilsea carnosa extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Dioctyl Succinate",
+    "normalized": "dioctyl succinate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Disodium Laureth Sulfosuccinate",
+    "normalized": "disodium laureth sulfosuccinate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Disodium Monooleamido",
+    "normalized": "disodium monooleamido",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Disodium Monooleamido PEG-2 Sulfosuccinate",
+    "normalized": "disodium monooleamido peg 2 sulfosuccinate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Disodium Oleamido PEG-2 Sulfosuccinate",
+    "normalized": "disodium oleamido peg 2 sulfosuccinate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Dodecanoic Acid",
+    "normalized": "dodecanoic acid",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Dodecoic Acid",
+    "normalized": "dodecoic acid",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Dodecyl Acid",
+    "normalized": "dodecyl acid",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Dulse",
+    "normalized": "dulse",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Dunaliella Salina Extract",
+    "normalized": "dunaliella salina extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Duodecylic Acid",
+    "normalized": "duodecylic acid",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Durvillaea Antarctica Extract",
+    "normalized": "durvillaea antarctica extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ecklonia",
+    "normalized": "ecklonia",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ecklonia Cava",
+    "normalized": "ecklonia cava",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ecklonia Cava Extract",
+    "normalized": "ecklonia cava extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ecklonia Radiata",
+    "normalized": "ecklonia radiata",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Enteromorpha Compressa",
+    "normalized": "enteromorpha compressa",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Enteromorpha Compressa Extract",
+    "normalized": "enteromorpha compressa extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ethoxylated Lanolin",
+    "normalized": "ethoxylated lanolin",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Ethylhexyl Palmitate",
+    "normalized": "ethylhexyl palmitate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Ethylhexyl Stearate",
+    "normalized": "ethylhexyl stearate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Eucheuma Spinosum Extract",
+    "normalized": "eucheuma spinosum extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Evening Primrose Oil",
+    "normalized": "evening primrose oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Flax Oil",
+    "normalized": "flax oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Flaxseed Oil",
+    "normalized": "flaxseed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Fucoxanthin",
+    "normalized": "fucoxanthin",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Fucus Serratus",
+    "normalized": "fucus serratus",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Fucus Vesiculosus",
+    "normalized": "fucus vesiculosus",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Gamtae Extract",
+    "normalized": "gamtae extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Gelidiella Acerosa Extract",
+    "normalized": "gelidiella acerosa extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Gelidium Amansii Extract",
+    "normalized": "gelidium amansii extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Gigartina Stellata Extract",
+    "normalized": "gigartina stellata extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Glyceryl 3 Diisostearate",
+    "normalized": "glyceryl 3 diisostearate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Glyceryl Stearate SE",
+    "normalized": "glyceryl stearate se",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Glycine Max",
+    "normalized": "glycine max",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Glycine Soja Oil",
+    "normalized": "glycine soja oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Gracilariopsis Chorda Extract",
+    "normalized": "gracilariopsis chorda extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Haematococcus Pluvialis",
+    "normalized": "haematococcus pluvialis",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Haematococcus Pluvialis Extract",
+    "normalized": "haematococcus pluvialis extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Haslea Ostrearia",
+    "normalized": "haslea ostrearia",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Haslea Ostrearia Extract",
+    "normalized": "haslea ostrearia extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Hexadecanol Acetate",
+    "normalized": "hexadecanol acetate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Hexadecyl Alcohol",
+    "normalized": "hexadecyl alcohol",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Himanthalia Elongata",
+    "normalized": "himanthalia elongata",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Himanthalia Elongata Extract",
+    "normalized": "himanthalia elongata extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Hizikia Fusiforme Extract",
+    "normalized": "hizikia fusiforme extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Hydrogenated Castor Oil",
+    "normalized": "hydrogenated castor oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Hydrogenated Vegetable Oil",
+    "normalized": "hydrogenated vegetable oil",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Hydrolyzed Rhodophyceae Extract",
+    "normalized": "hydrolyzed rhodophyceae extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Hypnaceae Extract",
+    "normalized": "hypnaceae extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Hypnea Musciformis Extract",
+    "normalized": "hypnea musciformis extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Irish Moss",
+    "normalized": "irish moss",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Isocetyl Alcohol",
+    "normalized": "isocetyl alcohol",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Isocetyl Stearate",
+    "normalized": "isocetyl stearate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Isodecyl Oleate",
+    "normalized": "isodecyl oleate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Isooctadecyl Isooctadecanoate",
+    "normalized": "isooctadecyl isooctadecanoate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Isopalmitic Alcohol",
+    "normalized": "isopalmitic alcohol",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Isopalmityl Alcohol",
+    "normalized": "isopalmityl alcohol",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Isopropyl Isodecanoate",
+    "normalized": "isopropyl isodecanoate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Isopropyl Isostearate",
+    "normalized": "isopropyl isostearate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Isopropyl Lanolate",
+    "normalized": "isopropyl lanolate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Isopropyl Linolate",
+    "normalized": "isopropyl linolate",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Isopropyl Linoleate",
+    "normalized": "isopropyl linoleate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Isopropyl Myristate",
+    "normalized": "isopropyl myristate",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Isopropyl Palmitate",
+    "normalized": "isopropyl palmitate",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Isostearyl Isostearate",
+    "normalized": "isostearyl isostearate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Isostearyl Neopentanoate",
+    "normalized": "isostearyl neopentanoate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Jania Rubens Extract",
+    "normalized": "jania rubens extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Jojoba Butter",
+    "normalized": "jojoba butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Kapok Oil",
+    "normalized": "kapok oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Kappaphycus",
+    "normalized": "kappaphycus",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Kappaphycus Alvarezii Extract",
+    "normalized": "kappaphycus alvarezii extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Karite",
+    "normalized": "karite",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Kelp",
+    "normalized": "kelp",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Laminaria",
+    "normalized": "laminaria",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Laminaria Digitata",
+    "normalized": "laminaria digitata",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Laminaria Digitata Extract",
+    "normalized": "laminaria digitata extract",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Laminaria Longicruris",
+    "normalized": "laminaria longicruris",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Laminaria Saccharina",
+    "normalized": "laminaria saccharina",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Laminaria Saccharina Extract",
+    "normalized": "laminaria saccharina extract",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Laminaria Saccharine",
+    "normalized": "laminaria saccharine",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Lanolic Acid",
+    "normalized": "lanolic acid",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Lanolin Acetate",
+    "normalized": "lanolin acetate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Lanolin Alcohol",
+    "normalized": "lanolin alcohol",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Lanolin Polyoxyethylene Ether",
+    "normalized": "lanolin polyoxyethylene ether",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Laureth 23",
+    "normalized": "laureth 23",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Laureth 4",
+    "normalized": "laureth 4",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Lauric Acid",
+    "normalized": "lauric acid",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Laurostearic Acid",
+    "normalized": "laurostearic acid",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Lauryl Sulfate",
+    "normalized": "lauryl sulfate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Linolate",
+    "normalized": "linolate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Linseed Oil",
+    "normalized": "linseed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Linum Usitatissimum Seed Oil",
+    "normalized": "linum usitatissimum seed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Liquor Picis Carbonis",
+    "normalized": "liquor picis carbonis",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Lithothamnium Calcareum",
+    "normalized": "lithothamnium calcareum",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Lithothamnium Calcareum Powder",
+    "normalized": "lithothamnium calcareum powder",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Lola Implexa",
+    "normalized": "lola implexa",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Macroalgae",
+    "normalized": "macroalgae",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Macrocystis Pyrifera Extract",
+    "normalized": "macrocystis pyrifera extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Magnesium Myristate",
+    "normalized": "magnesium myristate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Mahua Seed Oil",
+    "normalized": "mahua seed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Marine Algae",
+    "normalized": "marine algae",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Marula",
+    "normalized": "marula",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Marula Oil",
+    "normalized": "marula oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Mastocarpus",
+    "normalized": "mastocarpus",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Mastocarpus Stellatus",
+    "normalized": "mastocarpus stellatus",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Microcystis Aeruginosa",
+    "normalized": "microcystis aeruginosa",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Mink Oil",
+    "normalized": "mink oil",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Monostearate",
+    "normalized": "monostearate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Moringa Oil",
+    "normalized": "moringa oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Moringa Oleifera Seed Oil",
+    "normalized": "moringa oleifera seed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Moss",
+    "normalized": "moss",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Myreth-3 Myristate",
+    "normalized": "myreth 3 myristate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Myristate",
+    "normalized": "myristate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Myristic Acid",
+    "normalized": "myristic acid",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Myristyl",
+    "normalized": "myristyl",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Myristyl Alcohol",
+    "normalized": "myristyl alcohol",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Myristyl Lactate",
+    "normalized": "myristyl lactate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Myristyl Myristate",
+    "normalized": "myristyl myristate",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Myristyl Propianate",
+    "normalized": "myristyl propianate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Myristyl Propionate",
+    "normalized": "myristyl propionate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "N-hexadecyl Ethanoate",
+    "normalized": "n hexadecyl ethanoate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Norwegian Kelp",
+    "normalized": "norwegian kelp",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Octadecyl Heptanoate",
+    "normalized": "octadecyl heptanoate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Octyl Palmitate",
+    "normalized": "octyl palmitate",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Octyl Stearate",
+    "normalized": "octyl stearate",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Olea Europaea Fruit Oil",
+    "normalized": "olea europaea fruit oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Oleth 3",
+    "normalized": "oleth 3",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Oleyl Alcohol",
+    "normalized": "oleyl alcohol",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Olive Butter",
+    "normalized": "olive butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Olive Oil Peg-7 Esters",
+    "normalized": "olive oil peg 7 esters",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Padina Pavonica",
+    "normalized": "padina pavonica",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Palash Oil",
+    "normalized": "palash oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Palm Butter",
+    "normalized": "palm butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Palm Kernel Oil",
+    "normalized": "palm kernel oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Palm Oil",
+    "normalized": "palm oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Palmaria Palmata",
+    "normalized": "palmaria palmata",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Palmaria palmata Extract",
+    "normalized": "palmaria palmata extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Palmitic Acid",
+    "normalized": "palmitic acid",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Palmityl Acetate",
+    "normalized": "palmityl acetate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Palmityl Alcohol",
+    "normalized": "palmityl alcohol",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Papaya Seed Oil",
+    "normalized": "papaya seed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Parkii",
+    "normalized": "parkii",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Parkii Butter",
+    "normalized": "parkii butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Parkii Oil",
+    "normalized": "parkii oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Peanut Oil",
+    "normalized": "peanut oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "PEG 16 Lanolin",
+    "normalized": "peg 16 lanolin",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "PEG 200 Dilaurate",
+    "normalized": "peg 200 dilaurate",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "PEG-40 Hydrogenated Castor Oil",
+    "normalized": "peg 40 hydrogenated castor oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "PEG 8 Stearate",
+    "normalized": "peg 8 stearate",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Pelvetia Canaliculata Extract",
+    "normalized": "pelvetia canaliculata extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Pequot Oil",
+    "normalized": "pequot oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "PG Monostearate",
+    "normalized": "pg monostearate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Phaeodactylum Tricornutum Extract",
+    "normalized": "phaeodactylum tricornutum extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Phaeophyceae",
+    "normalized": "phaeophyceae",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Phytessence Wakame",
+    "normalized": "phytessence wakame",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Pilu Oil",
+    "normalized": "pilu oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Pine Nut Oil",
+    "normalized": "pine nut oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Plankton",
+    "normalized": "plankton",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Plankton Extract",
+    "normalized": "plankton extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Polyglyceryl-3 Diisostearate",
+    "normalized": "polyglyceryl 3 diisostearate",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Polyglyceryl-Diisostearate",
+    "normalized": "polyglyceryl diisostearate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Polysiphonia Elongata Extract",
+    "normalized": "polysiphonia elongata extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Porphyra",
+    "normalized": "porphyra",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Porphyra Umbilicalis",
+    "normalized": "porphyra umbilicalis",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Porphyridium",
+    "normalized": "porphyridium",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Porphyridium Cruentum",
+    "normalized": "porphyridium cruentum",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Porphyridium Cruentum Extract",
+    "normalized": "porphyridium cruentum extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Potassium Chloride",
+    "normalized": "potassium chloride",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Pouteria Sapota Seed Butter",
+    "normalized": "pouteria sapota seed butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "PPG-2 Myristyl",
+    "normalized": "ppg 2 myristyl",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "PPG 2 Myristyl Ether Propionate",
+    "normalized": "ppg 2 myristyl ether propionate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "PPG 2 Myristyl Propionate",
+    "normalized": "ppg 2 myristyl propionate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Propylene Glycol Monostearate",
+    "normalized": "propylene glycol monostearate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Pyrene Coal Tar Pitch",
+    "normalized": "pyrene coal tar pitch",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Rapeseed Oil",
+    "normalized": "rapeseed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Red Algae",
+    "normalized": "red algae",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Red Palm Oil",
+    "normalized": "red palm oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Rhodophyceae Extract",
+    "normalized": "rhodophyceae extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Rhodophyta",
+    "normalized": "rhodophyta",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Rockweed",
+    "normalized": "rockweed",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sargassum",
+    "normalized": "sargassum",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sargassum Filipendula Extract",
+    "normalized": "sargassum filipendula extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sargassum Fusiforme Extract",
+    "normalized": "sargassum fusiforme extract",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sclerocarya Birrea",
+    "normalized": "sclerocarya birrea",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sclerocarya Birrea Seed Oil",
+    "normalized": "sclerocarya birrea seed oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sea Fern",
+    "normalized": "sea fern",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sea Grass",
+    "normalized": "sea grass",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Seaweed",
+    "normalized": "seaweed",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Sesame Oil",
+    "normalized": "sesame oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sesame Seed",
+    "normalized": "sesame seed",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sesamum Indicum",
+    "normalized": "sesamum indicum",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Shark Liver Oil",
+    "normalized": "shark liver oil",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Shark Squalene",
+    "normalized": "shark squalene",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Shea",
+    "normalized": "shea",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Shea Butter",
+    "normalized": "shea butter",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Shea Nut Oil",
+    "normalized": "shea nut oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sheep Alcohol",
+    "normalized": "sheep alcohol",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "SLES",
+    "normalized": "sles",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "SLO",
+    "normalized": "slo",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "SLS",
+    "normalized": "sls",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sodium Alginate",
+    "normalized": "sodium alginate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sodium Dodecyl Sulfate",
+    "normalized": "sodium dodecyl sulfate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sodium Laureth Sulfate",
+    "normalized": "sodium laureth sulfate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Sodium Lauryl Ether Sulfate",
+    "normalized": "sodium lauryl ether sulfate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sodium Lauryl Sulfate",
+    "normalized": "sodium lauryl sulfate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Solulan 16",
+    "normalized": "solulan 16",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Sorbitan Oleate",
+    "normalized": "sorbitan oleate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Soybean",
+    "normalized": "soybean",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Soybean Oil",
+    "normalized": "soybean oil",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Sphacelaria",
+    "normalized": "sphacelaria",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Spirulina",
+    "normalized": "spirulina",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Squalene",
+    "normalized": "squalene",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Steareth 10",
+    "normalized": "steareth 10",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Stearic Acid Tea",
+    "normalized": "stearic acid tea",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Stearyl Heptanoate",
+    "normalized": "stearyl heptanoate",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Sulfated Castor Oil",
+    "normalized": "sulfated castor oil",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Sulfated Jojoba Oil",
+    "normalized": "sulfated jojoba oil",
+    "sources": [
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Sunflower Butter",
+    "normalized": "sunflower butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sweet Almond Butter",
+    "normalized": "sweet almond butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Sweet Almond Oil",
+    "normalized": "sweet almond oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Tallow",
+    "normalized": "tallow",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Tetradecyl Myristate",
+    "normalized": "tetradecyl myristate",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Theobroma Butter",
+    "normalized": "theobroma butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Theobroma Cocoa Seed Butter",
+    "normalized": "theobroma cocoa seed butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Theobroma Oil",
+    "normalized": "theobroma oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Triticum Aestivum",
+    "normalized": "triticum aestivum",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Triticum Vulgare",
+    "normalized": "triticum vulgare",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Tucuma Butter",
+    "normalized": "tucuma butter",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Turkey Red Oil",
+    "normalized": "turkey red oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ulva Fasciata",
+    "normalized": "ulva fasciata",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ulva Lactuca",
+    "normalized": "ulva lactuca",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Ulva Rhacodes",
+    "normalized": "ulva rhacodes",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Undaria",
+    "normalized": "undaria",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Undaria Pinnatifida",
+    "normalized": "undaria pinnatifida",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Vitamin E Oil",
+    "normalized": "vitamin e oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Vitellaria paradoxa",
+    "normalized": "vitellaria paradoxa",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Wakame",
+    "normalized": "wakame",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Wheat Germ Acid",
+    "normalized": "wheat germ acid",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Wheat Germ Glyceride",
+    "normalized": "wheat germ glyceride",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Wheat Germ Oil",
+    "normalized": "wheat germ oil",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Wool Alcohol",
+    "normalized": "wool alcohol",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Wool Fat",
+    "normalized": "wool fat",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Xanthophyta",
+    "normalized": "xanthophyta",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  },
+  {
+    "name": "Xylene",
+    "normalized": "xylene",
+    "sources": [
+      "Acne Clinic NYC",
+      "Face Reality"
+    ]
+  },
+  {
+    "name": "Zea Mays (Corn) Oil",
+    "normalized": "zea mays corn oil",
+    "sources": [
+      "Acne Clinic NYC"
+    ]
+  }
+]
