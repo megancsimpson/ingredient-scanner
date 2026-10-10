@@ -5,6 +5,15 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
+// Stop straight away with a clear message instead of failing on the first login
+for (const name of ['MONGODB_URI', 'JWT_SECRET']) {
+  if (!process.env[name]) {
+    console.error(`${name} is not set. Add it to backend/.env (see .env.example).`);
+    process.exit(1);
+  }
+}
+
+const authRoutes = require('./routes/auth');
 const analyzeRoutes = require('./routes/analyze');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -19,6 +28,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.use('/api/auth', authRoutes);
 app.use('/api/analyze', analyzeRoutes);
 
 // Must come after all routes so it can catch their errors

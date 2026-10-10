@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+const HttpError = require('../utils/httpError');
+
 /**
  * Catches any error thrown in a route and sends a JSON response, so the app
  * always gets { error: "..." } instead of an HTML error page.
@@ -15,6 +18,24 @@ function errorHandler(err, req, res, next) {
   // The request body was over express.json()'s size limit (100kb)
   if (err.type === 'entity.too.large') {
     return res.status(413).json({ error: 'Request is too large.' });
+  }
+
+  // Errors thrown on purpose by our services, with a message for the user
+  if (err instanceof HttpError) {
+    return res.status(err.status).json({ error: err.message });
+  }
+
+  // Mongoose schema validation failed, e.g. a missing name or a badly formed
+  // email. Send the first problem's message (set in the model).
+  if (err instanceof mongoose.Error.ValidationError) {
+    const [firstProblem] = Object.values(err.errors);
+    return res.status(400).json({ error: firstProblem.message });
+  }
+
+  // A unique field already exists. This can happen if two registrations
+  // with the same email arrive at the same moment.
+  if (err.code === 11000) {
+    return res.status(409).json({ error: 'An account with this email already exists.' });
   }
 
   // Anything else is unexpected: log the details on the server, but don't

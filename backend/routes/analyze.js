@@ -1,10 +1,9 @@
 const express = require('express');
 const { analyze } = require('../controllers/analyzeController');
+const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// TODO: protect with the auth middleware once login is built
-// (see docs/ARCHITECTURE.md, section 7.2)
-router.post('/', analyze);
+router.post('/', requireAuth, analyze);
 
 module.exports = router;

@@ -18,7 +18,7 @@ The app is an informational tool and does not replace professional skincare advi
 | Navigation | React Navigation | Auth stack and bottom tabs |
 | Back end | Node.js, Express | REST API and business logic |
 | Database | MongoDB (Atlas), Mongoose | Data storage, schemas and validation |
-| Authentication | Passport.js, bcrypt, JSON Web Tokens | Email/password login and protected routes |
+| Authentication | Passport.js (passport-jwt), bcrypt, JSON Web Tokens | Email/password login (checked with bcrypt in `authService`) and protected routes (checked by Passport's JWT strategy) |
 | OCR | Cloud OCR provider (e.g. Google Cloud Vision) | Converting ingredient photos to text |
 | Testing | Jest | Unit tests |
 
@@ -155,12 +155,12 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| POST | `/api/auth/register` | No | Create an account; returns a JWT |
-| POST | `/api/auth/login` | No | Log in; returns a JWT |
-| GET | `/api/auth/me` | Yes | Current user's profile |
-| DELETE | `/api/auth/me` | Yes | Delete the current user's account and all their saved products |
+| POST | `/api/auth/register` | No | `{ name, email, password }` in; `201 { token, user }` out. `400` invalid input, `409` email already registered |
+| POST | `/api/auth/login` | No | `{ email, password }` in; `{ token, user }` out. `401` with the same message whether the email or password is wrong |
+| GET | `/api/auth/me` | Yes | `{ user }`: the current user's profile |
+| DELETE | `/api/auth/me` | Yes | Delete the current user's account and all their saved products (to be built with saved products) |
 | POST | `/api/ocr` | Yes | Image in, extracted text out |
-| POST | `/api/analyze` | Yes (not yet enforced; added with auth) | `{ text }` in; `{ ingredients: [{ name, normalized }], flagged: [...] }` out. `400` if the text is missing, over 10,000 characters or has no ingredients |
+| POST | `/api/analyze` | Yes | `{ text }` in; `{ ingredients: [{ name, normalized }], flagged: [...] }` out. `400` if the text is missing, over 10,000 characters or has no ingredients |
 | GET | `/api/products` | Yes | The current user's saved products |
 | GET | `/api/products/:id` | Yes | One saved product (owner only) |
 | POST | `/api/products` | Yes | Save a product |
@@ -187,10 +187,12 @@ Because they are pure functions with no database or network access in their core
 | Field | Type | Notes |
 |---|---|---|
 | `_id` | ObjectId | Primary key |
-| `email` | String | Required, unique, lowercase |
-| `passwordHash` | String | bcrypt hash; never returned by the API |
-| `name` | String | Required |
-| `createdAt` | Date | Automatic timestamp |
+| `email` | String | Required, unique, lowercase, trimmed, basic format check |
+| `passwordHash` | String | bcrypt hash (12 rounds); `select: false` so queries leave it out unless asked, and removed from JSON |
+| `name` | String | Required, trimmed, max 100 characters |
+| `createdAt`, `updatedAt` | Date | Automatic timestamps |
+
+The API sends a user as `{ id, email, name, createdAt }`.
 
 ### SavedProduct
 | Field | Type | Notes |
@@ -226,9 +228,9 @@ The current list has 358 entries with names and sources only; no aliases or note
 
 ## 9. Security
 
-- **Passwords** are hashed with bcrypt and never stored or returned in plain text.
-- **JWTs** are signed with a server-side secret, set to expire, stored on the device in secure storage, and sent in the `Authorization: Bearer` header.
-- **Auth middleware** verifies the token on every protected route and attaches the user ID to the request.
+- **Passwords** must be 8–72 characters (bcrypt ignores anything past 72 bytes), are hashed with bcrypt and are never stored or returned in plain text. Login errors don't reveal whether an email has an account.
+- **JWTs** contain only the user ID (`sub`), are signed with `JWT_SECRET`, expire after 7 days, are stored on the device with `expo-secure-store` (iOS Keychain / Android Keystore), and are sent in the `Authorization: Bearer` header by `api.js`. If the server rejects a token (`401`), the app logs out automatically.
+- **Auth middleware** (`requireAuth`) verifies the token on every protected route, checks the user still exists, and attaches the user to the request as `req.user`.
 - **Ownership checks:** saved products are always queried and deleted by both product ID and user ID.
 - **Account deletion:** from the Profile tab after confirming. The server removes the User and all their SavedProducts; the app clears the stored token and returns to the login screen.
 - **Secrets** (MongoDB URI, JWT secret, OCR API key) are stored in a `.env` file excluded from Git during development, and in the hosting provider's environment variables once deployed.
@@ -294,6 +296,7 @@ ingredient-scanner/
 | Ingredient list compiled by estheticians | The spa's licensed estheticians compiled it from Acne Clinic NYC and Face Reality lists; reflects professional knowledge from the spa the app was built for |
 | Flagging instead of 1–5 ratings | The estheticians' source lists identify pore-clogging ingredients but don't rate them, so an ingredient is either flagged or not |
 | Keywords flag any ingredient that contains them (whole words) | The list includes keywords such as "Coconut", "Shea" and "Myristate" that are meant to cover every ingredient containing them; whole-word matching avoids false flags like "Laureth 4" in "Laureth 40" |
+| No admin login or roles | The developer maintains the ingredient list by editing `seed/data/ingredients.json` and running `npm run seed`, and manages accounts in MongoDB Atlas. Admin screens would add work and attack surface without solving a need |
 | One shared normalize function | Seed data and scanned text are normalized the same way, so formatting differences ("D&C Red 17" vs. "D & C Red # 17") don't cause missed matches |
 | Private repo, deployed app | Deployment is a project requirement; the repo stays private as agreed with the professor. During development the app runs locally and through Expo |
 
@@ -301,6 +304,10 @@ ingredient-scanner/
 
 - **OCR provider.** A cloud provider such as Google Cloud Vision is planned; to be confirmed during development.
 - **Hosting.** The app will be deployed; where the Express API runs and how the mobile app is distributed are still to be decided.
+- **Email: forgot password and welcome email (to come back to; forgot password needed before deployment).** There is currently no way to recover an account, so a deployed app could lock users out for good.
+  - **Forgot password plan:** the user taps "Forgot password?" on LoginScreen and enters their email. The server emails a 6-digit code that expires after about 15 minutes, and the user enters the code and a new password in the app. A code is used instead of an email link because a link would need deep-link setup on both iOS and Android to open the right screen. New endpoints would be `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`, with the code stored hashed on the User and limited attempts. The forgot-password response should be the same whether or not the email has an account.
+  - **Welcome email (optional):** sent after registration, using the same email setup. Registration should still succeed if the email fails to send.
+  - **Email provider (to decide):** Gmail with an app password via `nodemailer` (free, no domain needed, daily sending limits) or a service such as Resend or SendGrid (more reliable; free tiers usually require a verified domain). Credentials go in `.env` like the other secrets. Keep the sending code in one `emailService` so the provider can be swapped.
 
 ## 14. Future improvements (out of scope for now)
 
