@@ -52,8 +52,7 @@ function loadIngredients(filePath) {
       aliases: (item.aliases || []).map(normalizeIngredient).filter(Boolean),
       sources: item.sources || [],
     };
-    // Only include optional fields when the list provides them
-    if (item.rating !== undefined) doc.rating = item.rating;
+    // Only include notes when the list provides them
     if (item.notes) doc.notes = item.notes;
 
     byNormalized.set(normalized, doc);

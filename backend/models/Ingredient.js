@@ -30,14 +30,6 @@ const ingredientSchema = new mongoose.Schema(
       index: true,
     },
 
-    // 1–5 pore-clogging rating. Optional until the ratings vs. flagging
-    // decision is made (see docs/ARCHITECTURE.md, "Open decisions").
-    rating: {
-      type: Number,
-      min: 1,
-      max: 5,
-    },
-
     // Which reference list(s) the ingredient came from
     sources: {
       type: [String],

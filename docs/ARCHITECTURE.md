@@ -6,7 +6,7 @@
 
 ## 1. Overview
 
-Ingredient Scanner is a mobile app that checks skincare and cosmetic products for potentially pore-clogging ingredients. A user photographs an ingredient list (or pastes one in), the app converts the photo to text with OCR, and the server compares each ingredient against a database of pore-clogging ingredients rated 1–5. Users can save checked products to review later and search the ingredient database directly.
+Ingredient Scanner is a mobile app that checks skincare and cosmetic products for potentially pore-clogging ingredients. A user photographs an ingredient list (or pastes one in), the app converts the photo to text with OCR, and the server compares each ingredient against a database of known pore-clogging ingredients and flags any matches. Users can save checked products to review later and search the ingredient database directly.
 
 The app is an informational tool and does not replace professional skincare advice.
 
@@ -66,7 +66,7 @@ App
             └── Profile tab
                 ├── ProfileScreen
                 │   └── DeleteAccountDialog (overlay)
-                ├── RatingGuideScreen
+                ├── FlaggingGuideScreen
                 └── AboutScreen
 ```
 
@@ -82,23 +82,22 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | ScanHomeScreen | Choose between taking a photo or pasting an ingredient list |
 | CameraScreen | Capture a photo and send it for OCR |
 | ReviewTextScreen | Let the user correct OCR mistakes (or paste text) before analysis |
-| ResultsScreen | Show flagged ingredients, ratings, the full list and a disclaimer |
+| ResultsScreen | Show flagged ingredients, the full list and a disclaimer |
 | SaveProductModal | Collect product name (required) and brand (optional), then save |
 | SavedProductsScreen | List the user's saved products, with an empty state |
 | ProductDetailScreen | Show a saved product's results; delete the product |
 | IngredientSearchScreen | Search the ingredient database |
-| IngredientDetailScreen | Show one ingredient's rating, alternate names and notes |
+| IngredientDetailScreen | Show one ingredient's alternate names, source list(s) and notes |
 | ProfileScreen | Account info, links to the guide and About, log out, delete account |
 | DeleteAccountDialog | Confirm permanent deletion of the account and all saved products |
-| RatingGuideScreen | Explain the 1–5 rating scale |
+| FlaggingGuideScreen | Explain how flagging works: what a flag means and where the ingredient list comes from |
 | AboutScreen | App purpose, data source, full disclaimer, version |
 
 ### 4.3 Reusable components
 
 | Component | Used in | Purpose |
 |---|---|---|
-| FlaggedIngredientCard | ResultsScreen, ProductDetailScreen, IngredientSearchScreen | One ingredient with its rating |
-| RatingBadge | FlaggedIngredientCard, IngredientDetailScreen, RatingGuideScreen | Color-coded 1–5 rating |
+| FlaggedIngredientCard | ResultsScreen, ProductDetailScreen, IngredientSearchScreen | One flagged ingredient with its source list(s) |
 | IngredientList | ResultsScreen, ProductDetailScreen | Full parsed ingredient list |
 | SavedProductRow | SavedProductsScreen | One saved product in the list |
 | SearchBar | IngredientSearchScreen | Search input |
@@ -131,7 +130,7 @@ Context plus hooks is sufficient for an app of this size. A state library such a
 5. **Review.** The user corrects any OCR errors. (Users who paste text start here.)
 6. **Analyze request.** The app sends `POST /api/analyze` with the final text.
 7. **Parse and match.** `ingredientParser` splits and normalizes the text; `ingredientMatcher` queries the Ingredient collection by name and aliases.
-8. **Analyze response.** The server returns the parsed list and flagged ingredients with ratings (`200`).
+8. **Analyze response.** The server returns the parsed list and flagged ingredients (`200`).
 9. **Results.** `ResultsScreen` displays the results. Nothing is saved yet.
 10. **Save form.** The user taps Save and enters a product name and optional brand in `SaveProductModal`.
 11. **Save request.** The app sends `POST /api/products` with the name, brand and results.
@@ -173,8 +172,10 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 
 Ingredient matching is the core logic of the app and lives in two pure functions:
 
-- **`ingredientParser`** splits the text into individual ingredients (by commas) and normalizes each one: lowercase, trimmed whitespace, consistent handling of parentheses and slash-separated names (e.g. "Water/Aqua/Eau").
-- **`ingredientMatcher`** compares the normalized list against each Ingredient's `name` and `aliases`, returning matches with their ratings.
+- **`ingredientParser`** splits the text into individual ingredients (by commas) and normalizes each one with `normalizeIngredient`, with consistent handling of parentheses and slash-separated names (e.g. "Water/Aqua/Eau").
+- **`ingredientMatcher`** compares the normalized list against each Ingredient's `normalized` name and `aliases`, returning the ingredients that are flagged.
+
+Both build on **`normalizeIngredient`** (`backend/utils/normalize.js`), which lowercases a name, replaces anything other than letters, numbers and "+" with a space, and collapses spaces (e.g. "D&C Red # 17" → "d c red 17"). The seed script uses the same function, so scanned names and stored names are always compared in the same form.
 
 Because they are pure functions with no database or network access in their core logic, they are straightforward to unit test with Jest.
 
@@ -198,7 +199,7 @@ Because they are pure functions with no database or network access in their core
 | `brand` | String | Optional |
 | `rawText` | String | Ingredient text as analyzed |
 | `parsedIngredients` | [String] | Normalized ingredient list |
-| `flagged` | [{ name, rating }] | Snapshot of flagged ingredients at save time |
+| `flagged` | [{ name, sources }] | Snapshot of flagged ingredients at save time |
 | `source` | String | Enum: `photo`, `paste` |
 | `createdAt` | Date | Automatic timestamp |
 
@@ -206,16 +207,20 @@ Because they are pure functions with no database or network access in their core
 | Field | Type | Notes |
 |---|---|---|
 | `_id` | ObjectId | Primary key |
-| `name` | String | Required, unique, normalized |
-| `aliases` | [String] | Other names found on labels |
-| `rating` | Number | Required, 1–5 |
+| `name` | String | Required; display name as written in the source list (e.g. "Coconut Oil") |
+| `normalized` | String | Required, unique, indexed; name run through `normalizeIngredient` (e.g. "coconut oil"), used for matching |
+| `aliases` | [String] | Other names found on labels, stored normalized; indexed |
+| `sources` | [String] | Which reference list(s) the ingredient came from (e.g. "Acne Clinic NYC", "Face Reality") |
 | `notes` | String | Optional |
+| `createdAt`, `updatedAt` | Date | Automatic timestamps |
 
-The Ingredient collection is reference data loaded by a seed script from a list compiled by licensed estheticians. Users cannot create or edit ingredients.
+The Ingredient collection is reference data. Licensed estheticians at the spa compiled the list from published pore-clogging ingredient lists (Acne Clinic NYC and Face Reality), and each ingredient records which list(s) it came from in `sources`. The list is stored in `backend/seed/data/ingredients.json` and loaded with `npm run seed`. The seed script normalizes each name, merges duplicates (combining their sources) and upserts by `normalized`, so it is safe to run more than once; `npm run seed -- --reset` clears the collection first. Users cannot create or edit ingredients.
+
+The current list has 358 entries with names and sources only; no aliases or notes yet.
 
 ### Relationships
 - **User → SavedProduct: one to many.** Each saved product belongs to one user; queries are always filtered by the logged-in user's ID. Deleting an account also deletes all of that user's saved products.
-- **SavedProduct → Ingredient: snapshot, not reference.** `flagged` stores copies of names and ratings rather than links. Saved products keep showing what the user saw when they saved them, and loading them needs no extra lookups. Trade-off: saved products don't pick up rating changes automatically.
+- **SavedProduct → Ingredient: snapshot, not reference.** `flagged` stores copies of names and sources rather than links. Saved products keep showing what the user saw when they saved them, and loading them needs no extra lookups. Trade-off: saved products don't pick up changes to the ingredient list automatically.
 
 ## 9. Security
 
@@ -249,7 +254,8 @@ ingredient-scanner/
 │   ├── services/            ocrService, ingredientParser, ingredientMatcher
 │   ├── models/              User, SavedProduct, Ingredient
 │   ├── middleware/          auth.js, errorHandler.js
-│   ├── seed/                ingredient data and seed script
+│   ├── seed/                data/ingredients.json and seedIngredients.js
+│   ├── utils/               normalize.js (shared by seed script and parser)
 │   └── tests/               Jest unit tests
 ├── docs/
 │   └── ARCHITECTURE.md
@@ -283,12 +289,13 @@ ingredient-scanner/
 | Context and hooks instead of Redux | Only authentication state is global; a state library isn't justified at this size |
 | Expo | Simplifies setup, camera access and testing on real devices |
 | Account deletion with confirmation | Users control their own data; app stores expect it; confirmation prevents accidents |
-| Ingredient list compiled by estheticians | Reflects professional knowledge from the spa the app was built for |
+| Ingredient list compiled by estheticians | The spa's licensed estheticians compiled it from Acne Clinic NYC and Face Reality lists; reflects professional knowledge from the spa the app was built for |
+| Flagging instead of 1–5 ratings | The estheticians' source lists identify pore-clogging ingredients but don't rate them, so an ingredient is either flagged or not |
+| One shared normalize function | Seed data and scanned text are normalized the same way, so formatting differences ("D&C Red 17" vs. "D & C Red # 17") don't cause missed matches |
 | Private repo, deployed app | Deployment is a project requirement; the repo stays private as agreed with the professor. During development the app runs locally and through Expo |
 
 ## 13. Open decisions
 
-- **Ratings vs. flagging.** The data model currently stores a 1–5 rating per ingredient. If the estheticians' list doesn't include ratings, the `rating` field will be removed, ingredients will simply be flagged, and RatingGuideScreen will become a short explanation of how flagging works.
 - **OCR provider.** A cloud provider such as Google Cloud Vision is planned; to be confirmed during development.
 - **Hosting.** The app will be deployed; where the Express API runs and how the mobile app is distributed are still to be decided.
 
@@ -297,7 +304,7 @@ ingredient-scanner/
 - Google and Apple sign-in
 - Edit profile and change password
 - Privacy policy screen
-- Re-check a saved product against the latest ingredient ratings
+- Re-check a saved product against the latest ingredient list
 - Shared, searchable database of products submitted by users
 - Social features for sharing and discovering products with friends
 - Barcode scanning to look up products

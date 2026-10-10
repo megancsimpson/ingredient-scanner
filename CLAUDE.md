@@ -6,8 +6,8 @@ This file gives Claude Code the context for this repository: the project backgro
 
 ## Project context
 
-- **What it is:** A capstone school project for an AI Software Development bootcamp — a React Native mobile app that checks skincare and cosmetic ingredient lists (photographed via OCR or pasted as text) against a database of pore-clogging ingredients rated 1–5.
-- **Where the idea came from:** Working with the estheticians at a day spa. The ingredient list is compiled by licensed estheticians from that spa.
+- **What it is:** A capstone school project for an AI Software Development bootcamp — a React Native mobile app that checks skincare and cosmetic ingredient lists (photographed via OCR or pasted as text) against a database of known pore-clogging ingredients, flagging any matches (no ratings).
+- **Where the idea came from:** Working with the estheticians at a day spa. The ingredient list was compiled by licensed estheticians from that spa, using the Acne Clinic NYC and Face Reality pore-clogging ingredient lists.
 - **Deliverables:** Design, development and testing phases; a deployed app, a GitHub repo, a README and a devlog.
 - **Repo and deployment:** The GitHub repo stays **private** (agreed with the professor). The app will be deployed, as required by the project. During development it runs locally and on real devices through Expo.
 - **Developer level:** Learning JavaScript and full-stack development. Explain non-obvious code and decisions clearly, and prefer readable, conventional code over clever shortcuts.
@@ -21,7 +21,8 @@ This file gives Claude Code the context for this repository: the project backgro
 - Never commit secrets. MongoDB URI, JWT secret and OCR API key live in `.env` (gitignored) locally, and in the hosting provider's environment variables once deployed.
 - Saved products are always queried and deleted by **both** product ID and user ID.
 - The app is informational only — keep the disclaimer on ResultsScreen and AboutScreen.
-- Three decisions are still open (see section 13 of the architecture): ratings vs. simple flagging, the OCR provider, and hosting. Don't hard-code assumptions that make these hard to change.
+- Ingredients are flagged, not rated. Don't add ratings or a `rating` field.
+- Two decisions are still open (see section 13 of the architecture): the OCR provider and hosting. Don't hard-code assumptions that make these hard to change.
 
 ---
 
