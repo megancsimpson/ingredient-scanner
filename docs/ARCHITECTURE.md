@@ -172,8 +172,8 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 
 Ingredient matching is the core logic of the app and lives in two pure functions:
 
-- **`ingredientParser`** splits the text into individual ingredients (by commas) and normalizes each one with `normalizeIngredient`, with consistent handling of parentheses and slash-separated names (e.g. "Water/Aqua/Eau").
-- **`ingredientMatcher`** compares the normalized list against each Ingredient's `normalized` name and `aliases`, returning the ingredients that are flagged.
+- **`ingredientParser`** (`parseIngredients(text)`) splits the text into individual ingredients and normalizes each one with `normalizeIngredient`. It splits on commas, semicolons and bullets (or on line breaks when the list has no commas), never inside parentheses. It removes headings ("Ingredients:", "Inactive Ingredients:", "May Contain (+/-):"), percentages, footnotes ("*Certified Organic") and duplicates. Each ingredient is returned as `{ name, normalized, variants }`: `name` for display, `normalized` for saving, and `variants` listing every name the matcher should check. For example, "Water/Aqua/Eau" gives `water`, `aqua` and `eau`, and "Zea Mays (Corn) Oil" gives the full name, the name without "(Corn)", and `corn`.
+- **`ingredientMatcher`** (`matchIngredients(parsedIngredients, dbIngredients)`) compares the parsed list against each Ingredient's `normalized` name and `aliases`. An ingredient is flagged when any of its variants **contains a database name as whole words**. A keyword such as "Coconut" therefore flags "Cocos Nucifera (Coconut) Oil" and "Coconut Alkanes", but "Laureth 4" does not flag "Laureth 40". It returns the flagged ingredients in label order as `{ name, normalized, sources, matches }`, where `matches` lists each database ingredient that caused the flag and `sources` combines their source lists. The caller loads the Ingredient documents and passes them in, so the matcher itself never touches the database.
 
 Both build on **`normalizeIngredient`** (`backend/utils/normalize.js`), which lowercases a name, replaces anything other than letters, numbers and "+" with a space, and collapses spaces (e.g. "D&C Red # 17" → "d c red 17"). The seed script uses the same function, so scanned names and stored names are always compared in the same form.
 
@@ -291,6 +291,7 @@ ingredient-scanner/
 | Account deletion with confirmation | Users control their own data; app stores expect it; confirmation prevents accidents |
 | Ingredient list compiled by estheticians | The spa's licensed estheticians compiled it from Acne Clinic NYC and Face Reality lists; reflects professional knowledge from the spa the app was built for |
 | Flagging instead of 1–5 ratings | The estheticians' source lists identify pore-clogging ingredients but don't rate them, so an ingredient is either flagged or not |
+| Keywords flag any ingredient that contains them (whole words) | The list includes keywords such as "Coconut", "Shea" and "Myristate" that are meant to cover every ingredient containing them; whole-word matching avoids false flags like "Laureth 4" in "Laureth 40" |
 | One shared normalize function | Seed data and scanned text are normalized the same way, so formatting differences ("D&C Red 17" vs. "D & C Red # 17") don't cause missed matches |
 | Private repo, deployed app | Deployment is a project requirement; the repo stays private as agreed with the professor. During development the app runs locally and through Expo |
 
