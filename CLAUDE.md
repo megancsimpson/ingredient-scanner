@@ -21,6 +21,7 @@ This file gives Claude Code the context for this repository: the project backgro
 - Never commit secrets. MongoDB URI, JWT secret and OCR API key live in `.env` (gitignored) locally, and in the hosting provider's environment variables once deployed.
 - Saved products are always queried and deleted by **both** product ID and user ID.
 - The app is informational only — keep the disclaimer on ResultsScreen and AboutScreen.
+- The app must work on **both iPhone and Android**. Consider both platforms for every UI/UX change: keyboard behavior, safe areas (notch, home indicator, Android navigation bar), headers and tab bars, fonts, shadows (iOS `shadow*` vs. Android `elevation`) and permissions such as the camera. Use `Platform.OS` only where behavior genuinely differs, and explain why in a comment. The developer tests on an iPhone; when a change can't be checked on Android, say so.
 - Ingredients are flagged, not rated. Don't add ratings or a `rating` field.
 - Two decisions are still open (see section 13 of the architecture): the OCR provider and hosting. Don't hard-code assumptions that make these hard to change.
 
