@@ -1,3 +1,6 @@
+# Dependencies (reinstalled with npm install)
+node_modules/
+
 # Environment files (keep secrets out of Git)
 .env
 .env.*
