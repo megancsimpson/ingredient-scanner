@@ -148,7 +148,7 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 | Routes | Map URLs and HTTP methods to controllers; apply middleware |
 | Middleware | Cross-cutting concerns: authentication, error handling |
 | Controllers | Read the request, call services, send the response |
-| Services | Business logic: OCR, ingredient parsing and matching |
+| Services | Business logic: OCR, ingredient parsing and matching. `analysisService` loads ingredients from MongoDB and runs the parser and matcher |
 | Models | Mongoose schemas, validation and database access |
 
 ### 7.2 API endpoints
@@ -160,13 +160,15 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 | GET | `/api/auth/me` | Yes | Current user's profile |
 | DELETE | `/api/auth/me` | Yes | Delete the current user's account and all their saved products |
 | POST | `/api/ocr` | Yes | Image in, extracted text out |
-| POST | `/api/analyze` | Yes | Ingredient text in, parsed list and flagged ingredients out |
+| POST | `/api/analyze` | Yes (not yet enforced; added with auth) | `{ text }` in; `{ ingredients: [{ name, normalized }], flagged: [...] }` out. `400` if the text is missing, over 10,000 characters or has no ingredients |
 | GET | `/api/products` | Yes | The current user's saved products |
 | GET | `/api/products/:id` | Yes | One saved product (owner only) |
 | POST | `/api/products` | Yes | Save a product |
 | DELETE | `/api/products/:id` | Yes | Delete a saved product (owner only) |
 | GET | `/api/ingredients?search=` | Yes | Search the ingredient database |
 | GET | `/api/ingredients/:id` | Yes | One ingredient's details |
+
+Every error response has the same shape, `{ "error": "message for the user" }`. The `errorHandler` middleware catches unexpected errors, logs them on the server and returns a generic `500` message so internal details never reach the app.
 
 ### 7.3 Ingredient parsing and matching
 
@@ -251,7 +253,7 @@ ingredient-scanner/
 │   ├── config/              database connection, Passport setup
 │   ├── routes/              auth, ocr, analyze, products, ingredients
 │   ├── controllers/         one per route group
-│   ├── services/            ocrService, ingredientParser, ingredientMatcher
+│   ├── services/            ocrService, analysisService, ingredientParser, ingredientMatcher
 │   ├── models/              User, SavedProduct, Ingredient
 │   ├── middleware/          auth.js, errorHandler.js
 │   ├── seed/                data/ingredients.json and seedIngredients.js

@@ -5,6 +5,9 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
+const analyzeRoutes = require('./routes/analyze');
+const errorHandler = require('./middleware/errorHandler');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -15,6 +18,11 @@ app.use(express.json());
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+app.use('/api/analyze', analyzeRoutes);
+
+// Must come after all routes so it can catch their errors
+app.use(errorHandler);
 
 mongoose
   .connect(process.env.MONGODB_URI)
