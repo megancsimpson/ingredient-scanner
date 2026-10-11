@@ -45,15 +45,18 @@ async function create(req, res) {
 /**
  * PATCH /api/products/:id
  * Body:     { productName?, brand?, category? } (only the fields being changed;
- *           null or "" removes brand or category)
- * Response: 200 { product }, 400 invalid input, 404 if it isn't the user's
+ *           null or "" removes brand or category), onDuplicate? ('replace' | 'keep')
+ * Response: 200 { product }, 400 invalid input, 404 if it isn't the user's,
+ *           409 { error, duplicate } if the new name and brand match another
+ *           saved product and onDuplicate isn't set
  */
 async function update(req, res) {
-  const { productName, brand, category } = req.body || {};
+  const { productName, brand, category, onDuplicate } = req.body || {};
   const product = await productService.updateProduct(req.user._id, req.params.id, {
     productName,
     brand,
     category,
+    onDuplicate,
   });
   res.json({ product });
 }

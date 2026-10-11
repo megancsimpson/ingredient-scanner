@@ -170,14 +170,20 @@ export function saveProduct({ productName, brand, category, rawText, source, onD
 /**
  * Changes a saved product's name, brand and/or category. An empty brand or
  * a null category removes it.
+ *
+ * Like saveProduct, throws a 409 with error.data.duplicate if the new name
+ * and brand match another saved product; call again with onDuplicate
+ * 'replace' (delete the other one) or 'keep' (keep both).
+ *
  * @param {string} id
- * @param {{ productName?: string, brand?: string, category?: string | null }} changes
+ * @param {{ productName?: string, brand?: string, category?: string | null,
+ *           onDuplicate?: 'replace' | 'keep' }} changes
  * @returns {Promise<{ product: SavedProduct }>}
  */
-export function updateSavedProduct(id, { productName, brand, category }) {
+export function updateSavedProduct(id, { productName, brand, category, onDuplicate }) {
   return request(`/api/products/${encodeURIComponent(id)}`, {
     method: 'PATCH',
-    body: JSON.stringify({ productName, brand, category }),
+    body: JSON.stringify({ productName, brand, category, onDuplicate }),
   });
 }
 

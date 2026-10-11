@@ -38,8 +38,11 @@ async function getProduct(userId, productId) {
  * null. Capitals and spaces at either end are ignored, so "Night Cream" by
  * "Acme" matches "night cream " by "ACME". A product with no brand only
  * matches another with no brand.
+ *
+ * excludeId leaves out one product: when editing, the product being edited
+ * isn't a duplicate of itself.
  */
-async function findDuplicate(userId, productName, brand) {
+async function findDuplicate(userId, productName, brand, excludeId) {
   const name = typeof productName === 'string' ? productName.trim() : '';
   if (!name) return null;
   const trimmedBrand = typeof brand === 'string' ? brand.trim() : '';
@@ -50,6 +53,7 @@ async function findDuplicate(userId, productName, brand) {
       productName: name,
       // { brand: null } matches products saved without a brand
       brand: trimmedBrand || null,
+      ...(excludeId && { _id: { $ne: excludeId } }),
     })
       // Compare ignoring capitals ("strength: 2" means letters and accents
       // count, but not upper/lower case)
@@ -61,6 +65,27 @@ async function findDuplicate(userId, productName, brand) {
 // What the app can ask for when a product with the same name and brand is
 // already saved
 const DUPLICATE_OPTIONS = ['replace', 'keep'];
+
+function checkDuplicateOption(onDuplicate) {
+  if (onDuplicate !== undefined && !DUPLICATE_OPTIONS.includes(onDuplicate)) {
+    throw new HttpError(400, 'onDuplicate must be "replace" or "keep".');
+  }
+}
+
+/**
+ * The 409 sent when a duplicate is found. The app shows the existing
+ * product's details and asks whether to replace it or keep both.
+ */
+function duplicateError(duplicate) {
+  return new HttpError(409, 'You already have a product with this name saved.', {
+    duplicate: {
+      id: duplicate.id,
+      productName: duplicate.productName,
+      brand: duplicate.brand,
+      createdAt: duplicate.createdAt,
+    },
+  });
+}
 
 /**
  * Saves a product for the user.
@@ -86,22 +111,10 @@ async function createProduct(
   if (rawText.length > MAX_TEXT_LENGTH) {
     throw new HttpError(400, `Ingredient list is too long (max ${MAX_TEXT_LENGTH} characters).`);
   }
-  if (onDuplicate !== undefined && !DUPLICATE_OPTIONS.includes(onDuplicate)) {
-    throw new HttpError(400, 'onDuplicate must be "replace" or "keep".');
-  }
+  checkDuplicateOption(onDuplicate);
 
   const duplicate = onDuplicate === 'keep' ? null : await findDuplicate(userId, productName, brand);
-  if (duplicate && onDuplicate === undefined) {
-    // The app shows this to the user and asks whether to replace or keep both
-    throw new HttpError(409, 'You already have a product with this name saved.', {
-      duplicate: {
-        id: duplicate.id,
-        productName: duplicate.productName,
-        brand: duplicate.brand,
-        createdAt: duplicate.createdAt,
-      },
-    });
-  }
+  if (duplicate && onDuplicate === undefined) throw duplicateError(duplicate);
 
   const { ingredients, flagged } = await analyzeIngredientText(rawText);
   if (ingredients.length === 0) {
@@ -142,9 +155,15 @@ async function createProduct(
  * Changes a saved product's name, brand and/or category, if it belongs to
  * the user. Only these fields can be edited; the results stay as they were
  * saved. An empty or null brand or category removes it.
+ *
+ * If the new name and brand match another saved product, this throws a 409
+ * like createProduct, unless onDuplicate says what to do:
+ *   'replace': save the edit and delete the other product
+ *   'keep':    save the edit and keep both
  */
-async function updateProduct(userId, productId, { productName, brand, category }) {
+async function updateProduct(userId, productId, { productName, brand, category, onDuplicate }) {
   if (!mongoose.isValidObjectId(productId)) throw notFound();
+  checkDuplicateOption(onDuplicate);
 
   // Only change the fields that were sent, and ignore anything else in the
   // request (e.g. "user" or "flagged") so those can't be changed
@@ -161,6 +180,18 @@ async function updateProduct(userId, productId, { productName, brand, category }
     throw new HttpError(400, 'Nothing to update.');
   }
 
+  // Only a new name or brand can create a duplicate
+  let duplicate = null;
+  if ((productName !== undefined || brand !== undefined) && onDuplicate !== 'keep') {
+    const current = await SavedProduct.findOne({ _id: productId, user: userId });
+    if (!current) throw notFound();
+    // The name and brand the product will have after this edit
+    const newName = productName !== undefined ? productName : current.productName;
+    const newBrand = brand !== undefined ? brand : current.brand;
+    duplicate = await findDuplicate(userId, newName, newBrand, current._id);
+    if (duplicate && onDuplicate === undefined) throw duplicateError(duplicate);
+  }
+
   const product = await SavedProduct.findOneAndUpdate(
     { _id: productId, user: userId },
     // Leave out an empty $set or $unset, which older MongoDB versions reject
@@ -173,6 +204,12 @@ async function updateProduct(userId, productId, { productName, brand, category }
     { returnDocument: 'after', runValidators: true }
   );
   if (!product) throw notFound();
+
+  // Replacing: delete the other product only once the edit is saved
+  if (duplicate && onDuplicate === 'replace') {
+    await SavedProduct.deleteOne({ _id: duplicate._id, user: userId });
+  }
+
   return product;
 }
 
