@@ -23,17 +23,21 @@ async function getOne(req, res) {
 
 /**
  * POST /api/products
- * Body:     { productName, brand?, category?, rawText, source? ('photo' | 'paste') }
- * Response: 201 { product }, 400 invalid input
+ * Body:     { productName, brand?, category?, rawText, source? ('photo' | 'paste'),
+ *             onDuplicate? ('replace' | 'keep') }
+ * Response: 201 { product }, 400 invalid input,
+ *           409 { error, duplicate: { id, productName, brand, createdAt } } if a
+ *           product with the same name and brand is saved and onDuplicate isn't set
  */
 async function create(req, res) {
-  const { productName, brand, category, rawText, source } = req.body || {};
+  const { productName, brand, category, rawText, source, onDuplicate } = req.body || {};
   const product = await productService.createProduct(req.user._id, {
     productName,
     brand,
     category,
     rawText,
     source,
+    onDuplicate,
   });
   res.status(201).json({ product });
 }

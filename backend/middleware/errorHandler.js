@@ -22,7 +22,7 @@ function errorHandler(err, req, res, next) {
 
   // Errors thrown on purpose by our services, with a message for the user
   if (err instanceof HttpError) {
-    return res.status(err.status).json({ error: err.message });
+    return res.status(err.status).json({ error: err.message, ...err.details });
   }
 
   // Mongoose schema validation failed, e.g. a missing name or a badly formed

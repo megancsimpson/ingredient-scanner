@@ -34,19 +34,73 @@ async function getProduct(userId, productId) {
 }
 
 /**
+ * The user's most recent saved product with the same name and brand, or
+ * null. Capitals and spaces at either end are ignored, so "Night Cream" by
+ * "Acme" matches "night cream " by "ACME". A product with no brand only
+ * matches another with no brand.
+ */
+async function findDuplicate(userId, productName, brand) {
+  const name = typeof productName === 'string' ? productName.trim() : '';
+  if (!name) return null;
+  const trimmedBrand = typeof brand === 'string' ? brand.trim() : '';
+
+  return (
+    SavedProduct.findOne({
+      user: userId,
+      productName: name,
+      // { brand: null } matches products saved without a brand
+      brand: trimmedBrand || null,
+    })
+      // Compare ignoring capitals ("strength: 2" means letters and accents
+      // count, but not upper/lower case)
+      .collation({ locale: 'en', strength: 2 })
+      .sort({ createdAt: -1 })
+  );
+}
+
+// What the app can ask for when a product with the same name and brand is
+// already saved
+const DUPLICATE_OPTIONS = ['replace', 'keep'];
+
+/**
  * Saves a product for the user.
  *
  * The app sends the ingredient text, not the results: the server analyzes
  * it again here, so saved results always come from the server and can't be
  * made up by a modified app. It's the same analysis /api/analyze ran, so
  * the user sees the same results they just looked at.
+ *
+ * If the user already has a product with the same name and brand, this
+ * throws a 409 with the existing product's details, unless onDuplicate says
+ * what to do:
+ *   'replace': save the new product and delete the old one
+ *   'keep':    save the new product as well
  */
-async function createProduct(userId, { productName, brand, category, rawText, source }) {
+async function createProduct(
+  userId,
+  { productName, brand, category, rawText, source, onDuplicate }
+) {
   if (typeof rawText !== 'string' || rawText.trim() === '') {
     throw new HttpError(400, 'Ingredient list is missing.');
   }
   if (rawText.length > MAX_TEXT_LENGTH) {
     throw new HttpError(400, `Ingredient list is too long (max ${MAX_TEXT_LENGTH} characters).`);
+  }
+  if (onDuplicate !== undefined && !DUPLICATE_OPTIONS.includes(onDuplicate)) {
+    throw new HttpError(400, 'onDuplicate must be "replace" or "keep".');
+  }
+
+  const duplicate = onDuplicate === 'keep' ? null : await findDuplicate(userId, productName, brand);
+  if (duplicate && onDuplicate === undefined) {
+    // The app shows this to the user and asks whether to replace or keep both
+    throw new HttpError(409, 'You already have a product with this name saved.', {
+      duplicate: {
+        id: duplicate.id,
+        productName: duplicate.productName,
+        brand: duplicate.brand,
+        createdAt: duplicate.createdAt,
+      },
+    });
   }
 
   const { ingredients, flagged } = await analyzeIngredientText(rawText);
@@ -58,7 +112,7 @@ async function createProduct(userId, { productName, brand, category, rawText, so
   // (models/SavedProduct.js).
   // Database IDs in "matches" aren't stored: the snapshot shouldn't point
   // at ingredients that might be changed or removed later.
-  return SavedProduct.create({
+  const product = await SavedProduct.create({
     user: userId,
     productName,
     // Leave optional fields out entirely when empty
@@ -74,6 +128,14 @@ async function createProduct(userId, { productName, brand, category, rawText, so
     })),
     source,
   });
+
+  // Replacing: delete the old product only once the new one is saved, so a
+  // failed save never loses the old one
+  if (duplicate && onDuplicate === 'replace') {
+    await SavedProduct.deleteOne({ _id: duplicate._id, user: userId });
+  }
+
+  return product;
 }
 
 /**

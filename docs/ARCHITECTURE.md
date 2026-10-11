@@ -84,7 +84,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | CameraScreen | Capture a photo and send it for OCR |
 | ReviewTextScreen | Let the user correct OCR mistakes (or paste text) before analysis |
 | ResultsScreen | Show flagged ingredients, the full list and a disclaimer. "Edit" in the header shows × buttons to remove pieces that aren't ingredients (e.g. pasted website text), with "Undo all changes". Removing an ingredient removes its flag; saving sends the remaining names joined with ", " |
-| SaveProductModal | Collect product name (required), brand and category (optional), then save. A stack screen with `presentation: 'modal'`: a sheet on iOS (with a Cancel button), a full screen on Android |
+| SaveProductModal | Collect product name (required), brand and category (optional), then save. If the same name and brand is already saved, asks "Already saved" with Cancel, Keep both or Replace (the phone's own alert; three buttons is Android's maximum). A stack screen with `presentation: 'modal'`: a sheet on iOS (with a Cancel button), a full screen on Android |
 | SavedProductsScreen | List the user's saved products, with an empty state. Sort by newest or name, group by brand or category, or show only "Non pore-clogging" products (no flagged ingredients) (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
 | ProductDetailScreen | Show a saved product's results; Edit button in the header; delete the product |
 | EditProductModal | Change a saved product's name, brand and category, or delete it (results can't be edited). Same modal style as SaveProductModal |
@@ -169,13 +169,13 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 | POST | `/api/analyze` | Yes | `{ text }` in; `{ ingredients: [{ name, normalized }], flagged: [...] }` out. `400` if the text is missing, over 10,000 characters or has no ingredients |
 | GET | `/api/products` | Yes | `{ products }`: the current user's saved products, newest first, without `rawText` and `ingredients` |
 | GET | `/api/products/:id` | Yes | `{ product }`: one saved product (owner only; `404` otherwise) |
-| POST | `/api/products` | Yes | `{ productName, brand?, category?, rawText, source? }` in; `201 { product }` out. The server analyzes `rawText` itself |
+| POST | `/api/products` | Yes | `{ productName, brand?, category?, rawText, source?, onDuplicate? }` in; `201 { product }` out. The server analyzes `rawText` itself. If a product with the same name and brand (ignoring case and surrounding spaces) is already saved, returns `409 { error, duplicate: { id, productName, brand, createdAt } }` unless `onDuplicate` is `replace` (save, then delete the old one) or `keep` (save both) |
 | PATCH | `/api/products/:id` | Yes | `{ productName?, brand?, category? }` in; `{ product }` out. Only these can change; an empty or null brand or category removes it (owner only) |
 | DELETE | `/api/products/:id` | Yes | Delete a saved product (owner only); `204` |
 | GET | `/api/ingredients?search=` | Yes | `{ ingredients }` A to Z: those whose name or alias contains the search, plus those that would flag the search text if it were on a label (same rule as the matcher). Empty search returns all; `400` over 200 characters |
 | GET | `/api/ingredients/:id` | Yes | `{ ingredient }`: `{ id, name, aliases, sources, notes? }`; `404` if not found |
 
-Every error response has the same shape, `{ "error": "message for the user" }`. The `errorHandler` middleware catches unexpected errors, logs them on the server and returns a generic `500` message so internal details never reach the app.
+Every error response has the same shape, `{ "error": "message for the user" }`, sometimes with extra details for the app (e.g. `duplicate` on a `409` from `POST /api/products`). The `errorHandler` middleware catches unexpected errors, logs them on the server and returns a generic `500` message so internal details never reach the app.
 
 ### 7.3 Ingredient parsing and matching
 
@@ -298,6 +298,7 @@ ingredient-scanner/
 | Review step after OCR | OCR errors would cause pore-clogging ingredients to be missed |
 | Snapshot of results in saved products | Preserves what the user saw; avoids extra lookups |
 | Fixed list of product categories | Users pick from a list rather than typing, so grouping by category works (no "Moisturizer" vs. "moisturiser"). Codes are stored, not display names, so names can change without updating saved products |
+| Duplicate check on the server | Same name and brand (ignoring case) counts as a duplicate; the server checks because it has the real list. Replace saves the new product before deleting the old one, so a failed save never loses data |
 | Server re-analyzes when saving | The app sends the ingredient text, not the results, so saved results always come from the server and can't be faked by a modified app |
 | Save form as a modal | User keeps the results in view and can cancel easily |
 | Context and hooks instead of Redux | Only authentication state is global; a state library isn't justified at this size |

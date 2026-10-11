@@ -21,7 +21,9 @@ export function setUnauthorizedHandler(handler) {
  * Sends a request to the backend and returns the JSON response.
  * Throws an Error with a message that can be shown to the user if the
  * server can't be reached or responds with an error. The error's "status"
- * is the HTTP status code (or undefined if the server couldn't be reached).
+ * is the HTTP status code (or undefined if the server couldn't be reached),
+ * and "data" is the full response body, for errors with extra details
+ * (e.g. the existing product when saving a duplicate).
  *
  * @param {string} path e.g. '/api/analyze'
  * @param {RequestInit} [options] fetch options (method, body, ...)
@@ -53,6 +55,7 @@ async function request(path, options = {}) {
     }
     const error = new Error(data?.error || `Server responded with ${response.status}`);
     error.status = response.status;
+    error.data = data;
     throw error;
   }
   return data;
@@ -146,14 +149,21 @@ export function getSavedProduct(id) {
 /**
  * Saves a product. The server analyzes rawText itself, so the results
  * don't need to be sent.
+ *
+ * If a product with the same name and brand is already saved, this throws
+ * an error with status 409 and error.data.duplicate set to the existing
+ * product ({ id, productName, brand, createdAt }). Call again with
+ * onDuplicate 'replace' (delete the old one) or 'keep' (save both).
+ *
  * @param {{ productName: string, brand?: string, category?: string | null,
- *            rawText: string, source: 'photo' | 'paste' }} product
+ *            rawText: string, source: 'photo' | 'paste',
+ *            onDuplicate?: 'replace' | 'keep' }} product
  * @returns {Promise<{ product: SavedProduct }>}
  */
-export function saveProduct({ productName, brand, category, rawText, source }) {
+export function saveProduct({ productName, brand, category, rawText, source, onDuplicate }) {
   return request('/api/products', {
     method: 'POST',
-    body: JSON.stringify({ productName, brand, category, rawText, source }),
+    body: JSON.stringify({ productName, brand, category, rawText, source, onDuplicate }),
   });
 }
 

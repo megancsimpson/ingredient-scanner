@@ -13,7 +13,8 @@ import TextField from './TextField';
  * so both forms look and behave the same.
  *
  * onSubmit receives the trimmed values. If it throws, the error's message is
- * shown above the button.
+ * shown above the button. If it returns false, the form stays open and can
+ * be submitted again (e.g. the user cancelled a "duplicate product" prompt).
  *
  * @param {{
  *   initialName?: string,
@@ -21,7 +22,7 @@ import TextField from './TextField';
  *   initialCategory?: string | null,
  *   submitLabel: string,          e.g. "Save product"
  *   submittingLabel: string,      e.g. "Saving…"
- *   onSubmit: (values: { productName: string, brand: string, category: string | null }) => Promise<void>,
+ *   onSubmit: (values: { productName: string, brand: string, category: string | null }) => Promise<void | false>,
  *   children?: React.ReactNode,   extra content under the button (e.g. Delete)
  * }} props
  */
@@ -50,8 +51,10 @@ export default function ProductDetailsForm({
     setError(null);
     setSubmitting(true);
     try {
-      await onSubmit({ productName: productName.trim(), brand: brand.trim(), category });
-      // No setSubmitting(false) here: on success the screen closes
+      const outcome = await onSubmit({ productName: productName.trim(), brand: brand.trim(), category });
+      // On success the screen closes, so only re-enable the button if the
+      // user chose to stay
+      if (outcome === false) setSubmitting(false);
     } catch (err) {
       setError(err.message);
       setSubmitting(false);

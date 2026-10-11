@@ -4,11 +4,18 @@
  *
  *   throw new HttpError(409, 'An account with this email already exists.');
  *   -> 409 { "error": "An account with this email already exists." }
+ *
+ * Extra details for the app can be passed as a third argument and are sent
+ * alongside the message:
+ *
+ *   throw new HttpError(409, 'Already saved.', { duplicate: { id: '...' } });
+ *   -> 409 { "error": "Already saved.", "duplicate": { "id": "..." } }
  */
 class HttpError extends Error {
-  constructor(status, message) {
+  constructor(status, message, details = {}) {
     super(message);
     this.status = status;
+    this.details = details;
   }
 }
 
