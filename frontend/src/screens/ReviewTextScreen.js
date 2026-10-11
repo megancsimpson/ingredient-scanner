@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
 import Button from '../components/Button';
@@ -11,7 +11,8 @@ import { analyzeIngredients } from '../services/api';
  *
  * Route params:
  *   source:       'paste' or 'photo'
- *   initialText?: text from OCR, to start the input with
+ *   initialText?: text to start the input with (from OCR, or a list sent from
+ *                 the Ingredients search)
  */
 export default function ReviewTextScreen({ navigation, route }) {
   const { source = 'paste', initialText = '' } = route.params ?? {};
@@ -20,6 +21,13 @@ export default function ReviewTextScreen({ navigation, route }) {
   const [text, setText] = useState(initialText);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // If this screen is already open and receives new text (e.g. a list sent
+  // from the Ingredients search), show the new text. useState only uses
+  // initialText the first time the screen appears.
+  useEffect(() => {
+    if (initialText) setText(initialText);
+  }, [initialText]);
 
   async function handleCheck() {
     setError(null);

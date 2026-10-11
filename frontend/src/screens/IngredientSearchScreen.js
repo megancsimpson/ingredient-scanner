@@ -50,6 +50,18 @@ export default function IngredientSearchScreen({ navigation }) {
   }, [query, retryCount]);
 
   const searching = query.trim() !== '';
+  // Commas, semicolons or line breaks mean a whole ingredient list was
+  // pasted. Search only checks one ingredient, so point to the Scan tab.
+  const looksLikeList = /[,;\n]/.test(query.trim());
+
+  function checkOnScanTab() {
+    navigation.navigate('ScanTab', {
+      screen: 'ReviewText',
+      params: { source: 'paste', initialText: query.trim() },
+      // Keep the Scan tab's first screen underneath, so Back goes there
+      initial: false,
+    });
+  }
 
   return (
     <View style={styles.screen}>
@@ -64,8 +76,18 @@ export default function IngredientSearchScreen({ navigation }) {
             ? loading
               ? 'Searching…'
               : `${ingredients.length} ${ingredients.length === 1 ? 'match' : 'matches'}`
-            : "Search by name, or paste an ingredient from a label to see if it's flagged."}
+            : 'Searches one ingredient at a time, by name or as written on a label. To check a whole product, use the Scan tab.'}
         </Text>
+
+        {looksLikeList && (
+          <View style={styles.listWarning} accessibilityRole="alert">
+            <Text style={styles.listWarningText}>
+              This looks like a list of ingredients. Search only checks one ingredient at a time,
+              so these results may be incomplete.
+            </Text>
+            <Button title="Check the whole list on Scan" onPress={checkOnScanTab} />
+          </View>
+        )}
       </View>
 
       {error ? (
@@ -124,6 +146,16 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ddd',
   },
   hint: { fontSize: 13, color: '#666', marginTop: 8, lineHeight: 18 },
+  listWarning: {
+    marginTop: 12,
+    padding: 12,
+    gap: 10,
+    borderRadius: 10,
+    backgroundColor: '#fff8e6',
+    borderWidth: 1,
+    borderColor: '#f0d58c',
+  },
+  listWarningText: { fontSize: 14, color: '#6b5300', lineHeight: 20 },
   listContent: { padding: 16 },
   spinner: { marginTop: 40 },
   center: { alignItems: 'center', padding: 24 },

@@ -88,7 +88,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | SavedProductsScreen | List the user's saved products, with an empty state. Sort by newest or name, group by brand or category, or show only "Non pore-clogging" products (no flagged ingredients) (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
 | ProductDetailScreen | Show a saved product's results; Edit button in the header; delete the product |
 | EditProductModal | Change a saved product's name, brand and category, or delete it (results can't be edited). Same modal style as SaveProductModal |
-| IngredientSearchScreen | Search the ingredient list (whole list A to Z until something is typed). Waits 300 ms after typing before searching and ignores out-of-date responses |
+| IngredientSearchScreen | Search the ingredient list (whole list A to Z until something is typed). Waits 300 ms after typing before searching and ignores out-of-date responses. Notes that it checks one ingredient at a time; if a whole list is pasted (commas, semicolons or line breaks), it warns and offers to send the list to ReviewTextScreen on the Scan tab |
 | IngredientDetailScreen | Show one ingredient's alternate names, source list(s) and notes |
 | ProfileScreen | Account info, links to the guide and About, log out, delete account |
 | DeleteAccountDialog | Confirm permanent deletion of the account and all saved products (a React Native `Modal`; Android's back button cancels) |
