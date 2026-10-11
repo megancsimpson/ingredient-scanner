@@ -17,12 +17,16 @@ const authRoutes = require('./routes/auth');
 const analyzeRoutes = require('./routes/analyze');
 const productRoutes = require('./routes/products');
 const ingredientRoutes = require('./routes/ingredients');
+const ocrRoutes = require('./routes/ocr');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
+// Photo uploads have their own, larger size limit, so this route comes
+// before the app-wide JSON parser (which allows 100 KB)
+app.use('/api/ocr', ocrRoutes);
 app.use(express.json());
 
 // Quick check that the server is running

@@ -13,8 +13,7 @@ export default function ScanHomeScreen({ navigation }) {
       </Text>
 
       <View style={styles.buttons}>
-        {/* TODO: enable once CameraScreen and OCR are built */}
-        <Button title="Take a photo (coming soon)" onPress={() => {}} disabled />
+        <Button title="Take a photo" onPress={() => navigation.navigate('Camera')} />
         <Button
           title="Paste ingredient list"
           variant="secondary"

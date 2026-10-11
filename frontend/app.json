@@ -22,7 +22,23 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to use your camera to photograph ingredient lists.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to open photos of ingredient lists you choose.",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to use your camera to photograph ingredient lists.",
+          "microphonePermission": false
+        }
+      ]
     ]
   }
 }

@@ -221,6 +221,18 @@ export function getIngredient(id) {
 }
 
 /**
+ * Reads the text in a photo of an ingredient list (OCR on the server).
+ * @param {string} imageBase64 a base64-encoded JPEG
+ * @returns {Promise<{ text: string }>}
+ */
+export function readIngredientPhoto(imageBase64) {
+  return request('/api/ocr', {
+    method: 'POST',
+    body: JSON.stringify({ image: imageBase64 }),
+  });
+}
+
+/**
  * Checks an ingredient list for pore-clogging ingredients.
  * @param {string} text the ingredient list
  * @returns {Promise<{

@@ -19,7 +19,8 @@ The app is an informational tool and does not replace professional skincare advi
 | Back end | Node.js, Express | REST API and business logic |
 | Database | MongoDB (Atlas), Mongoose | Data storage, schemas and validation |
 | Authentication | Passport.js (passport-jwt), bcrypt, JSON Web Tokens | Email/password login (checked with bcrypt in `authService`) and protected routes (checked by Passport's JWT strategy) |
-| OCR | Cloud OCR provider (e.g. Google Cloud Vision) | Converting ingredient photos to text |
+| OCR | Google Cloud Vision API (`DOCUMENT_TEXT_DETECTION`) | Converting ingredient photos to text |
+| Camera and photos | expo-camera, expo-image-picker, expo-image-manipulator | Taking or choosing a photo and shrinking it before upload |
 | Testing | Jest | Unit tests |
 
 ## 3. System architecture
@@ -81,7 +82,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 |---|---|
 | LoginScreen / RegisterScreen | Collect credentials and call `login()` / `register()` from AuthContext |
 | ScanHomeScreen | Choose between taking a photo or pasting an ingredient list |
-| CameraScreen | Capture a photo and send it for OCR |
+| CameraScreen | Take a photo (or choose one from the library), shrink it to 2000 px on the longest side, send it for OCR, then open ReviewTextScreen with the text. Framing guide, flashlight toggle, and a permission screen with "Open Settings" if the camera was refused. The camera preview only runs while the screen is focused |
 | ReviewTextScreen | Let the user correct OCR mistakes (or paste text) before analysis |
 | ResultsScreen | Show flagged ingredients, the full list and a disclaimer. "Edit" in the header shows × buttons to remove pieces that aren't ingredients (e.g. pasted website text), with "Undo all changes". Removing an ingredient removes its flag; saving sends the remaining names joined with ", " |
 | SaveProductModal | Collect product name (required), brand and category (optional), then save. If the same name and brand is already saved, asks "Already saved" with Cancel, Keep both or Replace (the phone's own alert; three buttons is Android's maximum). Cancel saves nothing and returns to a fresh ScanHomeScreen. A stack screen with `presentation: 'modal'`: a sheet on iOS (with a Cancel button), a full screen on Android |
@@ -130,8 +131,8 @@ Context plus hooks is sufficient for an app of this size. A state library such a
 ## 6. Data flow: scanning and saving a product
 
 1. **Capture.** The user takes a photo on `CameraScreen`.
-2. **OCR request.** The app sends `POST /api/ocr` with the image and the user's JWT.
-3. **OCR.** The server's `ocrService` sends the image to the OCR provider and receives the extracted text.
+2. **OCR request.** The app shrinks the photo and sends `POST /api/ocr` with it as base64 JPEG and the user's JWT.
+3. **OCR.** The server's `ocrService` sends the image to Google Cloud Vision and receives the extracted text.
 4. **OCR response.** The server returns the text (`200`), and the app opens `ReviewTextScreen`.
 5. **Review.** The user corrects any OCR errors. (Users who paste text start here.)
 6. **Analyze request.** The app sends `POST /api/analyze` with the final text.
@@ -165,7 +166,7 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 | POST | `/api/auth/login` | No | `{ email, password }` in; `{ token, user }` out. `401` with the same message whether the email or password is wrong |
 | GET | `/api/auth/me` | Yes | `{ user }`: the current user's profile |
 | DELETE | `/api/auth/me` | Yes | Delete the current user's account and all their saved products; `204` |
-| POST | `/api/ocr` | Yes | Image in, extracted text out |
+| POST | `/api/ocr` | Yes | `{ image }` (base64 JPEG/PNG) in; `{ text }` out. `400` missing, too large or unreadable image; `422` no text found; `502`/`503` OCR service failed or not set up. Accepts bodies up to 8 MB (mounted before the app-wide 100 KB JSON parser; the login check runs before the body is read) |
 | POST | `/api/analyze` | Yes | `{ text }` in; `{ ingredients: [{ name, normalized }], flagged: [...] }` out. `400` if the text is missing, over 10,000 characters or has no ingredients |
 | GET | `/api/products` | Yes | `{ products }`: the current user's saved products, newest first, without `rawText` and `ingredients` |
 | GET | `/api/products/:id` | Yes | `{ product }`: one saved product (owner only; `404` otherwise) |
@@ -295,6 +296,7 @@ ingredient-scanner/
 |---|---|
 | Email/password login instead of Google sign-in | Works on any device without developer accounts or fees; demonstrates building authentication directly |
 | OCR on the server, not the device | Keeps the OCR API key secret; simpler app setup |
+| Google Cloud Vision for OCR | Built for reading text in photos (Document AI is aimed at scanned business documents and needs more setup). `DOCUMENT_TEXT_DETECTION` suits dense text. 1,000 images a month free, then $1.50 per 1,000. Called with a restricted API key (Cloud Vision only) kept in `.env`; only `ocrService` knows the provider, so it can be swapped |
 | Review step after OCR | OCR errors would cause pore-clogging ingredients to be missed |
 | Snapshot of results in saved products | Preserves what the user saw; avoids extra lookups |
 | Fixed list of product categories | Users pick from a list rather than typing, so grouping by category works (no "Moisturizer" vs. "moisturiser"). Codes are stored, not display names, so names can change without updating saved products |
@@ -314,8 +316,7 @@ ingredient-scanner/
 
 ## 13. Open decisions
 
-- **OCR provider.** A cloud provider such as Google Cloud Vision is planned; to be confirmed during development.
-- **Hosting.** The app will be deployed; where the Express API runs and how the mobile app is distributed are still to be decided.
+- **Hosting.** The app will be deployed; where the Express API runs and how the mobile app is distributed are still to be decided. At deployment: set `GOOGLE_VISION_API_KEY` in the host's environment variables, add an IP address restriction to the key if the host has a fixed outbound IP, and keep a Google Cloud budget alert on the billing account.
 - **Email: forgot password and welcome email (to come back to; forgot password needed before deployment).** There is currently no way to recover an account, so a deployed app could lock users out for good.
   - **Forgot password plan:** the user taps "Forgot password?" on LoginScreen and enters their email. The server emails a 6-digit code that expires after about 15 minutes, and the user enters the code and a new password in the app. A code is used instead of an email link because a link would need deep-link setup on both iOS and Android to open the right screen. New endpoints would be `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`, with the code stored hashed on the User and limited attempts. The forgot-password response should be the same whether or not the email has an account.
   - **Welcome email (optional):** sent after registration, using the same email setup. Registration should still succeed if the email fails to send.

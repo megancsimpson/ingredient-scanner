@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ScanHomeScreen from '../screens/ScanHomeScreen';
+import CameraScreen from '../screens/CameraScreen';
 import ReviewTextScreen from '../screens/ReviewTextScreen';
 import ResultsScreen from '../screens/ResultsScreen';
 import SaveProductModal from '../screens/SaveProductModal';
@@ -45,12 +46,16 @@ function modalOptions(title) {
 /**
  * The Scan tab's own stack of screens. Each tab has its own stack, so
  * switching tabs keeps your place in this one.
- * TODO: CameraScreen
  */
 function ScanStackScreen() {
   return (
     <ScanStack.Navigator>
       <ScanStack.Screen name="ScanHome" component={ScanHomeScreen} options={{ title: 'Scan' }} />
+      <ScanStack.Screen
+        name="Camera"
+        component={CameraScreen}
+        options={{ title: 'Photograph label' }}
+      />
       <ScanStack.Screen
         name="ReviewText"
         component={ReviewTextScreen}
