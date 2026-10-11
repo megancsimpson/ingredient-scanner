@@ -83,7 +83,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | ScanHomeScreen | Choose between taking a photo or pasting an ingredient list |
 | CameraScreen | Capture a photo and send it for OCR |
 | ReviewTextScreen | Let the user correct OCR mistakes (or paste text) before analysis |
-| ResultsScreen | Show flagged ingredients, the full list and a disclaimer |
+| ResultsScreen | Show flagged ingredients, the full list and a disclaimer. "Edit" in the header shows × buttons to remove pieces that aren't ingredients (e.g. pasted website text), with "Undo all changes". Removing an ingredient removes its flag; saving sends the remaining names joined with ", " |
 | SaveProductModal | Collect product name (required), brand and category (optional), then save. A stack screen with `presentation: 'modal'`: a sheet on iOS (with a Cancel button), a full screen on Android |
 | SavedProductsScreen | List the user's saved products, with an empty state. Sort by newest or name, group by brand or category, or show only "Non pore-clogging" products (no flagged ingredients) (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
 | ProductDetailScreen | Show a saved product's results; Edit button in the header; delete the product |
@@ -99,8 +99,9 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 
 | Component | Used in | Purpose |
 |---|---|---|
-| FlaggedIngredientCard | IngredientResults, IngredientSearchScreen | One flagged ingredient with its source list(s); tappable when given `onPress` |
-| IngredientList | IngredientResults | Full parsed ingredient list, flagged ones highlighted |
+| FlaggedIngredientCard | IngredientResults, IngredientSearchScreen | One flagged ingredient with its source list(s); tappable when given `onPress`; × button when given `onRemove` |
+| IngredientList | IngredientResults | Full parsed ingredient list, flagged ones highlighted; × buttons when given `onRemove` |
+| RemoveButton | IngredientList, FlaggedIngredientCard | Small × button with an enlarged tap area |
 | IngredientResults | ResultsScreen, ProductDetailScreen | Summary line, flagged ingredients and full list, so new and saved results look the same |
 | ProductDetailsForm | SaveProductModal, EditProductModal | Product name, brand and category fields with a submit button |
 | ChipSelect | ProductDetailsForm, SavedProductsScreen | Row of tappable chips where one can be selected (category picker, sort options); used instead of a native picker, which differs a lot between iOS and Android |

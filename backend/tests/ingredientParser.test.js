@@ -196,6 +196,21 @@ describe('parseIngredients', () => {
     });
   });
 
+  describe('re-parsing an edited list', () => {
+    // ResultsScreen lets users remove ingredients, then saves the remaining
+    // names joined with ", ". The server parses that text again, so it must
+    // give back exactly the same ingredients.
+    test.each([
+      'Ingredients: Aqua/Water/Eau, Cocos Nucifera (Coconut) Oil, Fragrance (Parfum, Limonene), Aloe Leaf Juice*, D&C Red 17, Zinc Oxide 20%, Laureth-4. *Certified Organic',
+      '• Water\n• Glycerin\n• Isopropyl Myristate\n123 Main St, Austin, TX 78701',
+      'Acrylates/C10-30 Alkyl Acrylate Crosspolymer, Zea Mays (Corn) Oil, Iron Oxides [CI 77491]',
+    ])('joined names parse back the same: %s', (text) => {
+      const kept = parseIngredients(text).filter((_, index) => index !== 1);
+      const rebuilt = kept.map((ingredient) => ingredient.name).join(', ');
+      expect(parseIngredients(rebuilt)).toEqual(kept);
+    });
+  });
+
   describe('unusual input', () => {
     test.each([[''], ['   '], [',,,'], [null], [undefined], [42]])(
       'returns an empty list for %p',

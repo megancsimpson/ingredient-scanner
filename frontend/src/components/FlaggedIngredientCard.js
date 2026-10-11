@@ -1,18 +1,27 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import RemoveButton from './RemoveButton';
 
 /**
  * One flagged ingredient. Pass onPress to make it tappable (e.g. in the
- * ingredient search, to open its details); it then shows an arrow.
+ * ingredient search, to open its details); it then shows an arrow. Pass
+ * onRemove to show a × button instead (edit mode on ResultsScreen).
  *
  * @param {{
  *   name: string,                 ingredient as written on the label
  *   sources?: string[],           lists that flag it, e.g. ["Face Reality"]
  *   matchedBy?: string[],         database names that matched, e.g. ["Coconut", "Coconut Oil"]
  *   onPress?: () => void,
+ *   onRemove?: () => void,
  * }} props
  */
-export default function FlaggedIngredientCard({ name, sources = [], matchedBy = [], onPress }) {
+export default function FlaggedIngredientCard({
+  name,
+  sources = [],
+  matchedBy = [],
+  onPress,
+  onRemove,
+}) {
   // Only worth showing when it adds something, e.g. "Cocos Nucifera (Coconut)
   // Oil" flagged by "Coconut". Not when the only match is the name itself.
   const showMatchedBy =
@@ -26,7 +35,11 @@ export default function FlaggedIngredientCard({ name, sources = [], matchedBy = 
         {showMatchedBy && <Text style={styles.detail}>Matches: {matchedBy.join(', ')}</Text>}
         {sources.length > 0 && <Text style={styles.detail}>Listed by: {sources.join(', ')}</Text>}
       </View>
-      {onPress && <Ionicons name="chevron-forward" size={18} color="#999" />}
+      {onRemove ? (
+        <RemoveButton label={`Remove ${name}`} onPress={onRemove} />
+      ) : (
+        onPress && <Ionicons name="chevron-forward" size={18} color="#999" />
+      )}
     </>
   );
 
@@ -47,6 +60,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
     backgroundColor: '#fdf1ef',
     borderLeftWidth: 4,
     borderLeftColor: '#c0392b',

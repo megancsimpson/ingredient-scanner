@@ -7,13 +7,17 @@ import IngredientList from './IngredientList';
  * the full ingredient list. Shared by ResultsScreen (a new scan) and
  * ProductDetailScreen (a saved product) so both look the same.
  *
+ * Pass onRemove to show × buttons for removing ingredients (edit mode on
+ * ResultsScreen). It receives the ingredient's normalized name.
+ *
  * @param {{
  *   ingredients: { name: string, normalized: string }[],
  *   flagged: { name: string, normalized: string, sources: string[],
  *              matches: { name: string }[] }[],
+ *   onRemove?: (normalized: string) => void,
  * }} props
  */
-export default function IngredientResults({ ingredients, flagged }) {
+export default function IngredientResults({ ingredients, flagged, onRemove }) {
   return (
     <View>
       <Text style={styles.summary}>
@@ -31,6 +35,7 @@ export default function IngredientResults({ ingredients, flagged }) {
               name={item.name}
               sources={item.sources}
               matchedBy={item.matches.map((match) => match.name)}
+              onRemove={onRemove && (() => onRemove(item.normalized))}
             />
           ))}
         </View>
@@ -41,6 +46,7 @@ export default function IngredientResults({ ingredients, flagged }) {
         <IngredientList
           ingredients={ingredients}
           flaggedNames={flagged.map((item) => item.normalized)}
+          onRemove={onRemove}
         />
       </View>
     </View>
