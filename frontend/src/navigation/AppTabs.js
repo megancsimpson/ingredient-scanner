@@ -12,6 +12,8 @@ import EditProductModal from '../screens/EditProductModal';
 import IngredientSearchScreen from '../screens/IngredientSearchScreen';
 import IngredientDetailScreen from '../screens/IngredientDetailScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import FlaggingGuideScreen from '../screens/FlaggingGuideScreen';
+import AboutScreen from '../screens/AboutScreen';
 
 const Tab = createBottomTabNavigator();
 const ScanStack = createNativeStackNavigator();
@@ -113,7 +115,6 @@ function IngredientsStackScreen() {
 
 /**
  * The Profile tab's stack.
- * TODO: FlaggingGuideScreen and AboutScreen
  */
 function ProfileStackScreen() {
   return (
@@ -123,6 +124,12 @@ function ProfileStackScreen() {
         component={ProfileScreen}
         options={{ title: 'Profile' }}
       />
+      <ProfileStack.Screen
+        name="FlaggingGuide"
+        component={FlaggingGuideScreen}
+        options={{ title: 'How flagging works' }}
+      />
+      <ProfileStack.Screen name="About" component={AboutScreen} options={{ title: 'About' }} />
     </ProfileStack.Navigator>
   );
 }

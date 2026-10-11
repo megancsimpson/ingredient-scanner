@@ -92,8 +92,8 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | IngredientDetailScreen | Show one ingredient's alternate names, source list(s) and notes |
 | ProfileScreen | Account info, links to the guide and About, log out, delete account |
 | DeleteAccountDialog | Confirm permanent deletion of the account and all saved products (a React Native `Modal`; Android's back button cancels) |
-| FlaggingGuideScreen | Explain how flagging works: what a flag means and where the ingredient list comes from |
-| AboutScreen | App purpose, data source, full disclaimer, version |
+| FlaggingGuideScreen | Explain how flagging works: what a flag means, where the list comes from, how matching works (keywords, whole words), what "Non pore-clogging" means, and tips for accurate results |
+| AboutScreen | App purpose, data source, full disclaimer, version (read from `app.json` with `expo-constants`) |
 
 ### 4.3 Reusable components
 
@@ -108,7 +108,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | SearchBar | IngredientSearchScreen | Search input with its own clear button (iOS's built-in one doesn't exist on Android) |
 | TextField | SaveProductModal, LoginScreen, RegisterScreen | Labeled text input with error message |
 | MenuRow | ProfileScreen | Tappable menu item |
-| Disclaimer | ResultsScreen, AboutScreen | "Information only" notice (short or full) |
+| Disclaimer | ResultsScreen, ProductDetailScreen, IngredientDetailScreen, FlaggingGuideScreen, AboutScreen | "Information only" notice (short everywhere; full on AboutScreen) |
 | LoadingOverlay | ReviewTextScreen, CameraScreen | Spinner while waiting for the server |
 | Button | Throughout | Primary and secondary styles |
 

@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Button from '../components/Button';
 import DeleteAccountDialog from '../components/DeleteAccountDialog';
+import MenuRow from '../components/MenuRow';
 import useAuth from '../hooks/useAuth';
 
 /**
- * Account info, log out and delete account.
- * TODO: links to FlaggingGuide and About
+ * Account info, links to the flagging guide and About, log out and delete
+ * account.
  */
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
   const { user, logout, deleteAccount } = useAuth();
 
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -43,6 +44,19 @@ export default function ProfileScreen() {
         </View>
       )}
 
+      <View style={styles.menu}>
+        <MenuRow
+          label="How flagging works"
+          icon="flag-outline"
+          onPress={() => navigation.navigate('FlaggingGuide')}
+        />
+        <MenuRow
+          label="About"
+          icon="information-circle-outline"
+          onPress={() => navigation.navigate('About')}
+        />
+      </View>
+
       <Button title="Log out" variant="secondary" onPress={logout} />
 
       {/* Kept apart from the other buttons so it isn't tapped by accident */}
@@ -63,7 +77,8 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  card: { paddingVertical: 16, marginBottom: 24, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  card: { paddingVertical: 16, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  menu: { marginBottom: 24 },
   name: { fontSize: 20, fontWeight: '600', color: '#222' },
   email: { fontSize: 15, color: '#555', marginTop: 4 },
   dangerZone: { marginTop: 'auto', paddingTop: 24 },
