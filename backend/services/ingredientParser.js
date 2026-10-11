@@ -140,31 +140,99 @@ function parseIngredients(text) {
   return ingredients;
 }
 
+// Stands in for " and " while splitting (see splitOutsideParentheses).
+// A control character that never appears in real text.
+const AND_MARKER = '\u0001';
+
 /**
- * Splits text on the given separator characters, except inside parentheses
- * or brackets, so "Fragrance (Parfum, Limonene), Water" stays two pieces.
+ * True if a comma at position i is part of a chemical name like
+ * "1,2-Hexanediol" (a digit on both sides) rather than a separator.
+ */
+function isNumberComma(text, i) {
+  return text[i] === ',' && /\d/.test(text[i - 1] ?? '') && /\d/.test(text[i + 1] ?? '');
+}
+
+/**
+ * True if text is a list: it has a comma (not inside parentheses, and not
+ * in a name like "1,2-Hexanediol") or the word "and" between items.
+ */
+function looksLikeList(text) {
+  const withoutParentheses = text.replace(/\([^)]*\)/g, '');
+  return (
+    [...withoutParentheses].some((char, i) => char === ',' && !isNumberComma(withoutParentheses, i)) ||
+    /\s+and\s+/i.test(withoutParentheses)
+  );
+}
+
+/**
+ * Opens up ingredient "blends" written in square brackets, so each
+ * ingredient inside is checked on its own:
+ *
+ *   "Phytonutrient Blend [Aloe Leaf Juice, Sunflower Seed Oil], Water"
+ *   -> "Phytonutrient Blend , Aloe Leaf Juice, Sunflower Seed Oil , , Water"
+ *
+ * Brackets holding a single item, like "Iron Oxides [CI 77491]", are left
+ * alone and treated like parentheses. The empty pieces this creates
+ * (", ,") are skipped later.
+ */
+function expandBlends(text) {
+  let result = '';
+  let i = 0;
+  while (i < text.length) {
+    const close = text[i] === '[' ? text.indexOf(']', i + 1) : -1;
+    if (close === -1) {
+      result += text[i];
+      i += 1;
+      continue;
+    }
+    const content = text.slice(i + 1, close);
+    result += looksLikeList(content) ? `,${content},` : `[${content}]`;
+    i = close + 1;
+  }
+  return result;
+}
+
+/**
+ * Splits text on the given separator characters and on the word "and",
+ * except inside parentheses or brackets, so "Fragrance (Parfum, Limonene),
+ * Water" stays two pieces. Bracketed blends are opened up first (see
+ * expandBlends), and a comma inside a name like "1,2-Hexanediol" isn't a
+ * separator.
+ *
+ * "and" separates because some labels join the last two ingredients with
+ * it: "Beet Root Extract and Vegetable Glycerin".
  *
  * If the brackets don't pair up (OCR often misses one), they are ignored
  * so one missing ")" can't swallow the rest of the list.
  */
 function splitOutsideParentheses(text, separators) {
-  const opens = (text.match(/[([]/g) || []).length;
-  const closes = (text.match(/[)\]]/g) || []).length;
+  // Mark every " and " first; whether it separates depends on whether it's
+  // inside parentheses, which is only known while walking through the text
+  const prepared = expandBlends(text).replace(/\s+and\s+/gi, AND_MARKER);
+
+  const opens = (prepared.match(/[([]/g) || []).length;
+  const closes = (prepared.match(/[)\]]/g) || []).length;
   const trackBrackets = opens === closes;
 
   const pieces = [];
   let current = '';
   let depth = 0;
 
-  for (const char of text) {
+  for (let i = 0; i < prepared.length; i += 1) {
+    const char = prepared[i];
     if (trackBrackets && (char === '(' || char === '[')) depth += 1;
     if (trackBrackets && (char === ')' || char === ']')) depth -= 1;
 
-    if (depth === 0 && separators.includes(char)) {
+    const isSeparator =
+      depth === 0 &&
+      (char === AND_MARKER || (separators.includes(char) && !isNumberComma(prepared, i)));
+
+    if (isSeparator) {
       pieces.push(current);
       current = '';
     } else {
-      current += char;
+      // Inside parentheses, "and" is part of the name: put it back
+      current += char === AND_MARKER ? ' and ' : char;
     }
   }
   pieces.push(current);
@@ -178,9 +246,13 @@ function splitOutsideParentheses(text, separators) {
  * "  Shea   Butter. " -> "Shea Butter"
  */
 function cleanName(piece) {
-  return piece
-    .replace(/\s+/g, ' ')
-    .replace(/^[\s.:\-]+|[\s.:\-]+$/g, '');
+  return (
+    piece
+      .replace(/\s+/g, ' ')
+      // "+/- CI 77891" (from "May Contain [+/- CI 77891, ...]") -> "CI 77891"
+      .replace(/^\s*\+\s*\/\s*-\s*/, '')
+      .replace(/^[\s.:\-]+|[\s.:\-]+$/g, '')
+  );
 }
 
 /**

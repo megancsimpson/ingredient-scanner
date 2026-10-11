@@ -75,6 +75,77 @@ describe('parseIngredients', () => {
       expect(normalizedNames('- Laureth-4\n- Steareth-20')).toEqual(['laureth 4', 'steareth 20']);
     });
 
+    test('opens up a blend in square brackets into separate ingredients', () => {
+      const text =
+        'Phytonutrient BlendTM [Aloe Barbadensis (Aloe) Leaf Juice*, Helianthus Annuus (Sunflower) Seed Oil*], Water';
+      expect(parseIngredients(text).map((i) => i.name)).toEqual([
+        'Phytonutrient BlendTM',
+        'Aloe Barbadensis (Aloe) Leaf Juice*',
+        'Helianthus Annuus (Sunflower) Seed Oil*',
+        'Water',
+      ]);
+    });
+
+    test('keeps square brackets that hold a single item', () => {
+      expect(parseIngredients('Iron Oxides [CI 77491], Water').map((i) => i.name)).toEqual([
+        'Iron Oxides [CI 77491]',
+        'Water',
+      ]);
+    });
+
+    test('splits on "and" between ingredients, but not inside parentheses', () => {
+      expect(normalizedNames('Beet Root Extract and Vegetable Glycerin, Water')).toEqual([
+        'beet root extract',
+        'vegetable glycerin',
+        'water',
+      ]);
+      expect(normalizedNames('Thioctic Acid (Alpha Lipoic Acid) AND Ubiquinone')).toEqual([
+        'thioctic acid alpha lipoic acid',
+        'ubiquinone',
+      ]);
+      expect(normalizedNames('Fragrance (Parfum and Limonene), Water')).toEqual([
+        'fragrance parfum and limonene',
+        'water',
+      ]);
+    });
+
+    test('does not split on a comma between numbers, as in "1,2-Hexanediol"', () => {
+      expect(parseIngredients('1,3-Butanediol, 1,2-Hexanediol, Water').map((i) => i.name)).toEqual(
+        ['1,3-Butanediol', '1,2-Hexanediol', 'Water']
+      );
+    });
+
+    test('handles "May Contain [+/- ...]" with brackets', () => {
+      expect(normalizedNames('Mica. May Contain [+/- CI 77891, CI 77491]')).toEqual([
+        'mica',
+        'ci 77891',
+        'ci 77491',
+      ]);
+    });
+
+    test('parses a long label with blends, "and" and "1,2-Hexanediol"', () => {
+      // A real label that was once read as two giant "ingredients"
+      const text =
+        'Organic Phytonutrient BlendTM [Aloe Barbadensis (Aloe) Leaf Juice*, Beta Vulgaris (Beet) Root Extract* and Vegetable Glycerin*], ' +
+        'Decyl Glucoside, 1,2-Hexanediol, Aqua (Water), Biocomplex2TM [Citrus Limon (Lemon) Juice*, Cocos Nucifera (Coconut) Water*, ' +
+        'Thioctic Acid (Alpha Lipoic Acid) and Ubiquinone (Coenzyme Q10)], Tocopheryl Acetate (Vitamin E).';
+      expect(parseIngredients(text).map((i) => i.name)).toEqual([
+        'Organic Phytonutrient BlendTM',
+        'Aloe Barbadensis (Aloe) Leaf Juice*',
+        'Beta Vulgaris (Beet) Root Extract*',
+        'Vegetable Glycerin*',
+        'Decyl Glucoside',
+        '1,2-Hexanediol',
+        'Aqua (Water)',
+        'Biocomplex2TM',
+        'Citrus Limon (Lemon) Juice*',
+        'Cocos Nucifera (Coconut) Water*',
+        'Thioctic Acid (Alpha Lipoic Acid)',
+        'Ubiquinone (Coenzyme Q10)',
+        'Tocopheryl Acetate (Vitamin E)',
+      ]);
+    });
+
     test('does not split on commas inside parentheses', () => {
       expect(normalizedNames('Fragrance (Parfum, Limonene), Water')).toEqual([
         'fragrance parfum limonene',
@@ -204,6 +275,7 @@ describe('parseIngredients', () => {
       'Ingredients: Aqua/Water/Eau, Cocos Nucifera (Coconut) Oil, Fragrance (Parfum, Limonene), Aloe Leaf Juice*, D&C Red 17, Zinc Oxide 20%, Laureth-4. *Certified Organic',
       '• Water\n• Glycerin\n• Isopropyl Myristate\n123 Main St, Austin, TX 78701',
       'Acrylates/C10-30 Alkyl Acrylate Crosspolymer, Zea Mays (Corn) Oil, Iron Oxides [CI 77491]',
+      'Blend [Aloe Leaf Juice*, Beet Root Extract and Glycerin], 1,2-Hexanediol, Fragrance (Parfum and Limonene)',
     ])('joined names parse back the same: %s', (text) => {
       const kept = parseIngredients(text).filter((_, index) => index !== 1);
       const rebuilt = kept.map((ingredient) => ingredient.name).join(', ');
