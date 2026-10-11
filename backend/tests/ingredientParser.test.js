@@ -40,6 +40,41 @@ describe('parseIngredients', () => {
       ]);
     });
 
+    test('treats a list with a few commas in other text as one ingredient per line', () => {
+      // Pasted from a website: one ingredient per line, plus a footer whose
+      // address has commas. The commas must not join the lines together.
+      const text = 'Water\nGlycerin\nIsopropyl Myristate\nShea Butter\n123 Main St, Austin, TX 78701';
+      expect(normalizedNames(text)).toEqual([
+        'water',
+        'glycerin',
+        'isopropyl myristate',
+        'shea butter',
+        '123 main st',
+        'austin',
+        'tx 78701',
+      ]);
+    });
+
+    test.each([
+      ['• bullets', '• Water\n• Glycerin\n• Coconut Oil'],
+      ['other bullet symbols', '● Water\n▪ Glycerin\n◦ Coconut Oil'],
+      ['dashes', '- Water\n- Glycerin\n- Coconut Oil'],
+      ['asterisks', '* Water\n* Glycerin\n* Coconut Oil'],
+      ['numbers', '1. Water\n2) Glycerin\n3. Coconut Oil'],
+      ['Windows line endings', 'Water\r\nGlycerin\r\nCoconut Oil'],
+    ])('splits a list with %s', (_, text) => {
+      expect(normalizedNames(text)).toEqual(['water', 'glycerin', 'coconut oil']);
+    });
+
+    test('treats a bulleted list as one per line even when items contain commas', () => {
+      const text = '• Water\n• Fragrance, Limonene\n• Coconut Oil';
+      expect(normalizedNames(text)).toEqual(['water', 'fragrance', 'limonene', 'coconut oil']);
+    });
+
+    test('keeps hyphens that are part of a name', () => {
+      expect(normalizedNames('- Laureth-4\n- Steareth-20')).toEqual(['laureth 4', 'steareth 20']);
+    });
+
     test('does not split on commas inside parentheses', () => {
       expect(normalizedNames('Fragrance (Parfum, Limonene), Water')).toEqual([
         'fragrance parfum limonene',
@@ -90,6 +125,37 @@ describe('parseIngredients', () => {
         'shea butter',
       ]);
       expect(parseIngredients('Water, Shea Butter.')[1].name).toBe('Shea Butter');
+    });
+
+    test('removes a heading on its own line with no colon', () => {
+      expect(normalizedNames('Ingredients\nWater\nGlycerin')).toEqual(['water', 'glycerin']);
+      expect(normalizedNames('Full Ingredient List\nWater\nGlycerin')).toEqual([
+        'water',
+        'glycerin',
+      ]);
+    });
+
+    test('drops contact details and copyright lines from a website footer', () => {
+      const text = [
+        'Water',
+        'Coconut Oil',
+        '(512) 555-0123',
+        'Call us at 512-555-0123',
+        'hello@example.com',
+        'www.examplespa.com',
+        'https://examplespa.com/contact',
+        '© 2026 Example Spa',
+        'All rights reserved',
+      ].join('\n');
+      expect(normalizedNames(text)).toEqual(['water', 'coconut oil']);
+    });
+
+    test('keeps ingredients with numbers that are not phone numbers', () => {
+      expect(normalizedNames('CI 77891, D&C Red 17, Polysorbate 80')).toEqual([
+        'ci 77891',
+        'd c red 17',
+        'polysorbate 80',
+      ]);
     });
 
     test('drops footnotes such as "*Certified Organic"', () => {

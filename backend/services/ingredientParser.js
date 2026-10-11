@@ -8,6 +8,45 @@ const HEADING_PATTERN =
 // "20%", "2.5 %"
 const PERCENT_PATTERN = /\d+(?:\.\d+)?\s*%/g;
 
+// Bullet symbols used in lists copied from websites and documents. They
+// always separate ingredients, at the start of a line or in the middle.
+const BULLET_CHARS = '•●▪◦‣∙·⁃■□○◆◇★☆✓✔➢➤►▶';
+const BULLET_PATTERN = new RegExp(`[${BULLET_CHARS}]`, 'g');
+const LEADING_BULLET_PATTERN = new RegExp(`^\\s*[${BULLET_CHARS}]`);
+
+// Markers at the start of a line that make it a list item: "- ", "* ",
+// "– ", "1. ", "2) ". These need a space after them, so names like
+// "Laureth-4" or a "*Certified Organic" footnote aren't affected.
+const LINE_MARKER_PATTERN = /^[ \t]*(?:[-*–—]|\d{1,2}[.)])[ \t]+/;
+
+// A line that is only a heading, with no colon: "Ingredients", "Full
+// Ingredient List". Compared after normalizing.
+const HEADING_ONLY = new Set([
+  'ingredients',
+  'ingredient',
+  'ingredient list',
+  'ingredients list',
+  'full ingredients',
+  'full ingredient list',
+  'active ingredients',
+  'inactive ingredients',
+  'other ingredients',
+  'key ingredients',
+]);
+
+/**
+ * True for text that's clearly not an ingredient: an email address, a web
+ * address, a phone number or a copyright line, as found in website footers.
+ */
+function isContactOrLegalText(name) {
+  return (
+    /\S+@\S+\.\S+/.test(name) || // email
+    /https?:\/\/|www\.|\.com\b/i.test(name) || // web address
+    /\(?\d{3}\)?[\s.-]?\d{3}[\s.-]\d{4}/.test(name) || // phone, e.g. (512) 555-0123
+    /©|\(c\)\s*\d{4}|all rights reserved/i.test(name) // copyright
+  );
+}
+
 /**
  * Turns an ingredient list (from OCR or pasted by the user) into a clean list
  * of ingredients, ready to be compared against the database.
@@ -41,22 +80,41 @@ const PERCENT_PATTERN = /\d+(?:\.\d+)?\s*%/g;
 function parseIngredients(text) {
   if (typeof text !== 'string') return [];
 
-  const cleaned = text
+  // Windows line endings (\r\n) become plain line breaks
+  const lines = text.replace(/\r\n?/g, '\n').split('\n');
+
+  // Is this one ingredient per line, or a comma-separated label?
+  //   - Any line starting with a bullet or list marker: one per line.
+  //   - Otherwise, compare commas to lines. A label has many commas per
+  //     line, and its line breaks are just OCR wrapping long names
+  //     ("Coconut\nOil"). A pasted list has few or no commas, and the ones
+  //     it has are usually in other text, like an address in a website
+  //     footer ("Austin, TX"), so line breaks separate ingredients.
+  const contentLines = lines.filter((line) => line.trim() !== '');
+  const isBulleted = contentLines.some(
+    (line) => LINE_MARKER_PATTERN.test(line) || LEADING_BULLET_PATTERN.test(line)
+  );
+  const commaCount = (text.replace(HEADING_PATTERN, '').match(/[,;]/g) || []).length;
+  const onePerLine = isBulleted || commaCount < contentLines.length;
+
+  const cleaned = lines
+    // "- Water" -> "Water"
+    .map((line) => line.replace(LINE_MARKER_PATTERN, ''))
+    .join('\n')
     // Headings such as "Ingredients:" or "Inactive Ingredients:" become a
     // comma, so the text on either side ends up as separate ingredients
     .replace(HEADING_PATTERN, ',')
+    // Bullets separate ingredients: "Water • Glycerin"
+    .replace(BULLET_PATTERN, ',')
     // "Zinc Oxide 20%" -> "Zinc Oxide"
     .replace(PERCENT_PATTERN, ' ')
     // "Tocopherol. *Certified Organic": a period before a footnote marker
     // ends the list, so the footnote becomes its own piece (skipped below)
     .replace(/\.\s*(?=[*†])/g, ',');
 
-  // Labels separate ingredients with commas. If there are none, the list is
-  // probably one ingredient per line. If there are commas, a line break is
-  // just OCR wrapping a long name ("Coconut\nOil"), so it becomes a space.
-  const usesCommas = /[,;]/.test(text.replace(HEADING_PATTERN, ''));
-  const prepared = usesCommas ? cleaned.replace(/\n/g, ' ') : cleaned;
-  const separators = usesCommas ? [',', ';', '•'] : [',', ';', '•', '\n'];
+  // In a comma-separated label, a line break is just wrapping: make it a space
+  const prepared = onePerLine ? cleaned : cleaned.replace(/\n/g, ' ');
+  const separators = onePerLine ? [',', ';', '\n'] : [',', ';'];
 
   const ingredients = [];
   const seen = new Set();
@@ -70,6 +128,10 @@ function parseIngredients(text) {
     // Skip footnotes like "*Certified Organic" or "†Organic"; the marker
     // comes after an ingredient's name, never before it
     if (/^[*†]/.test(name)) return;
+    // Skip a heading on its own line, e.g. "Ingredients" with no colon
+    if (HEADING_ONLY.has(normalized)) return;
+    // Skip contact details and copyright lines copied from a website
+    if (isContactOrLegalText(name)) return;
     seen.add(normalized);
 
     ingredients.push({ name, normalized, variants: getVariants(name) });

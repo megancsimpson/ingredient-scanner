@@ -62,7 +62,8 @@ export default function ReviewTextScreen({ navigation, route }) {
         <Text style={styles.label}>
           {source === 'photo'
             ? 'Check the text read from your photo and fix any mistakes.'
-            : 'Paste or type the ingredient list from the product label.'}
+            : 'Paste or type the ingredient list from the product label.'}{' '}
+          Remove anything that isn't an ingredient, such as text copied from a website.
         </Text>
 
         <TextInput
