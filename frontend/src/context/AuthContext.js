@@ -77,11 +77,18 @@ export function AuthProvider({ children }) {
     [startSession]
   );
 
+  // Deletes the account on the server, then clears the login on the device,
+  // which takes the user back to the login screen
+  const deleteAccount = useCallback(async () => {
+    await api.deleteAccount();
+    await logout();
+  }, [logout]);
+
   // useMemo keeps the same object between renders unless something changes,
   // so screens using useAuth() don't re-render for no reason
   const value = useMemo(
-    () => ({ token, user, isLoading, login, register, logout }),
-    [token, user, isLoading, login, register, logout]
+    () => ({ token, user, isLoading, login, register, logout, deleteAccount }),
+    [token, user, isLoading, login, register, logout, deleteAccount]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

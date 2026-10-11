@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const HttpError = require('../utils/httpError');
+const productService = require('./productService');
 
 // How much work bcrypt does per hash. Each +1 doubles the time; 12 takes a
 // fraction of a second, which is fine for a login but slow for an attacker
@@ -61,6 +62,17 @@ async function login({ email, password }) {
 }
 
 /**
+ * Permanently deletes a user's account and all their saved products.
+ * Products go first: if something fails partway, the account still exists
+ * and the user can try again, instead of products being left behind with
+ * no owner.
+ */
+async function deleteAccount(userId) {
+  await productService.deleteAllForUser(userId);
+  await User.deleteOne({ _id: userId });
+}
+
+/**
  * A signed token that proves who the user is. "sub" (subject) is the
  * standard JWT field for the user's ID. The token is signed, not encrypted:
  * anyone can read it, but only the server can create a valid one.
@@ -73,4 +85,4 @@ function normalizeEmail(email) {
   return typeof email === 'string' ? email.trim().toLowerCase() : '';
 }
 
-module.exports = { register, login };
+module.exports = { register, login, deleteAccount };

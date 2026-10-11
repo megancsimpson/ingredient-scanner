@@ -1,19 +1,46 @@
+import { Platform, Pressable, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ScanHomeScreen from '../screens/ScanHomeScreen';
 import ReviewTextScreen from '../screens/ReviewTextScreen';
 import ResultsScreen from '../screens/ResultsScreen';
+import SaveProductModal from '../screens/SaveProductModal';
+import SavedProductsScreen from '../screens/SavedProductsScreen';
+import ProductDetailScreen from '../screens/ProductDetailScreen';
+import EditProductModal from '../screens/EditProductModal';
 import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const ScanStack = createNativeStackNavigator();
+const SavedStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
+
+/**
+ * Screen options for a form shown as a modal: a sheet that slides up on
+ * iOS, a normal screen on Android. iOS modals have no back button, so a
+ * Cancel button is added (the sheet can also be swiped down); Android shows
+ * its usual back arrow.
+ */
+function modalOptions(title) {
+  return ({ navigation }) => ({
+    title,
+    presentation: 'modal',
+    headerLeft:
+      Platform.OS === 'ios'
+        ? () => (
+            <Pressable onPress={navigation.goBack} hitSlop={10} accessibilityRole="button">
+              <Text style={{ color: '#2f6f5e', fontSize: 17 }}>Cancel</Text>
+            </Pressable>
+          )
+        : undefined,
+  });
+}
 
 /**
  * The Scan tab's own stack of screens. Each tab has its own stack, so
  * switching tabs keeps your place in this one.
- * TODO: CameraScreen and SaveProductModal
+ * TODO: CameraScreen
  */
 function ScanStackScreen() {
   return (
@@ -25,7 +52,38 @@ function ScanStackScreen() {
         options={{ title: 'Ingredient list' }}
       />
       <ScanStack.Screen name="Results" component={ResultsScreen} options={{ title: 'Results' }} />
+      <ScanStack.Screen
+        name="SaveProduct"
+        component={SaveProductModal}
+        options={modalOptions('Save product')}
+      />
     </ScanStack.Navigator>
+  );
+}
+
+/**
+ * The Saved tab's stack.
+ */
+function SavedStackScreen() {
+  return (
+    <SavedStack.Navigator>
+      <SavedStack.Screen
+        name="SavedProducts"
+        component={SavedProductsScreen}
+        options={{ title: 'Saved products' }}
+      />
+      <SavedStack.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen}
+        // Replaced with the product's name once it loads
+        options={{ title: 'Product' }}
+      />
+      <SavedStack.Screen
+        name="EditProduct"
+        component={EditProductModal}
+        options={modalOptions('Edit product')}
+      />
+    </SavedStack.Navigator>
   );
 }
 
@@ -48,12 +106,13 @@ function ProfileStackScreen() {
 // Tab icon for each tab: outline when inactive, filled when selected
 const TAB_ICONS = {
   ScanTab: ['scan', 'scan-outline'],
+  SavedTab: ['bookmark', 'bookmark-outline'],
   ProfileTab: ['person', 'person-outline'],
 };
 
 /**
  * The bottom tabs shown when logged in.
- * TODO: Saved and Ingredients tabs
+ * TODO: Ingredients tab
  */
 export default function AppTabs() {
   return (
@@ -72,6 +131,7 @@ export default function AppTabs() {
       })}
     >
       <Tab.Screen name="ScanTab" component={ScanStackScreen} options={{ title: 'Scan' }} />
+      <Tab.Screen name="SavedTab" component={SavedStackScreen} options={{ title: 'Saved' }} />
       <Tab.Screen name="ProfileTab" component={ProfileStackScreen} options={{ title: 'Profile' }} />
     </Tab.Navigator>
   );

@@ -15,6 +15,7 @@ for (const name of ['MONGODB_URI', 'JWT_SECRET']) {
 
 const authRoutes = require('./routes/auth');
 const analyzeRoutes = require('./routes/analyze');
+const productRoutes = require('./routes/products');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -30,6 +31,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/analyze', analyzeRoutes);
+app.use('/api/products', productRoutes);
 
 // Must come after all routes so it can catch their errors
 app.use(errorHandler);

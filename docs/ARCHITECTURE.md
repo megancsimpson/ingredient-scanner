@@ -59,7 +59,8 @@ App
             │   └── SaveProductModal
             ├── Saved tab
             │   ├── SavedProductsScreen
-            │   └── ProductDetailScreen
+            │   ├── ProductDetailScreen
+            │   └── EditProductModal
             ├── Ingredients tab
             │   ├── IngredientSearchScreen
             │   └── IngredientDetailScreen
@@ -83,13 +84,14 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | CameraScreen | Capture a photo and send it for OCR |
 | ReviewTextScreen | Let the user correct OCR mistakes (or paste text) before analysis |
 | ResultsScreen | Show flagged ingredients, the full list and a disclaimer |
-| SaveProductModal | Collect product name (required) and brand (optional), then save |
-| SavedProductsScreen | List the user's saved products, with an empty state |
-| ProductDetailScreen | Show a saved product's results; delete the product |
+| SaveProductModal | Collect product name (required), brand and category (optional), then save. A stack screen with `presentation: 'modal'`: a sheet on iOS (with a Cancel button), a full screen on Android |
+| SavedProductsScreen | List the user's saved products, with an empty state. Sort by newest or name, or group by brand or category (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
+| ProductDetailScreen | Show a saved product's results; Edit button in the header; delete the product |
+| EditProductModal | Change a saved product's name, brand and category, or delete it (results can't be edited). Same modal style as SaveProductModal |
 | IngredientSearchScreen | Search the ingredient database |
 | IngredientDetailScreen | Show one ingredient's alternate names, source list(s) and notes |
 | ProfileScreen | Account info, links to the guide and About, log out, delete account |
-| DeleteAccountDialog | Confirm permanent deletion of the account and all saved products |
+| DeleteAccountDialog | Confirm permanent deletion of the account and all saved products (a React Native `Modal`; Android's back button cancels) |
 | FlaggingGuideScreen | Explain how flagging works: what a flag means and where the ingredient list comes from |
 | AboutScreen | App purpose, data source, full disclaimer, version |
 
@@ -97,9 +99,12 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 
 | Component | Used in | Purpose |
 |---|---|---|
-| FlaggedIngredientCard | ResultsScreen, ProductDetailScreen, IngredientSearchScreen | One flagged ingredient with its source list(s) |
-| IngredientList | ResultsScreen, ProductDetailScreen | Full parsed ingredient list |
-| SavedProductRow | SavedProductsScreen | One saved product in the list |
+| FlaggedIngredientCard | IngredientResults, IngredientSearchScreen | One flagged ingredient with its source list(s) |
+| IngredientList | IngredientResults | Full parsed ingredient list, flagged ones highlighted |
+| IngredientResults | ResultsScreen, ProductDetailScreen | Summary line, flagged ingredients and full list, so new and saved results look the same |
+| ProductDetailsForm | SaveProductModal, EditProductModal | Product name, brand and category fields with a submit button |
+| ChipSelect | ProductDetailsForm, SavedProductsScreen | Row of tappable chips where one can be selected (category picker, sort options); used instead of a native picker, which differs a lot between iOS and Android |
+| SavedProductRow | SavedProductsScreen | One saved product in the list: name, brand, category, date and flagged count |
 | SearchBar | IngredientSearchScreen | Search input |
 | TextField | SaveProductModal, LoginScreen, RegisterScreen | Labeled text input with error message |
 | MenuRow | ProfileScreen | Tappable menu item |
@@ -133,8 +138,8 @@ Context plus hooks is sufficient for an app of this size. A state library such a
 8. **Analyze response.** The server returns the parsed list and flagged ingredients (`200`).
 9. **Results.** `ResultsScreen` displays the results. Nothing is saved yet.
 10. **Save form.** The user taps Save and enters a product name and optional brand in `SaveProductModal`.
-11. **Save request.** The app sends `POST /api/products` with the name, brand and results.
-12. **Store.** The server attaches the user ID from the JWT and inserts a SavedProduct (`201 Created`).
+11. **Save request.** The app sends `POST /api/products` with the name, brand, ingredient text and source (not the results).
+12. **Store.** The server analyzes the text again, attaches the user ID from the JWT and inserts a SavedProduct (`201 Created`).
 13. **Confirm.** The app navigates to `SavedProductsScreen`, which now includes the product.
 
 Separating OCR from analysis gives the user a chance to fix misread ingredients, which would otherwise be silently missed, and lets photo and paste input share the same analysis path. Separating analysis from saving lets users check any number of products without cluttering their saved list.
@@ -158,13 +163,14 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 | POST | `/api/auth/register` | No | `{ name, email, password }` in; `201 { token, user }` out. `400` invalid input, `409` email already registered |
 | POST | `/api/auth/login` | No | `{ email, password }` in; `{ token, user }` out. `401` with the same message whether the email or password is wrong |
 | GET | `/api/auth/me` | Yes | `{ user }`: the current user's profile |
-| DELETE | `/api/auth/me` | Yes | Delete the current user's account and all their saved products (to be built with saved products) |
+| DELETE | `/api/auth/me` | Yes | Delete the current user's account and all their saved products; `204` |
 | POST | `/api/ocr` | Yes | Image in, extracted text out |
 | POST | `/api/analyze` | Yes | `{ text }` in; `{ ingredients: [{ name, normalized }], flagged: [...] }` out. `400` if the text is missing, over 10,000 characters or has no ingredients |
-| GET | `/api/products` | Yes | The current user's saved products |
-| GET | `/api/products/:id` | Yes | One saved product (owner only) |
-| POST | `/api/products` | Yes | Save a product |
-| DELETE | `/api/products/:id` | Yes | Delete a saved product (owner only) |
+| GET | `/api/products` | Yes | `{ products }`: the current user's saved products, newest first, without `rawText` and `ingredients` |
+| GET | `/api/products/:id` | Yes | `{ product }`: one saved product (owner only; `404` otherwise) |
+| POST | `/api/products` | Yes | `{ productName, brand?, category?, rawText, source? }` in; `201 { product }` out. The server analyzes `rawText` itself |
+| PATCH | `/api/products/:id` | Yes | `{ productName?, brand?, category? }` in; `{ product }` out. Only these can change; an empty or null brand or category removes it (owner only) |
+| DELETE | `/api/products/:id` | Yes | Delete a saved product (owner only); `204` |
 | GET | `/api/ingredients?search=` | Yes | Search the ingredient database |
 | GET | `/api/ingredients/:id` | Yes | One ingredient's details |
 
@@ -198,14 +204,15 @@ The API sends a user as `{ id, email, name, createdAt }`.
 | Field | Type | Notes |
 |---|---|---|
 | `_id` | ObjectId | Primary key |
-| `user` | ObjectId → User | Required; set on the server from the JWT |
-| `productName` | String | Required |
-| `brand` | String | Optional |
+| `user` | ObjectId → User | Required, indexed; set on the server from the JWT, never from the request; not included in API responses |
+| `productName` | String | Required, trimmed, max 100 characters |
+| `brand` | String | Optional, trimmed, max 100 characters |
+| `category` | String | Optional; one of the codes in `PRODUCT_CATEGORIES`: `cleanser`, `toner`, `astringent`, `exfoliant`, `serum`, `retinoid`, `moisturizer`, `eye`, `lip`, `sunscreen`, `mask`, `makeup`, `hair`, `body`, `detergent`, `other`. The app's display names are in `frontend/src/utils/categories.js`; keep both lists in sync |
 | `rawText` | String | Ingredient text as analyzed |
-| `parsedIngredients` | [String] | Normalized ingredient list |
-| `flagged` | [{ name, sources }] | Snapshot of flagged ingredients at save time |
-| `source` | String | Enum: `photo`, `paste` |
-| `createdAt` | Date | Automatic timestamp |
+| `ingredients` | [{ name, normalized }] | Parsed ingredient list in label order (display names kept so the saved product looks the same as the original results) |
+| `flagged` | [{ name, normalized, sources, matches: [{ name, sources }] }] | Snapshot of flagged ingredients at save time; database IDs aren't stored |
+| `source` | String | Enum: `photo`, `paste`; default `paste` |
+| `createdAt`, `updatedAt` | Date | Automatic timestamps |
 
 ### Ingredient
 | Field | Type | Notes |
@@ -224,14 +231,14 @@ The current list has 358 entries with names and sources only; no aliases or note
 
 ### Relationships
 - **User → SavedProduct: one to many.** Each saved product belongs to one user; queries are always filtered by the logged-in user's ID. Deleting an account also deletes all of that user's saved products.
-- **SavedProduct → Ingredient: snapshot, not reference.** `flagged` stores copies of names and sources rather than links. Saved products keep showing what the user saw when they saved them, and loading them needs no extra lookups. Trade-off: saved products don't pick up changes to the ingredient list automatically.
+- **SavedProduct → Ingredient: snapshot, not reference.** `ingredients` and `flagged` store copies of names and sources rather than links. Saved products keep showing what the user saw when they saved them, and loading them needs no extra lookups. Trade-off: saved products don't pick up changes to the ingredient list automatically.
 
 ## 9. Security
 
 - **Passwords** must be 8–72 characters (bcrypt ignores anything past 72 bytes), are hashed with bcrypt and are never stored or returned in plain text. Login errors don't reveal whether an email has an account.
 - **JWTs** contain only the user ID (`sub`), are signed with `JWT_SECRET`, expire after 7 days, are stored on the device with `expo-secure-store` (iOS Keychain / Android Keystore), and are sent in the `Authorization: Bearer` header by `api.js`. If the server rejects a token (`401`), the app logs out automatically.
 - **Auth middleware** (`requireAuth`) verifies the token on every protected route, checks the user still exists, and attaches the user to the request as `req.user`.
-- **Ownership checks:** saved products are always queried and deleted by both product ID and user ID.
+- **Ownership checks:** saved products are always queried and deleted by both product ID and user ID. Another user's product returns the same `404` as one that doesn't exist, so responses don't reveal that it's there.
 - **Account deletion:** from the Profile tab after confirming. The server removes the User and all their SavedProducts; the app clears the stored token and returns to the login screen.
 - **Secrets** (MongoDB URI, JWT secret, OCR API key) are stored in a `.env` file excluded from Git during development, and in the hosting provider's environment variables once deployed.
 - **Validation** is enforced in Mongoose schemas so invalid data is rejected regardless of route.
@@ -289,6 +296,8 @@ ingredient-scanner/
 | OCR on the server, not the device | Keeps the OCR API key secret; simpler app setup |
 | Review step after OCR | OCR errors would cause pore-clogging ingredients to be missed |
 | Snapshot of results in saved products | Preserves what the user saw; avoids extra lookups |
+| Fixed list of product categories | Users pick from a list rather than typing, so grouping by category works (no "Moisturizer" vs. "moisturiser"). Codes are stored, not display names, so names can change without updating saved products |
+| Server re-analyzes when saving | The app sends the ingredient text, not the results, so saved results always come from the server and can't be faked by a modified app |
 | Save form as a modal | User keeps the results in view and can cancel easily |
 | Context and hooks instead of Redux | Only authentication state is global; a state library isn't justified at this size |
 | Expo | Simplifies setup, camera access and testing on real devices |

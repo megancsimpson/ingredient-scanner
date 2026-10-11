@@ -103,6 +103,84 @@ export function getMe() {
 }
 
 /**
+ * Permanently deletes the logged-in user's account and saved products.
+ * @returns {Promise<null>}
+ */
+export function deleteAccount() {
+  return request('/api/auth/me', { method: 'DELETE' });
+}
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   productName: string,
+ *   brand?: string,
+ *   category?: string,          a code from utils/categories.js
+ *   rawText: string,
+ *   ingredients: { name: string, normalized: string }[],
+ *   flagged: { name: string, normalized: string, sources: string[],
+ *              matches: { name: string, sources: string[] }[] }[],
+ *   source: 'photo' | 'paste',
+ *   createdAt: string,
+ * }} SavedProduct
+ */
+
+/**
+ * The logged-in user's saved products, newest first. Each one leaves out
+ * rawText and ingredients; use getSavedProduct() for those.
+ * @returns {Promise<{ products: SavedProduct[] }>}
+ */
+export function getSavedProducts() {
+  return request('/api/products');
+}
+
+/**
+ * One saved product with everything in it.
+ * @param {string} id
+ * @returns {Promise<{ product: SavedProduct }>}
+ */
+export function getSavedProduct(id) {
+  return request(`/api/products/${encodeURIComponent(id)}`);
+}
+
+/**
+ * Saves a product. The server analyzes rawText itself, so the results
+ * don't need to be sent.
+ * @param {{ productName: string, brand?: string, category?: string | null,
+ *            rawText: string, source: 'photo' | 'paste' }} product
+ * @returns {Promise<{ product: SavedProduct }>}
+ */
+export function saveProduct({ productName, brand, category, rawText, source }) {
+  return request('/api/products', {
+    method: 'POST',
+    body: JSON.stringify({ productName, brand, category, rawText, source }),
+  });
+}
+
+/**
+ * Changes a saved product's name, brand and/or category. An empty brand or
+ * a null category removes it.
+ * @param {string} id
+ * @param {{ productName?: string, brand?: string, category?: string | null }} changes
+ * @returns {Promise<{ product: SavedProduct }>}
+ */
+export function updateSavedProduct(id, { productName, brand, category }) {
+  return request(`/api/products/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ productName, brand, category }),
+  });
+}
+
+/**
+ * Deletes one saved product.
+ * @param {string} id
+ * @returns {Promise<null>}
+ */
+export function deleteSavedProduct(id) {
+  return request(`/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+/**
  * Checks an ingredient list for pore-clogging ingredients.
  * @param {string} text the ingredient list
  * @returns {Promise<{

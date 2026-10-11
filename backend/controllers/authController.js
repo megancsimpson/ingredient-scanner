@@ -32,4 +32,14 @@ function me(req, res) {
   res.json({ user: req.user });
 }
 
-module.exports = { register, login, me };
+/**
+ * DELETE /api/auth/me  (logged in)
+ * Deletes the account and all its saved products.
+ * Response: 204 (no body)
+ */
+async function deleteMe(req, res) {
+  await authService.deleteAccount(req.user._id);
+  res.status(204).end();
+}
+
+module.exports = { register, login, me, deleteMe };

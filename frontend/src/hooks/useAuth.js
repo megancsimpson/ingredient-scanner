@@ -13,6 +13,7 @@ import { AuthContext } from '../context/AuthContext';
  *   login: (email: string, password: string) => Promise<void>,
  *   register: (name: string, email: string, password: string) => Promise<void>,
  *   logout: () => Promise<void>,
+ *   deleteAccount: () => Promise<void>,
  * }}
  */
 export default function useAuth() {
