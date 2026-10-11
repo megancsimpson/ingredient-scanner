@@ -13,8 +13,8 @@ import { askAboutDuplicate } from '../utils/askAboutDuplicate';
  * The results can't be edited: they're a snapshot of what was checked.
  *
  * If the new name and brand match another saved product, asks whether to
- * replace that product, keep both, or cancel. Cancel stays on the form so
- * the name can be changed.
+ * replace that product, keep both, or cancel. Cancel throws away the edits
+ * and goes back to the product as it was.
  *
  * Route params:
  *   id, productName, brand, category: the product being edited
@@ -31,8 +31,11 @@ export default function EditProductModal({ navigation, route }) {
       if (err.status !== 409 || !err.data?.duplicate) throw err;
 
       const choice = await askAboutDuplicate(err.data.duplicate, 'edit');
-      // Returning false keeps the form open so the user can change the name
-      if (choice === 'cancel') return false;
+      if (choice === 'cancel') {
+        // Nothing was saved, so the product is unchanged
+        navigation.goBack();
+        return;
+      }
       await updateSavedProduct(id, { ...values, onDuplicate: choice });
     }
     // ProductDetailScreen reloads when it comes back into view
@@ -66,6 +69,8 @@ export default function EditProductModal({ navigation, route }) {
       submitLabel="Save changes"
       submittingLabel="Saving…"
       onSubmit={handleSave}
+      // Throw away the edits; nothing is saved until "Save changes"
+      onCancel={navigation.goBack}
     >
       <Button
         title={deleting ? 'Deleting…' : 'Delete product'}

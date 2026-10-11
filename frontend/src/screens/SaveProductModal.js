@@ -44,6 +44,12 @@ export default function SaveProductModal({ navigation, route }) {
   }
 
   return (
-    <ProductDetailsForm submitLabel="Save product" submittingLabel="Saving…" onSubmit={handleSave} />
+    <ProductDetailsForm
+      submitLabel="Save product"
+      submittingLabel="Saving…"
+      onSubmit={handleSave}
+      // Back to the results, which are kept
+      onCancel={navigation.goBack}
+    />
   );
 }

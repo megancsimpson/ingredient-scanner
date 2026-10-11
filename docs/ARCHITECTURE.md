@@ -87,7 +87,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | SaveProductModal | Collect product name (required), brand and category (optional), then save. If the same name and brand is already saved, asks "Already saved" with Cancel, Keep both or Replace (the phone's own alert; three buttons is Android's maximum). Cancel saves nothing and returns to a fresh ScanHomeScreen. A stack screen with `presentation: 'modal'`: a sheet on iOS (with a Cancel button), a full screen on Android |
 | SavedProductsScreen | List the user's saved products, with an empty state. Sort by newest or name, group by brand or category, or show only "Non pore-clogging" products (no flagged ingredients) (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
 | ProductDetailScreen | Show a saved product's results; Edit button in the header; delete the product |
-| EditProductModal | Change a saved product's name, brand and category, or delete it (results can't be edited). Asks the same "Already saved" question if the new name and brand match another product; Cancel stays on the form. Same modal style as SaveProductModal |
+| EditProductModal | Change a saved product's name, brand and category, or delete it (results can't be edited). Asks the same "Already saved" question if the new name and brand match another product; Cancel discards the edits and returns to the unchanged product. Same modal style as SaveProductModal |
 | IngredientSearchScreen | Search the ingredient list (whole list A to Z until something is typed). Waits 300 ms after typing before searching and ignores out-of-date responses. Notes that it checks one ingredient at a time; if a whole list is pasted (commas, semicolons or line breaks), it warns and offers to send the list to ReviewTextScreen on the Scan tab |
 | IngredientDetailScreen | Show one ingredient's alternate names, source list(s) and notes |
 | ProfileScreen | Account info, links to the guide and About, log out, delete account |
@@ -103,7 +103,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | IngredientList | IngredientResults | Full parsed ingredient list, flagged ones highlighted; × buttons when given `onRemove` |
 | RemoveButton | IngredientList, FlaggedIngredientCard | Small × button with an enlarged tap area |
 | IngredientResults | ResultsScreen, ProductDetailScreen | Summary line, flagged ingredients and full list, so new and saved results look the same |
-| ProductDetailsForm | SaveProductModal, EditProductModal | Product name, brand and category fields with a submit button |
+| ProductDetailsForm | SaveProductModal, EditProductModal | Product name, brand and category fields with submit and Cancel buttons |
 | ChipSelect | ProductDetailsForm, SavedProductsScreen | Row of tappable chips where one can be selected (category picker, sort options); used instead of a native picker, which differs a lot between iOS and Android |
 | SavedProductRow | SavedProductsScreen | One saved product in the list: name, brand, category, date and flagged count |
 | SearchBar | IngredientSearchScreen | Search input with its own clear button (iOS's built-in one doesn't exist on Android) |

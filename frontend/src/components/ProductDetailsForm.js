@@ -13,8 +13,7 @@ import TextField from './TextField';
  * so both forms look and behave the same.
  *
  * onSubmit receives the trimmed values. If it throws, the error's message is
- * shown above the button. If it returns false, the form stays open and can
- * be submitted again (e.g. the user cancelled a "duplicate product" prompt).
+ * shown above the button.
  *
  * @param {{
  *   initialName?: string,
@@ -22,7 +21,8 @@ import TextField from './TextField';
  *   initialCategory?: string | null,
  *   submitLabel: string,          e.g. "Save product"
  *   submittingLabel: string,      e.g. "Saving…"
- *   onSubmit: (values: { productName: string, brand: string, category: string | null }) => Promise<void | false>,
+ *   onSubmit: (values: { productName: string, brand: string, category: string | null }) => Promise<void>,
+ *   onCancel: () => void,         closes the form without saving
  *   children?: React.ReactNode,   extra content under the button (e.g. Delete)
  * }} props
  */
@@ -33,6 +33,7 @@ export default function ProductDetailsForm({
   submitLabel,
   submittingLabel,
   onSubmit,
+  onCancel,
   children,
 }) {
   const headerHeight = useHeaderHeight();
@@ -51,10 +52,8 @@ export default function ProductDetailsForm({
     setError(null);
     setSubmitting(true);
     try {
-      const outcome = await onSubmit({ productName: productName.trim(), brand: brand.trim(), category });
-      // On success the screen closes, so only re-enable the button if the
-      // user chose to stay
-      if (outcome === false) setSubmitting(false);
+      await onSubmit({ productName: productName.trim(), brand: brand.trim(), category });
+      // No setSubmitting(false) here: on success the screen closes
     } catch (err) {
       setError(err.message);
       setSubmitting(false);
@@ -111,11 +110,16 @@ export default function ProductDetailsForm({
           </Text>
         )}
 
-        <Button
-          title={submitting ? submittingLabel : submitLabel}
-          onPress={handleSubmit}
-          disabled={!canSubmit}
-        />
+        <View style={styles.buttons}>
+          <Button
+            title={submitting ? submittingLabel : submitLabel}
+            onPress={handleSubmit}
+            disabled={!canSubmit}
+          />
+          {/* Also in the header on iPhone, but easy to miss there, and
+              Android only shows a back arrow */}
+          <Button title="Cancel" variant="secondary" onPress={onCancel} disabled={submitting} />
+        </View>
 
         {children && <View style={styles.extra}>{children}</View>}
       </ScrollView>
@@ -130,5 +134,6 @@ const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 8 },
   categoryField: { marginBottom: 24 },
   error: { color: '#c0392b', fontSize: 14, marginBottom: 12 },
+  buttons: { gap: 12 },
   extra: { marginTop: 32 },
 });
