@@ -7,8 +7,9 @@ import useSavedProducts from '../hooks/useSavedProducts';
 import { organizeProducts, SORT_OPTIONS } from '../utils/organizeProducts';
 
 /**
- * The user's saved products. Sort by newest or name, or group by brand or
- * category. Pull down to refresh.
+ * The user's saved products. Sort by newest or name, group by brand or
+ * category, or show only products with no flagged ingredients. Pull down
+ * to refresh.
  *
  * Sorting happens in the app: the list is already loaded, so changing the
  * order doesn't need another request. The chosen order resets when the app
@@ -84,14 +85,24 @@ export default function SavedProductsScreen({ navigation }) {
       refreshing={refreshing}
       onRefresh={refresh}
       // flexGrow lets the empty message sit in the middle of the screen
-      contentContainerStyle={products.length === 0 && styles.emptyContainer}
+      contentContainerStyle={sections.length === 0 && styles.emptyContainer}
       ListEmptyComponent={
-        <View style={styles.center}>
-          <Text style={styles.emptyTitle}>No saved products yet</Text>
-          <Text style={styles.message}>
-            Check a product on the Scan tab, then tap "Save product" to keep it here.
-          </Text>
-        </View>
+        products.length === 0 ? (
+          <View style={styles.center}>
+            <Text style={styles.emptyTitle}>No saved products yet</Text>
+            <Text style={styles.message}>
+              Check a product on the Scan tab, then tap "Save product" to keep it here.
+            </Text>
+          </View>
+        ) : (
+          // There are products, but the "Non pore-clogging" filter hides them all
+          <View style={styles.center}>
+            <Text style={styles.emptyTitle}>No products without flags</Text>
+            <Text style={styles.message}>
+              All of your saved products have at least one flagged ingredient.
+            </Text>
+          </View>
+        )
       }
     />
   );

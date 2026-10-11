@@ -85,7 +85,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | ReviewTextScreen | Let the user correct OCR mistakes (or paste text) before analysis |
 | ResultsScreen | Show flagged ingredients, the full list and a disclaimer |
 | SaveProductModal | Collect product name (required), brand and category (optional), then save. A stack screen with `presentation: 'modal'`: a sheet on iOS (with a Cancel button), a full screen on Android |
-| SavedProductsScreen | List the user's saved products, with an empty state. Sort by newest or name, or group by brand or category (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
+| SavedProductsScreen | List the user's saved products, with an empty state. Sort by newest or name, group by brand or category, or show only "Non pore-clogging" products (no flagged ingredients) (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
 | ProductDetailScreen | Show a saved product's results; Edit button in the header; delete the product |
 | EditProductModal | Change a saved product's name, brand and category, or delete it (results can't be edited). Same modal style as SaveProductModal |
 | IngredientSearchScreen | Search the ingredient database |

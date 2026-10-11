@@ -6,6 +6,8 @@ export const SORT_OPTIONS = [
   { value: 'name', label: 'Name' },
   { value: 'brand', label: 'Brand' },
   { value: 'category', label: 'Category' },
+  // A filter rather than a sort: only products with no flagged ingredients
+  { value: 'clear', label: 'Non pore-clogging' },
 ];
 
 // Compares text the way people expect: ignoring capitals and accents, and
@@ -26,15 +28,23 @@ const byName = (a, b) => compareText(a.productName, b.productName);
  *   brand:    grouped by brand (A to Z), "No brand" last; names A to Z
  *   category: grouped in the category list's order, "No category" last;
  *             newest first within each
+ *   clear:    only products with no flagged ingredients, newest first
+ *             (an empty array if there are none)
  *
- * @param {{ productName: string, brand?: string, category?: string, createdAt: string }[]} products
- * @param {'newest' | 'name' | 'brand' | 'category'} sortBy
+ * @param {{ productName: string, brand?: string, category?: string, createdAt: string,
+ *           flagged: object[] }[]} products
+ * @param {'newest' | 'name' | 'brand' | 'category' | 'clear'} sortBy
  * @returns {{ title: string | null, data: object[] }[]}
  */
 export function organizeProducts(products, sortBy) {
   if (products.length === 0) return [];
 
   if (sortBy === 'name') return [{ title: null, data: [...products].sort(byName) }];
+
+  if (sortBy === 'clear') {
+    const clear = products.filter((product) => product.flagged.length === 0).sort(newestFirst);
+    return clear.length > 0 ? [{ title: null, data: clear }] : [];
+  }
 
   if (sortBy === 'brand') {
     // Group case-insensitively, so "acme" and "Acme" end up together; the
