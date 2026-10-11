@@ -9,11 +9,14 @@ import SaveProductModal from '../screens/SaveProductModal';
 import SavedProductsScreen from '../screens/SavedProductsScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import EditProductModal from '../screens/EditProductModal';
+import IngredientSearchScreen from '../screens/IngredientSearchScreen';
+import IngredientDetailScreen from '../screens/IngredientDetailScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const ScanStack = createNativeStackNavigator();
 const SavedStack = createNativeStackNavigator();
+const IngredientsStack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
 
 /**
@@ -88,6 +91,27 @@ function SavedStackScreen() {
 }
 
 /**
+ * The Ingredients tab's stack.
+ */
+function IngredientsStackScreen() {
+  return (
+    <IngredientsStack.Navigator>
+      <IngredientsStack.Screen
+        name="IngredientSearch"
+        component={IngredientSearchScreen}
+        options={{ title: 'Ingredients' }}
+      />
+      <IngredientsStack.Screen
+        name="IngredientDetail"
+        component={IngredientDetailScreen}
+        // Replaced with the ingredient's name once it loads
+        options={{ title: 'Ingredient' }}
+      />
+    </IngredientsStack.Navigator>
+  );
+}
+
+/**
  * The Profile tab's stack.
  * TODO: FlaggingGuideScreen and AboutScreen
  */
@@ -107,12 +131,12 @@ function ProfileStackScreen() {
 const TAB_ICONS = {
   ScanTab: ['scan', 'scan-outline'],
   SavedTab: ['bookmark', 'bookmark-outline'],
+  IngredientsTab: ['flask', 'flask-outline'],
   ProfileTab: ['person', 'person-outline'],
 };
 
 /**
  * The bottom tabs shown when logged in.
- * TODO: Ingredients tab
  */
 export default function AppTabs() {
   return (
@@ -132,6 +156,11 @@ export default function AppTabs() {
     >
       <Tab.Screen name="ScanTab" component={ScanStackScreen} options={{ title: 'Scan' }} />
       <Tab.Screen name="SavedTab" component={SavedStackScreen} options={{ title: 'Saved' }} />
+      <Tab.Screen
+        name="IngredientsTab"
+        component={IngredientsStackScreen}
+        options={{ title: 'Ingredients' }}
+      />
       <Tab.Screen name="ProfileTab" component={ProfileStackScreen} options={{ title: 'Profile' }} />
     </Tab.Navigator>
   );

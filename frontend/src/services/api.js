@@ -181,6 +181,30 @@ export function deleteSavedProduct(id) {
 }
 
 /**
+ * @typedef {{ id: string, name: string, aliases: string[], sources: string[], notes?: string }} Ingredient
+ */
+
+/**
+ * Searches the pore-clogging ingredient list. Finds ingredients whose name
+ * contains the search, plus any that would flag it if it were on a label.
+ * An empty search returns the whole list. Results are A to Z.
+ * @param {string} search
+ * @returns {Promise<{ ingredients: Ingredient[] }>}
+ */
+export function searchIngredients(search) {
+  return request(`/api/ingredients?search=${encodeURIComponent(search)}`);
+}
+
+/**
+ * One ingredient's details.
+ * @param {string} id
+ * @returns {Promise<{ ingredient: Ingredient }>}
+ */
+export function getIngredient(id) {
+  return request(`/api/ingredients/${encodeURIComponent(id)}`);
+}
+
+/**
  * Checks an ingredient list for pore-clogging ingredients.
  * @param {string} text the ingredient list
  * @returns {Promise<{

@@ -88,7 +88,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | SavedProductsScreen | List the user's saved products, with an empty state. Sort by newest or name, group by brand or category, or show only "Non pore-clogging" products (no flagged ingredients) (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
 | ProductDetailScreen | Show a saved product's results; Edit button in the header; delete the product |
 | EditProductModal | Change a saved product's name, brand and category, or delete it (results can't be edited). Same modal style as SaveProductModal |
-| IngredientSearchScreen | Search the ingredient database |
+| IngredientSearchScreen | Search the ingredient list (whole list A to Z until something is typed). Waits 300 ms after typing before searching and ignores out-of-date responses |
 | IngredientDetailScreen | Show one ingredient's alternate names, source list(s) and notes |
 | ProfileScreen | Account info, links to the guide and About, log out, delete account |
 | DeleteAccountDialog | Confirm permanent deletion of the account and all saved products (a React Native `Modal`; Android's back button cancels) |
@@ -99,13 +99,13 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 
 | Component | Used in | Purpose |
 |---|---|---|
-| FlaggedIngredientCard | IngredientResults, IngredientSearchScreen | One flagged ingredient with its source list(s) |
+| FlaggedIngredientCard | IngredientResults, IngredientSearchScreen | One flagged ingredient with its source list(s); tappable when given `onPress` |
 | IngredientList | IngredientResults | Full parsed ingredient list, flagged ones highlighted |
 | IngredientResults | ResultsScreen, ProductDetailScreen | Summary line, flagged ingredients and full list, so new and saved results look the same |
 | ProductDetailsForm | SaveProductModal, EditProductModal | Product name, brand and category fields with a submit button |
 | ChipSelect | ProductDetailsForm, SavedProductsScreen | Row of tappable chips where one can be selected (category picker, sort options); used instead of a native picker, which differs a lot between iOS and Android |
 | SavedProductRow | SavedProductsScreen | One saved product in the list: name, brand, category, date and flagged count |
-| SearchBar | IngredientSearchScreen | Search input |
+| SearchBar | IngredientSearchScreen | Search input with its own clear button (iOS's built-in one doesn't exist on Android) |
 | TextField | SaveProductModal, LoginScreen, RegisterScreen | Labeled text input with error message |
 | MenuRow | ProfileScreen | Tappable menu item |
 | Disclaimer | ResultsScreen, AboutScreen | "Information only" notice (short or full) |
@@ -171,8 +171,8 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 | POST | `/api/products` | Yes | `{ productName, brand?, category?, rawText, source? }` in; `201 { product }` out. The server analyzes `rawText` itself |
 | PATCH | `/api/products/:id` | Yes | `{ productName?, brand?, category? }` in; `{ product }` out. Only these can change; an empty or null brand or category removes it (owner only) |
 | DELETE | `/api/products/:id` | Yes | Delete a saved product (owner only); `204` |
-| GET | `/api/ingredients?search=` | Yes | Search the ingredient database |
-| GET | `/api/ingredients/:id` | Yes | One ingredient's details |
+| GET | `/api/ingredients?search=` | Yes | `{ ingredients }` A to Z: those whose name or alias contains the search, plus those that would flag the search text if it were on a label (same rule as the matcher). Empty search returns all; `400` over 200 characters |
+| GET | `/api/ingredients/:id` | Yes | `{ ingredient }`: `{ id, name, aliases, sources, notes? }`; `404` if not found |
 
 Every error response has the same shape, `{ "error": "message for the user" }`. The `errorHandler` middleware catches unexpected errors, logs them on the server and returns a generic `500` message so internal details never reach the app.
 
@@ -306,6 +306,7 @@ ingredient-scanner/
 | Flagging instead of 1–5 ratings | The estheticians' source lists identify pore-clogging ingredients but don't rate them, so an ingredient is either flagged or not |
 | Keywords flag any ingredient that contains them (whole words) | The list includes keywords such as "Coconut", "Shea" and "Myristate" that are meant to cover every ingredient containing them; whole-word matching avoids false flags like "Laureth 4" in "Laureth 40" |
 | No admin login or roles | The developer maintains the ingredient list by editing `seed/data/ingredients.json` and running `npm run seed`, and manages accounts in MongoDB Atlas. Admin screens would add work and attack surface without solving a need |
+| Ingredient search reuses the parser and matcher | The list is small, so it's searched in memory with the same rules as scanning; searching a full label name shows exactly the entries that would flag it |
 | One shared normalize function | Seed data and scanned text are normalized the same way, so formatting differences ("D&C Red 17" vs. "D & C Red # 17") don't cause missed matches |
 | Private repo, deployed app | Deployment is a project requirement; the repo stays private as agreed with the professor. During development the app runs locally and through Expo |
 

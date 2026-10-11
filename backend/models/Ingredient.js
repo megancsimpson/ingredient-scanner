@@ -41,7 +41,22 @@ const ingredientSchema = new mongoose.Schema(
       trim: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    // What the API sends: { id, name, aliases, sources, notes? }, without
+    // Mongo internals or the matching-only "normalized" field
+    toJSON: {
+      transform(doc, ret) {
+        ret.id = ret._id.toString();
+        delete ret._id;
+        delete ret.__v;
+        delete ret.normalized;
+        delete ret.createdAt;
+        delete ret.updatedAt;
+        return ret;
+      },
+    },
+  }
 );
 
 module.exports = mongoose.model('Ingredient', ingredientSchema);
