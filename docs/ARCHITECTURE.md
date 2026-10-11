@@ -83,7 +83,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | LoginScreen / RegisterScreen | Collect credentials and call `login()` / `register()` from AuthContext |
 | ScanHomeScreen | Choose between taking a photo or pasting an ingredient list |
 | CameraScreen | Take a photo (or choose one from the library), shrink it to 2000 px on the longest side, send it for OCR, then open ReviewTextScreen with the text. Framing guide, flashlight toggle, and a permission screen with "Open Settings" if the camera was refused. The camera preview only runs while the screen is focused |
-| ReviewTextScreen | Let the user correct OCR mistakes (or paste text) before analysis |
+| ReviewTextScreen | Let the user correct OCR mistakes (or paste text) before analysis. For photos with no "Ingredients" heading, a notice explains that all the text is shown and asks the user to delete non-ingredients or retake the photo |
 | ResultsScreen | Show flagged ingredients, the full list and a disclaimer. "Edit" in the header shows × buttons to remove pieces that aren't ingredients (e.g. pasted website text), with "Undo all changes". Removing an ingredient removes its flag; saving sends the remaining names joined with ", " |
 | SaveProductModal | Collect product name (required), brand and category (optional), then save. If the same name and brand is already saved, asks "Already saved" with Cancel, Keep both or Replace (the phone's own alert; three buttons is Android's maximum). Cancel saves nothing and returns to a fresh ScanHomeScreen. A stack screen with `presentation: 'modal'`: a sheet on iOS (with a Cancel button), a full screen on Android |
 | SavedProductsScreen | List the user's saved products, with an empty state. Sort by newest or name, group by brand or category, or show only "Non pore-clogging" products (no flagged ingredients) (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
@@ -132,7 +132,7 @@ Context plus hooks is sufficient for an app of this size. A state library such a
 
 1. **Capture.** The user takes a photo on `CameraScreen`.
 2. **OCR request.** The app shrinks the photo and sends `POST /api/ocr` with it as base64 JPEG and the user's JWT.
-3. **OCR.** The server's `ocrService` sends the image to Google Cloud Vision and receives the extracted text.
+3. **OCR.** The server's `ocrService` sends the image to Google Cloud Vision and receives all the text on the package; `extractIngredientSection` keeps only the ingredient list.
 4. **OCR response.** The server returns the text (`200`), and the app opens `ReviewTextScreen`.
 5. **Review.** The user corrects any OCR errors. (Users who paste text start here.)
 6. **Analyze request.** The app sends `POST /api/analyze` with the final text.
@@ -166,7 +166,7 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 | POST | `/api/auth/login` | No | `{ email, password }` in; `{ token, user }` out. `401` with the same message whether the email or password is wrong |
 | GET | `/api/auth/me` | Yes | `{ user }`: the current user's profile |
 | DELETE | `/api/auth/me` | Yes | Delete the current user's account and all their saved products; `204` |
-| POST | `/api/ocr` | Yes | `{ image }` (base64 JPEG/PNG) in; `{ text }` out. `400` missing, too large or unreadable image; `422` no text found; `502`/`503` OCR service failed or not set up. Accepts bodies up to 8 MB (mounted before the app-wide 100 KB JSON parser; the login check runs before the body is read) |
+| POST | `/api/ocr` | Yes | `{ image }` (base64 JPEG/PNG) in; `{ text, ingredientsFound }` out. `text` is just the ingredient list when the photo has an "Ingredients" heading (`ingredientsFound: true`), otherwise all the text in the photo. `400` missing, too large or unreadable image; `422` no text found; `502`/`503` OCR service failed or not set up. Accepts bodies up to 8 MB (mounted before the app-wide 100 KB JSON parser; the login check runs before the body is read) |
 | POST | `/api/analyze` | Yes | `{ text }` in; `{ ingredients: [{ name, normalized }], flagged: [...] }` out. `400` if the text is missing, over 10,000 characters or has no ingredients |
 | GET | `/api/products` | Yes | `{ products }`: the current user's saved products, newest first, without `rawText` and `ingredients` |
 | GET | `/api/products/:id` | Yes | `{ product }`: one saved product (owner only; `404` otherwise) |
@@ -184,6 +184,8 @@ Ingredient matching is the core logic of the app and lives in two pure functions
 
 - **`ingredientParser`** (`parseIngredients(text)`) splits the text into individual ingredients and normalizes each one with `normalizeIngredient`. It splits on commas, semicolons, bullets and the word "and" ("Beet Root Extract and Vegetable Glycerin"), never inside parentheses, and not at a comma between digits ("1,2-Hexanediol"). Ingredient blends in square brackets ("Phytonutrient Blend [Aloe Leaf Juice, Sunflower Seed Oil]") are opened up so the blend name and each ingredient inside are separate; brackets holding a single item ("Iron Oxides [CI 77491]") are kept like parentheses. Line breaks also separate ingredients when the text is a one-per-line list: when any line starts with a bullet or list marker ("•", "●", "- ", "* ", "1."), or when there are fewer commas than lines. Otherwise it's a comma-separated label and line breaks are just wrapping ("Isopropyl\nMyristate"). Counting commas against lines means a few commas in other text, such as an address in a pasted website footer, can't join a whole list into one ingredient. It removes headings ("Ingredients:", "Inactive Ingredients:", "May Contain (+/-):", or "Ingredients" alone on a line), percentages, footnotes ("*Certified Organic"), contact details and copyright lines (emails, web addresses, phone numbers, "©") and duplicates. Each ingredient is returned as `{ name, normalized, variants }`: `name` for display, `normalized` for saving, and `variants` listing every name the matcher should check. For example, "Water/Aqua/Eau" gives `water`, `aqua` and `eau`, and "Zea Mays (Corn) Oil" gives the full name, the name without "(Corn)", and `corn`.
 - **`ingredientMatcher`** (`matchIngredients(parsedIngredients, dbIngredients)`) compares the parsed list against each Ingredient's `normalized` name and `aliases`. An ingredient is flagged when any of its variants **contains a database name as whole words**. A keyword such as "Coconut" therefore flags "Cocos Nucifera (Coconut) Oil" and "Coconut Alkanes", but "Laureth 4" does not flag "Laureth 40". It returns the flagged ingredients in label order as `{ name, normalized, sources, matches }`, where `matches` lists each database ingredient that caused the flag and `sources` combines their source lists. The caller loads the Ingredient documents and passes them in, so the matcher itself never touches the database.
+
+**`extractIngredientSection`** (`services/ingredientSection.js`) runs on OCR text before the parser. A photo of a package includes the brand, directions, warnings and address, so it keeps only the text after an "Ingredients" heading: English or French ("Ingrédients"), bilingual ("Ingredients/Ingrédients"), "Active/Inactive Ingredients", followed by a colon or line break so sentences like "made with natural ingredients" don't count, and not "Key ingredients" highlights. Each list ends at a period that ends a line (not abbreviations like "No.") or at the next section ("Directions", "Warnings", "Made in", "Distributed by", a web address, French equivalents). Separate English and French lists are both kept; the parser removes duplicates. It returns `null` when there's no heading, and the full text is used instead. It's a pure function with Jest tests.
 
 Both build on **`normalizeIngredient`** (`backend/utils/normalize.js`), which lowercases a name, replaces anything other than letters, numbers and "+" with a space, and collapses spaces (e.g. "D&C Red # 17" → "d c red 17"). The seed script uses the same function, so scanned names and stored names are always compared in the same form.
 
@@ -264,7 +266,7 @@ ingredient-scanner/
 │   ├── config/              database connection, Passport setup
 │   ├── routes/              auth, ocr, analyze, products, ingredients
 │   ├── controllers/         one per route group
-│   ├── services/            ocrService, analysisService, ingredientParser, ingredientMatcher
+│   ├── services/            ocrService, ingredientSection, analysisService, ingredientParser, ingredientMatcher
 │   ├── models/              User, SavedProduct, Ingredient
 │   ├── middleware/          auth.js, errorHandler.js
 │   ├── seed/                data/ingredients.json and seedIngredients.js

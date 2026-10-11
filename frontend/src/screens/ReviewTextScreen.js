@@ -13,9 +13,11 @@ import { analyzeIngredients } from '../services/api';
  *   source:       'paste' or 'photo'
  *   initialText?: text to start the input with (from OCR, or a list sent from
  *                 the Ingredients search)
+ *   ingredientsFound?: for photos, whether the server found an "Ingredients"
+ *                 heading (and so kept only the list) or returned all the text
  */
 export default function ReviewTextScreen({ navigation, route }) {
-  const { source = 'paste', initialText = '' } = route.params ?? {};
+  const { source = 'paste', initialText = '', ingredientsFound = true } = route.params ?? {};
   const headerHeight = useHeaderHeight();
 
   const [text, setText] = useState(initialText);
@@ -59,12 +61,23 @@ export default function ReviewTextScreen({ navigation, route }) {
           column gets shorter, so the text box shrinks and the button stays
           visible. Long lists scroll inside the text box. */}
       <View style={styles.container}>
-        <Text style={styles.label}>
-          {source === 'photo'
-            ? 'Check the text read from your photo and fix any mistakes.'
-            : 'Paste or type the ingredient list from the product label.'}{' '}
-          Remove anything that isn't an ingredient, such as text copied from a website.
-        </Text>
+        {source === 'photo' && !ingredientsFound ? (
+          // The photo had no "Ingredients" heading, so this is everything
+          // the camera read, not just the list
+          <View style={styles.notice} accessibilityRole="alert">
+            <Text style={styles.noticeText}>
+              We couldn't find the word "Ingredients" in this photo, so this is all the text on
+              it. Delete anything that isn't an ingredient, or go back and take a new photo with
+              the whole ingredient list in the frame.
+            </Text>
+          </View>
+        ) : (
+          <Text style={styles.label}>
+            {source === 'photo'
+              ? 'Check the ingredient list read from your photo and fix any mistakes.'
+              : 'Paste or type the ingredient list from the product label. Remove anything that isn\'t an ingredient, such as text copied from a website.'}
+          </Text>
+        )}
 
         <TextInput
           style={styles.input}
@@ -102,6 +115,15 @@ const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: '#fff' },
   container: { flex: 1, padding: 20 },
   label: { fontSize: 15, color: '#444', marginBottom: 12 },
+  notice: {
+    backgroundColor: '#fff8e6',
+    borderWidth: 1,
+    borderColor: '#f0d58c',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+  },
+  noticeText: { fontSize: 14, color: '#6b5300', lineHeight: 20 },
   input: {
     flex: 1, // fill the space between the label and the button
     minHeight: 80,

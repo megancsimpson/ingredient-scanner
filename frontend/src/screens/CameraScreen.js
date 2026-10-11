@@ -36,9 +36,9 @@ export default function CameraScreen({ navigation }) {
     setReading(true);
     try {
       const base64 = await preparePhoto(photo);
-      const { text } = await readIngredientPhoto(base64);
+      const { text, ingredientsFound } = await readIngredientPhoto(base64);
       setTorchOn(false);
-      navigation.navigate('ReviewText', { source: 'photo', initialText: text });
+      navigation.navigate('ReviewText', { source: 'photo', initialText: text, ingredientsFound });
     } catch (err) {
       Alert.alert("Couldn't read the photo", err.message);
     } finally {

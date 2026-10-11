@@ -222,8 +222,11 @@ export function getIngredient(id) {
 
 /**
  * Reads the text in a photo of an ingredient list (OCR on the server).
+ * If the photo has an "Ingredients" heading, text is just the ingredient
+ * list and ingredientsFound is true; otherwise text is everything in the
+ * photo and ingredientsFound is false.
  * @param {string} imageBase64 a base64-encoded JPEG
- * @returns {Promise<{ text: string }>}
+ * @returns {Promise<{ text: string, ingredientsFound: boolean }>}
  */
 export function readIngredientPhoto(imageBase64) {
   return request('/api/ocr', {
