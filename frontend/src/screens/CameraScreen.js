@@ -13,6 +13,11 @@ import { preparePhoto } from '../utils/preparePhoto';
  * Takes a photo of an ingredient list (or picks one from the photo
  * library), reads its text on the server, and opens ReviewTextScreen so
  * the user can fix any mistakes before it's analyzed.
+ *
+ * expo-camera can't focus on a tapped spot, and phone cameras can't focus
+ * closer than about 15-20 cm, so small labels can come out blurry. "Use
+ * your phone's camera" opens the phone's own Camera, which has
+ * tap-to-focus and close-up handling, and reads that photo the same way.
  */
 export default function CameraScreen({ navigation }) {
   const [permission, requestPermission] = useCameraPermissions();
@@ -24,6 +29,8 @@ export default function CameraScreen({ navigation }) {
   const [cameraReady, setCameraReady] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
   const [reading, setReading] = useState(false);
+  // True while the phone's own Camera is open (see openPhoneCamera)
+  const [phoneCameraOpen, setPhoneCameraOpen] = useState(false);
 
   // The preview restarts when the user comes back to this screen, so the
   // shutter waits for it to be ready again
@@ -63,6 +70,34 @@ export default function CameraScreen({ navigation }) {
     if (!result.canceled) await readPhoto(result.assets[0]);
   }
 
+  async function openPhoneCamera() {
+    const { granted, canAskAgain } = await ImagePicker.requestCameraPermissionsAsync();
+    if (!granted) {
+      Alert.alert(
+        'Camera access needed',
+        'Allow Ingredient Scanner to use your camera to photograph ingredient lists.',
+        canAskAgain
+          ? [{ text: 'OK' }]
+          : [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Open Settings', onPress: () => Linking.openSettings() },
+            ]
+      );
+      return;
+    }
+
+    // Only one camera can run at a time, so this screen's preview is turned
+    // off while the phone's Camera is open
+    setPhoneCameraOpen(true);
+    setTorchOn(false);
+    try {
+      const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });
+      if (!result.canceled) await readPhoto(result.assets[0]);
+    } finally {
+      setPhoneCameraOpen(false);
+    }
+  }
+
   // Still checking whether the camera is allowed
   if (!permission) return <View style={styles.screen} />;
 
@@ -92,7 +127,7 @@ export default function CameraScreen({ navigation }) {
 
   return (
     <View style={styles.screen}>
-      {isFocused && (
+      {isFocused && !phoneCameraOpen && (
         <CameraView
           ref={cameraRef}
           style={StyleSheet.absoluteFill}
@@ -102,12 +137,26 @@ export default function CameraScreen({ navigation }) {
         />
       )}
 
-      {/* A frame to line the ingredient list up with */}
+      {/* A frame to line the ingredient list up with, centered on the
+          screen. The tip hangs above it without moving it; the space below
+          is kept for the "use your phone's camera" button. */}
       <View style={styles.guide} pointerEvents="none">
-        <Text style={styles.tip}>Fill the frame with the ingredient list</Text>
-        <View style={styles.frame} />
-        <Text style={styles.tip}>Hold steady, in good light</Text>
+        <View style={styles.frame}>
+          <Text style={[styles.tip, styles.tipAbove]}>
+            Fill the frame with the ingredient list, in good light
+          </Text>
+        </View>
       </View>
+
+      <Pressable
+        onPress={openPhoneCamera}
+        style={({ pressed }) => [styles.phoneCamera, pressed && styles.shutterPressed]}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityHint="Opens your phone's Camera, which can focus on small print"
+      >
+        <Text style={styles.phoneCameraText}>Blurry? Use your phone's camera</Text>
+      </Pressable>
 
       <View style={styles.controls}>
         <ControlButton icon="images-outline" label="Choose a photo" onPress={choosePhoto} />
@@ -159,16 +208,18 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 110, // keep clear of the controls
   },
   frame: {
     width: '85%',
-    height: '55%',
+    // Leaves room between the frame and the buttons below it, even on small
+    // phones
+    height: '45%',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.85)',
     borderRadius: 12,
-    marginVertical: 12,
   },
+  // Positioned outside the frame's top edge, so the frame stays centered
+  tipAbove: { position: 'absolute', bottom: '100%', marginBottom: 10, alignSelf: 'center' },
   tip: {
     color: '#fff',
     fontSize: 14,
@@ -205,5 +256,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   shutterPressed: { opacity: 0.7 },
+  // Sits just above the shutter row
+  phoneCamera: {
+    position: 'absolute',
+    bottom: 116,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 16,
+  },
+  phoneCameraText: { color: '#fff', fontSize: 14, fontWeight: '600' },
   shutterInner: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#fff' },
 });
