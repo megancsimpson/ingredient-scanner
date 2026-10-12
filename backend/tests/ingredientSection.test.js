@@ -70,6 +70,69 @@ describe('extractIngredientSection', () => {
       expect(extractIngredientSection(text)).toBe('Talc, Mica, May Contain: Iron Oxides');
     });
 
+    test('ends at the end of its paragraph, before the company details', () => {
+      // ocrService puts a blank line between the paragraphs Vision finds
+      const text =
+        'Ingredients: Water, Glycerin, Shea Butter\n\nAcme Beauty Inc.\n123 Main St, Austin, TX 78701';
+      expect(extractIngredientSection(text)).toBe('Water, Glycerin, Shea Butter');
+    });
+
+    test('ends before a trademark paragraph', () => {
+      const text = 'Ingredients: Water, Glycerin\n\nGlow™ is a trademark of Acme Beauty Inc.';
+      expect(extractIngredientSection(text)).toBe('Water, Glycerin');
+    });
+
+    test('finds the list when the heading is a paragraph of its own', () => {
+      const text = 'INGREDIENTS\n\nWater, Glycerin\n\nAcme Beauty Inc.';
+      expect(extractIngredientSection(text)).toBe('Water, Glycerin');
+    });
+
+    test('continues into the next paragraph after a trailing comma', () => {
+      const text = 'Ingredients: Water, Glycerin,\n\nShea Butter, Tocopherol\n\nAcme Beauty Inc.';
+      expect(extractIngredientSection(text)).toBe('Water, Glycerin,\n\nShea Butter, Tocopherol');
+    });
+
+    test('continues into a next paragraph that starts mid-name', () => {
+      const text = 'Ingredients: Water, Butyrospermum Parkii\n\nbutter, Glycerin\n\nAcme Beauty Inc.';
+      expect(extractIngredientSection(text)).toBe('Water, Butyrospermum Parkii\n\nbutter, Glycerin');
+    });
+
+    test('continues when a wrapped name starts the next paragraph with a capital', () => {
+      // Vision sometimes splits one list into several paragraphs
+      const text =
+        'Ingredients: Water, Cocos Nucifera (Coconut)\n\nOil, Glycerin, Shea Butter\n\nTocopherol, Citric Acid.\n\nAcme Beauty Inc.';
+      expect(extractIngredientSection(text)).toBe(
+        'Water, Cocos Nucifera (Coconut)\n\nOil, Glycerin, Shea Butter\n\nTocopherol, Citric Acid'
+      );
+    });
+
+    test('continues through paragraphs with pigment numbers and trademark symbols', () => {
+      const text = 'Ingredients: Water, Mica\n\nCI 77891, CI 77491\n\nPhyto Blend™ [Aloe, Rose]';
+      expect(extractIngredientSection(text)).toBe(
+        'Water, Mica\n\nCI 77891, CI 77491\n\nPhyto Blend™ [Aloe, Rose]'
+      );
+    });
+
+    test.each([
+      ['a company name', 'Acme Beauty LLC'],
+      ['a street address', 'Acme Beauty\n123 Main Street, Austin TX'],
+      ['a phone number', 'Questions? Call (512) 555-0123'],
+      ['a website', 'Glow Skin\nglowskin.com'],
+      ['an email address', 'hello@glowskin.ca'],
+      ['a Canadian postal code', 'Glow Skin, Toronto ON M5V 2T6'],
+      ['a copyright line', '© 2026 Glow Skin'],
+    ])('ends before a paragraph with %s, even with no period', (_, paragraph) => {
+      const text = `Ingredients: Water, Glycerin, Shea Butter\n\n${paragraph}`;
+      expect(extractIngredientSection(text)).toBe('Water, Glycerin, Shea Butter');
+    });
+
+    test('does not end at a period in the middle of a line', () => {
+      // OCR often misreads a comma as a period; stopping there would miss
+      // the rest of the list
+      const text = 'Ingredients: Water. Glycerin, Shea Butter\n\nAcme Beauty Inc.';
+      expect(extractIngredientSection(text)).toBe('Water. Glycerin, Shea Butter');
+    });
+
     test('does not stop at words that only start like a section word', () => {
       // "Useful", "Storax" and "Applied" aren't "Use", "Store" or "Apply"
       const text = 'Ingredients:\nUseful Extract,\nStorax Resin,\nApplied Oil.';

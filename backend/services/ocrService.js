@@ -66,7 +66,51 @@ async function extractText(imageBase64) {
     throw new HttpError(502, "Couldn't read the photo right now. Please try again.");
   }
 
-  return data.responses[0].fullTextAnnotation?.text ?? '';
+  return textWithParagraphs(data.responses[0].fullTextAnnotation);
 }
 
-module.exports = { extractText };
+// What goes after a letter, from Vision's "detectedBreak": a space, a line
+// break, or a hyphen where a word was split across two lines
+const BREAKS = {
+  SPACE: ' ',
+  SURE_SPACE: ' ',
+  EOL_SURE_SPACE: '\n',
+  LINE_BREAK: '\n',
+  HYPHEN: '-\n',
+};
+
+/**
+ * Rebuilds the text from Vision's layout (pages > blocks > paragraphs >
+ * words > letters) with a blank line between paragraphs.
+ *
+ * Vision's plain "text" has line breaks but no paragraph gaps, so the
+ * ingredient list runs straight into the company name and address printed
+ * under it. The blank lines let extractIngredientSection stop at the end of
+ * the ingredient paragraph.
+ *
+ * Exported for tests.
+ *
+ * @param {object} [annotation] Vision's fullTextAnnotation
+ * @returns {string}
+ */
+function textWithParagraphs(annotation) {
+  if (!annotation?.pages) return annotation?.text ?? '';
+
+  const paragraphs = [];
+  for (const page of annotation.pages) {
+    for (const block of page.blocks ?? []) {
+      for (const paragraph of block.paragraphs ?? []) {
+        let text = '';
+        for (const word of paragraph.words ?? []) {
+          for (const symbol of word.symbols ?? []) {
+            text += symbol.text + (BREAKS[symbol.property?.detectedBreak?.type] ?? '');
+          }
+        }
+        paragraphs.push(text.trim());
+      }
+    }
+  }
+  return paragraphs.filter(Boolean).join('\n\n');
+}
+
+module.exports = { extractText, textWithParagraphs };

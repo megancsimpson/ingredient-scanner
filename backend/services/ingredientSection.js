@@ -54,6 +54,9 @@ const NEXT_SECTION_WORDS = [
   'lot\\b',
   'www\\.',
   'https?:',
+  'trademarks?',
+  '©',
+  'patent',
   // French
   "mode d['’]emploi",
   'avertissements?',
@@ -64,6 +67,22 @@ const NEXT_SECTION_WORDS = [
 ];
 const NEXT_SECTION_PATTERN = new RegExp(
   `(?:^|\\n|\\.)[ \\t]*(?:${NEXT_SECTION_WORDS.join('|')})(?![a-zà-ÿ])`,
+  'i'
+);
+
+// Signs that a paragraph is the company's details or legal text rather
+// than more of the ingredient list. Deliberately not "™"/"®" (blend names
+// use them) or 5-digit numbers (pigments like "CI 77891" have them).
+const COMPANY_PATTERN = new RegExp(
+  [
+    '\\b(?:inc|llc|ltd|corp|corporation|gmbh|pty|limited)\\b', // Acme Beauty Inc.
+    '\\bco\\.', //                                   Acme Co.
+    '\\b\\d+\\s+(?:\\w+\\s+){1,3}(?:street|st|avenue|ave|road|rd|blvd|boulevard|drive|dr|lane|ln|way|suite|ste)\\b', // 123 Main St
+    '\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}', //      phone number
+    '[A-Z]\\d[A-Z]\\s?\\d[A-Z]\\d', //                     Canadian postal code
+    'www\\.|https?:|\\.com\\b|@', //                    website or email
+    '©|\\btrademarks?\\b|\\ball rights reserved\\b',
+  ].join('|'),
   'i'
 );
 
@@ -95,17 +114,42 @@ function extractIngredientSection(text) {
 }
 
 /**
- * Where an ingredient list ends: at the first period that ends a line (or
- * the text), or at the start of the next section, whichever comes first.
+ * Where an ingredient list ends, whichever comes first:
+ *   - a period that ends a line or paragraph (the list is finished)
+ *   - a paragraph that looks like company details or legal text (name,
+ *     address, phone, website, trademark), which is often printed straight
+ *     under the list without a period before it. Paragraphs are separated
+ *     by blank lines, which ocrService adds from Vision's layout.
+ *   - the start of the next section ("Directions", "Made in", ...)
+ *
+ * Other paragraph breaks don't end the list: Vision sometimes splits one
+ * list into several paragraphs, e.g. where a long name wraps.
+ *
+ * A period in the middle of a line doesn't end the list either: OCR often
+ * misreads a comma as a period in small print. Stopping too early would
+ * silently miss ingredients, which is worse than including a little extra
+ * text the user can delete on the review screen.
  */
 function findEnd(section) {
   let end = section.length;
+
+  // Each paragraph after the first: stop before the first that looks like
+  // company or legal text
+  const paragraphBreaks = [...section.matchAll(/\n[ \t]*\n/g)];
+  for (const [i, blankLine] of paragraphBreaks.entries()) {
+    const paragraphStart = blankLine.index + blankLine[0].length;
+    const paragraphEnd = paragraphBreaks[i + 1]?.index ?? section.length;
+    if (COMPANY_PATTERN.test(section.slice(paragraphStart, paragraphEnd))) {
+      end = blankLine.index;
+      break;
+    }
+  }
 
   // A period at the end of a line, unless it's an abbreviation like "No."
   for (const match of section.matchAll(/\.(?=[ \t]*(?:\n|$))/g)) {
     const wordBefore = section.slice(0, match.index).match(/([a-z]+)$/i)?.[1]?.toLowerCase();
     if (!ABBREVIATIONS.has(wordBefore)) {
-      end = match.index;
+      end = Math.min(end, match.index);
       break;
     }
   }
