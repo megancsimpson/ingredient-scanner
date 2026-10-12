@@ -138,15 +138,15 @@ export default function CameraScreen({ navigation }) {
       )}
 
       {/* A frame to line the ingredient list up with, centered on the
-          screen. The tip hangs above it without moving it; the space below
-          is kept for the "use your phone's camera" button. */}
+          screen */}
       <View style={styles.guide} pointerEvents="none">
-        <View style={styles.frame}>
-          <Text style={[styles.tip, styles.tipAbove]}>
-            Fill the frame with the ingredient list, in good light
-          </Text>
-        </View>
+        <View style={styles.frame} />
       </View>
+
+      {/* The tip stays at the top of the camera view */}
+      <Text style={[styles.tip, styles.tipTop]} pointerEvents="none">
+        Fill the frame with the ingredient list, in good light
+      </Text>
 
       <Pressable
         onPress={openPhoneCamera}
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   permissionText: { color: '#ddd', fontSize: 15, textAlign: 'center', marginTop: 8, lineHeight: 21 },
   permissionButtons: { alignSelf: 'stretch', gap: 12, marginTop: 24 },
   guide: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -218,8 +218,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.85)',
     borderRadius: 12,
   },
-  // Positioned outside the frame's top edge, so the frame stays centered
-  tipAbove: { position: 'absolute', bottom: '100%', marginBottom: 10, alignSelf: 'center' },
+  tipTop: { position: 'absolute', top: 16, left: 16, right: 16, textAlign: 'center' },
   tip: {
     color: '#fff',
     fontSize: 14,
