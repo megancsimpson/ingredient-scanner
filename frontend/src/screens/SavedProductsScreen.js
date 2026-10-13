@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, SectionList, StyleSheet, Text, View } from 'react-native';
 import Button from '../components/Button';
 import ChipSelect from '../components/ChipSelect';
@@ -21,6 +21,19 @@ export default function SavedProductsScreen({ navigation }) {
 
   // Only re-sort when the products or the sort option change
   const sections = useMemo(() => organizeProducts(products, sortBy), [products, sortBy]);
+
+  // The row whose Delete button is showing, as { id, close }, so only one
+  // row is open at a time. A ref rather than state: changing it doesn't
+  // need to redraw the list.
+  const openRowRef = useRef(null);
+
+  function handleSwipeStart(id, close) {
+    // Close the previously opened row, unless it's the one being swiped
+    if (openRowRef.current && openRowRef.current.id !== id) {
+      openRowRef.current.close();
+    }
+    openRowRef.current = { id, close };
+  }
 
   // Same confirmation as ProductDetailScreen, since a delete can't be undone.
   // Alert.alert shows the phone's own dialog on iOS and Android.
@@ -74,6 +87,7 @@ export default function SavedProductsScreen({ navigation }) {
           createdAt={item.createdAt}
           onPress={() => navigation.navigate('ProductDetail', { id: item.id })}
           onDelete={() => confirmDelete(item)}
+          onSwipeStart={(close) => handleSwipeStart(item.id, close)}
         />
       )}
       // Group headings (only "brand" and "category" have titles)

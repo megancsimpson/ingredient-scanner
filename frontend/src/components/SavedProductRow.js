@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -15,6 +16,10 @@ import { formatDate } from '../utils/formatDate';
  *   createdAt: string,
  *   onPress: () => void,
  *   onDelete: () => void,  called when Delete is tapped (the screen confirms)
+ *   onSwipeStart: (close: () => void) => void,
+ *                          called when the user starts swiping this row open;
+ *                          `close` slides it shut again, so the screen can
+ *                          close it when another row is swiped
  * }} props
  */
 export default function SavedProductRow({
@@ -25,7 +30,12 @@ export default function SavedProductRow({
   createdAt,
   onPress,
   onDelete,
+  onSwipeStart,
 }) {
+  // Gives access to the swipeable's close() from outside its own callbacks.
+  // swipeableRef.current is null once the row has left the screen, hence ?.
+  const swipeableRef = useRef(null);
+
   const flaggedText = flaggedCount === 0 ? 'No flags' : `${flaggedCount} flagged`;
   // e.g. "Acme · Moisturizer · Oct 10, 2026", skipping anything missing
   const details = [brand, getCategoryLabel(category), formatDate(createdAt)].filter(Boolean);
@@ -55,7 +65,14 @@ export default function SavedProductRow({
     // The gesture library tells a sideways swipe apart from scrolling the
     // list, on both iOS and Android. overshootRight={false} stops the row
     // at the button's width instead of letting it slide further.
-    <ReanimatedSwipeable renderRightActions={renderDeleteAction} overshootRight={false}>
+    // onSwipeableOpenStartDrag fires as soon as a closed row starts moving,
+    // so another open row closes right away, not after this one finishes.
+    <ReanimatedSwipeable
+      ref={swipeableRef}
+      renderRightActions={renderDeleteAction}
+      overshootRight={false}
+      onSwipeableOpenStartDrag={() => onSwipeStart(() => swipeableRef.current?.close())}
+    >
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [styles.row, pressed && styles.pressed]}
