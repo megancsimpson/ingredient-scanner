@@ -20,6 +20,7 @@ The app is an informational tool and does not replace professional skincare advi
 | Database | MongoDB (Atlas), Mongoose | Data storage, schemas and validation |
 | Authentication | Passport.js (passport-jwt), bcrypt, JSON Web Tokens | Email/password login (checked with bcrypt in `authService`) and protected routes (checked by Passport's JWT strategy) |
 | OCR | Google Cloud Vision API (`DOCUMENT_TEXT_DETECTION`) | Converting ingredient photos to text |
+| Gestures | react-native-gesture-handler, react-native-reanimated | Swipe to delete on the saved products list |
 | Camera and photos | expo-camera, expo-image-picker, expo-image-manipulator | Taking or choosing a photo and shrinking it before upload |
 | Testing | Jest | Unit tests |
 
@@ -86,7 +87,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | ReviewTextScreen | Let the user correct OCR mistakes (or paste text) before analysis. For photos with no "Ingredients" heading, a notice explains that all the text is shown and asks the user to delete non-ingredients or retake the photo |
 | ResultsScreen | Show flagged ingredients, the full list and a disclaimer. "Edit" in the header shows × buttons to remove pieces that aren't ingredients (e.g. pasted website text), with "Undo all changes". Removing an ingredient removes its flag; saving sends the remaining names joined with ", " |
 | SaveProductModal | Collect product name (required), brand and category (optional), then save. If the same name and brand is already saved, asks "Already saved" with Cancel, Keep both or Replace (the phone's own alert; three buttons is Android's maximum). Cancel saves nothing and returns to a fresh ScanHomeScreen. A stack screen with `presentation: 'modal'`: a sheet on iOS (with a Cancel button), a full screen on Android |
-| SavedProductsScreen | List the user's saved products, with an empty state. Sort by newest or name, group by brand or category, or show only "Non pore-clogging" products (no flagged ingredients) (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
+| SavedProductsScreen | List the user's saved products, with an empty state. Swipe a product left to show a Delete button (asks to confirm first; screen readers get a Delete action instead). Sort by newest or name, group by brand or category, or show only "Non pore-clogging" products (no flagged ingredients) (sorted in the app with `utils/organizeProducts.js`; resets when the app restarts) |
 | ProductDetailScreen | Show a saved product's results; Edit button in the header; delete the product |
 | EditProductModal | Change a saved product's name, brand and category, or delete it (results can't be edited). Asks the same "Already saved" question if the new name and brand match another product; Cancel discards the edits and returns to the unchanged product. Same modal style as SaveProductModal |
 | IngredientSearchScreen | Search the ingredient list (whole list A to Z until something is typed). Waits 300 ms after typing before searching and ignores out-of-date responses. Notes that it checks one ingredient at a time; if a whole list is pasted (commas, semicolons or line breaks), it warns and offers to send the list to ReviewTextScreen on the Scan tab |
@@ -106,7 +107,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | IngredientResults | ResultsScreen, ProductDetailScreen | Summary line, flagged ingredients and full list, so new and saved results look the same |
 | ProductDetailsForm | SaveProductModal, EditProductModal | Product name, brand and category fields with submit and Cancel buttons |
 | ChipSelect | ProductDetailsForm, SavedProductsScreen | Row of tappable chips where one can be selected (category picker, sort options); used instead of a native picker, which differs a lot between iOS and Android |
-| SavedProductRow | SavedProductsScreen | One saved product in the list: name, brand, category, date and flagged count |
+| SavedProductRow | SavedProductsScreen | One saved product in the list: name, brand, category, date and flagged count; swipe left for Delete (`ReanimatedSwipeable` from react-native-gesture-handler) |
 | SearchBar | IngredientSearchScreen | Search input with its own clear button (iOS's built-in one doesn't exist on Android) |
 | TextField | SaveProductModal, LoginScreen, RegisterScreen | Labeled text input with error message |
 | MenuRow | ProfileScreen | Tappable menu item |

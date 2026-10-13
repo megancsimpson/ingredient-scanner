@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, SectionList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, SectionList, StyleSheet, Text, View } from 'react-native';
 import Button from '../components/Button';
 import ChipSelect from '../components/ChipSelect';
 import SavedProductRow from '../components/SavedProductRow';
@@ -9,18 +9,35 @@ import { organizeProducts, SORT_OPTIONS } from '../utils/organizeProducts';
 /**
  * The user's saved products. Sort by newest or name, group by brand or
  * category, or show only products with no flagged ingredients. Pull down
- * to refresh.
+ * to refresh. Swipe a product left to delete it.
  *
  * Sorting happens in the app: the list is already loaded, so changing the
  * order doesn't need another request. The chosen order resets when the app
  * restarts.
  */
 export default function SavedProductsScreen({ navigation }) {
-  const { products, loading, refreshing, error, refresh } = useSavedProducts();
+  const { products, loading, refreshing, error, refresh, deleteProduct } = useSavedProducts();
   const [sortBy, setSortBy] = useState('newest');
 
   // Only re-sort when the products or the sort option change
   const sections = useMemo(() => organizeProducts(products, sortBy), [products, sortBy]);
+
+  // Same confirmation as ProductDetailScreen, since a delete can't be undone.
+  // Alert.alert shows the phone's own dialog on iOS and Android.
+  function confirmDelete(product) {
+    Alert.alert('Delete product?', `"${product.productName}" will be removed from your saved products.`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => handleDelete(product.id) },
+    ]);
+  }
+
+  async function handleDelete(id) {
+    try {
+      await deleteProduct(id);
+    } catch (err) {
+      Alert.alert("Couldn't delete product", err.message);
+    }
+  }
 
   // First load: nothing to show yet
   if (loading) {
@@ -56,6 +73,7 @@ export default function SavedProductsScreen({ navigation }) {
           flaggedCount={item.flagged.length}
           createdAt={item.createdAt}
           onPress={() => navigation.navigate('ProductDetail', { id: item.id })}
+          onDelete={() => confirmDelete(item)}
         />
       )}
       // Group headings (only "brand" and "category" have titles)

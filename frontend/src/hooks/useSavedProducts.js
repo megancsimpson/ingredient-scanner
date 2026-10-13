@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { getSavedProducts } from '../services/api';
+import { deleteSavedProduct, getSavedProducts } from '../services/api';
 
 /**
  * Loads the user's saved products from the server.
@@ -10,7 +10,7 @@ import { getSavedProducts } from '../services/api';
  * screen. The server is the single source of truth; the app doesn't keep
  * its own copy to update by hand.
  *
- *   const { products, loading, refreshing, error, refresh } = useSavedProducts();
+ *   const { products, loading, refreshing, error, refresh, deleteProduct } = useSavedProducts();
  *
  * @returns {{
  *   products: import('../services/api').SavedProduct[],
@@ -18,6 +18,7 @@ import { getSavedProducts } from '../services/api';
  *   refreshing: boolean,   true during pull-to-refresh
  *   error: string | null,
  *   refresh: () => Promise<void>,
+ *   deleteProduct: (id: string) => Promise<void>,   throws if the server fails
  * }}
  */
 export default function useSavedProducts() {
@@ -53,5 +54,14 @@ export default function useSavedProducts() {
     }, [load])
   );
 
-  return { products, loading, refreshing, error, refresh };
+  // Deletes on the server first. Only once the server has confirmed it is
+  // the product taken out of the list, so the row disappears straight away
+  // instead of waiting for a reload. If the delete fails, the error is
+  // passed on to the screen and the list is left unchanged.
+  const deleteProduct = useCallback(async (id) => {
+    await deleteSavedProduct(id);
+    setProducts((current) => current.filter((product) => product.id !== id));
+  }, []);
+
+  return { products, loading, refreshing, error, refresh, deleteProduct };
 }
