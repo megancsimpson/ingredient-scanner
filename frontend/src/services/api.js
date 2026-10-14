@@ -70,7 +70,7 @@ export function checkHealth() {
 }
 
 /**
- * @typedef {{ id: string, name: string, email: string, createdAt: string }} User
+ * @typedef {{ id: string, name: string, email: string, emailVerified: boolean, createdAt: string }} User
  */
 
 /**
@@ -94,6 +94,32 @@ export function login({ email, password }) {
   return request('/api/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
+  });
+}
+
+/**
+ * Asks the server to email a code that verifies the logged-in user's email.
+ * Without resend, a code that still works is kept rather than replaced, so
+ * this is safe to call each time the verification screen opens.
+ * @param {{ resend?: boolean }} [options]
+ * @returns {Promise<null>}
+ */
+export function sendVerificationCode({ resend = false } = {}) {
+  return request('/api/auth/send-verification', {
+    method: 'POST',
+    body: JSON.stringify({ resend }),
+  });
+}
+
+/**
+ * Verifies the logged-in user's email with the emailed code.
+ * @param {string} code
+ * @returns {Promise<{ user: User }>} the user, now with emailVerified true
+ */
+export function verifyEmail(code) {
+  return request('/api/auth/verify-email', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
   });
 }
 

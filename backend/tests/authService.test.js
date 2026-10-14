@@ -9,7 +9,13 @@ jest.mock('../services/productService');
 
 const User = require('../models/User');
 const emailService = require('../services/emailService');
-const { requestPasswordReset, resetPassword } = require('../services/authService');
+const {
+  register,
+  sendVerificationCode,
+  verifyEmail,
+  requestPasswordReset,
+  resetPassword,
+} = require('../services/authService');
 
 process.env.JWT_SECRET = 'test-secret';
 
@@ -26,6 +32,143 @@ function fakeUser(fields = {}) {
 
 beforeEach(() => {
   jest.resetAllMocks();
+});
+
+describe('register', () => {
+  test('creates the account and logs in, without sending any email yet', async () => {
+    User.exists.mockResolvedValue(false);
+    User.create.mockImplementation(async (fields) => fakeUser(fields));
+
+    const result = await register({ name: 'Sam', email: 'Sam@Example.com', password: 'a-good-password' });
+
+    expect(result.user.email).toBe('sam@example.com');
+    expect(jwt.verify(result.token, 'test-secret').sub).toBe('user1');
+    // The verification screen asks for the code; the welcome comes after
+    expect(emailService.sendVerificationCode).not.toHaveBeenCalled();
+    expect(emailService.sendWelcomeEmail).not.toHaveBeenCalled();
+  });
+});
+
+describe('sendVerificationCode', () => {
+  test('emails a 6-digit code and stores only its hash', async () => {
+    const user = fakeUser({ name: 'Sam', emailVerified: false });
+    User.findById.mockReturnValue(query(user));
+
+    await sendVerificationCode('user1');
+
+    const [to, name, code] = emailService.sendVerificationCode.mock.calls[0];
+    expect([to, name]).toEqual(['sam@example.com', 'Sam']);
+    expect(code).toMatch(/^\d{6}$/);
+    expect(await bcrypt.compare(code, user.emailVerification.codeHash)).toBe(true);
+    expect(user.save).toHaveBeenCalled();
+  });
+
+  test('does nothing if the email is already verified', async () => {
+    User.findById.mockReturnValue(query(fakeUser({ emailVerified: true })));
+
+    await sendVerificationCode('user1');
+
+    expect(emailService.sendVerificationCode).not.toHaveBeenCalled();
+  });
+
+  test('keeps a code that still works, unless asked to resend', async () => {
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+    const usable = () =>
+      fakeUser({ emailVerified: false, emailVerification: { sentAt: twoMinutesAgo, attempts: 1 } });
+
+    User.findById.mockReturnValue(query(usable()));
+    await sendVerificationCode('user1');
+    expect(emailService.sendVerificationCode).not.toHaveBeenCalled();
+
+    User.findById.mockReturnValue(query(usable()));
+    await sendVerificationCode('user1', { resend: true });
+    expect(emailService.sendVerificationCode).toHaveBeenCalledTimes(1);
+  });
+
+  test('sends a new code when the old one has expired or is used up', async () => {
+    User.findById.mockReturnValue(
+      query(fakeUser({
+        emailVerified: false,
+        emailVerification: { sentAt: new Date(Date.now() - 16 * 60 * 1000), attempts: 0 },
+      }))
+    );
+    await sendVerificationCode('user1');
+
+    User.findById.mockReturnValue(
+      query(fakeUser({
+        emailVerified: false,
+        emailVerification: { sentAt: new Date(Date.now() - 2 * 60 * 1000), attempts: 5 },
+      }))
+    );
+    await sendVerificationCode('user1');
+
+    expect(emailService.sendVerificationCode).toHaveBeenCalledTimes(2);
+  });
+
+  test("doesn't resend within a minute of the last code", async () => {
+    User.findById.mockReturnValue(
+      query(fakeUser({
+        emailVerified: false,
+        emailVerification: { sentAt: new Date(Date.now() - 30 * 1000), attempts: 0 },
+      }))
+    );
+
+    await sendVerificationCode('user1', { resend: true });
+
+    expect(emailService.sendVerificationCode).not.toHaveBeenCalled();
+  });
+});
+
+describe('verifyEmail', () => {
+  const CODE = '654321';
+
+  async function unverifiedUser() {
+    return fakeUser({
+      name: 'Sam',
+      emailVerified: false,
+      emailVerification: { codeHash: await bcrypt.hash(CODE, 4), sentAt: new Date(), attempts: 0 },
+    });
+  }
+
+  test('marks the email verified, uses up the code and sends the welcome email', async () => {
+    const user = await unverifiedUser();
+    User.findOneAndUpdate.mockReturnValue(query(user));
+    emailService.sendWelcomeEmail.mockResolvedValue();
+
+    const result = await verifyEmail('user1', CODE);
+
+    expect(result).toBe(user);
+    expect(user.emailVerified).toBe(true);
+    expect(user.emailVerification).toBeUndefined();
+    expect(user.save).toHaveBeenCalled();
+    expect(emailService.sendWelcomeEmail).toHaveBeenCalledWith('sam@example.com', 'Sam');
+
+    // Looks the code up by the logged-in user's ID, and counts the guess
+    const [filter, update] = User.findOneAndUpdate.mock.calls[0];
+    expect(filter._id).toBe('user1');
+    expect(filter['emailVerification.attempts']).toEqual({ $lt: 5 });
+    expect(update).toEqual({ $inc: { 'emailVerification.attempts': 1 } });
+  });
+
+  test('rejects a wrong code without verifying', async () => {
+    const user = await unverifiedUser();
+    User.findOneAndUpdate.mockReturnValue(query(user));
+
+    await expect(verifyEmail('user1', '111111')).rejects.toMatchObject({ status: 400 });
+    expect(user.emailVerified).toBe(false);
+    expect(emailService.sendWelcomeEmail).not.toHaveBeenCalled();
+  });
+
+  test("still verifies if the welcome email fails, and doesn't wait for it", async () => {
+    User.findOneAndUpdate.mockReturnValue(query(await unverifiedUser()));
+    emailService.sendWelcomeEmail.mockRejectedValue(new Error('send failed'));
+    await expect(verifyEmail('user1', CODE)).resolves.toMatchObject({ emailVerified: true });
+
+    User.findOneAndUpdate.mockReturnValue(query(await unverifiedUser()));
+    // An email that never finishes sending
+    emailService.sendWelcomeEmail.mockReturnValue(new Promise(() => {}));
+    await expect(verifyEmail('user1', CODE)).resolves.toMatchObject({ emailVerified: true });
+  });
 });
 
 describe('requestPasswordReset', () => {
@@ -113,6 +256,8 @@ describe('resetPassword', () => {
     expect(await bcrypt.compare('new-password', user.passwordHash)).toBe(true);
     expect(user.passwordChangedAt).toBeInstanceOf(Date);
     expect(user.passwordReset).toBeUndefined();
+    // The code reached their inbox, so the email counts as verified
+    expect(user.emailVerified).toBe(true);
     expect(user.save).toHaveBeenCalled();
     expect(jwt.verify(result.token, 'test-secret').sub).toBe('user1');
     expect(result.user).toBe(user);

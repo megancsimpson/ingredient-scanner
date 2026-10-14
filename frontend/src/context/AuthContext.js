@@ -84,6 +84,13 @@ export function AuthProvider({ children }) {
     [startSession]
   );
 
+  // Checks the emailed code. The updated user has emailVerified true, which
+  // makes RootNavigator switch from the verification screen to the app.
+  const verifyEmail = useCallback(async (code) => {
+    const { user: verifiedUser } = await api.verifyEmail(code);
+    setUser(verifiedUser);
+  }, []);
+
   // Deletes the account on the server, then clears the login on the device,
   // which takes the user back to the login screen
   const deleteAccount = useCallback(async () => {
@@ -94,8 +101,18 @@ export function AuthProvider({ children }) {
   // useMemo keeps the same object between renders unless something changes,
   // so screens using useAuth() don't re-render for no reason
   const value = useMemo(
-    () => ({ token, user, isLoading, login, register, resetPassword, logout, deleteAccount }),
-    [token, user, isLoading, login, register, resetPassword, logout, deleteAccount]
+    () => ({
+      token,
+      user,
+      isLoading,
+      login,
+      register,
+      resetPassword,
+      verifyEmail,
+      logout,
+      deleteAccount,
+    }),
+    [token, user, isLoading, login, register, resetPassword, verifyEmail, logout, deleteAccount]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

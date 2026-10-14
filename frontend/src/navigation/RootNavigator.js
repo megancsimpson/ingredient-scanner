@@ -2,15 +2,17 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import useAuth from '../hooks/useAuth';
 import AppTabs from './AppTabs';
 import AuthStack from './AuthStack';
+import VerifyEmailStack from './VerifyEmailStack';
 
 /**
  * Chooses which part of the app to show: the login screens when logged out,
- * the tabs when logged in. Logging in or out changes the token, which
- * re-renders this and switches the whole app. App screens can't be reached
- * while logged out because they aren't rendered at all.
+ * the verification screen when logged in with an unverified email, and the
+ * tabs otherwise. Logging in or out, or verifying, changes the token or
+ * user, which re-renders this and switches the whole app. Screens that
+ * aren't allowed yet can't be reached because they aren't rendered at all.
  */
 export default function RootNavigator() {
-  const { token, isLoading } = useAuth();
+  const { token, user, isLoading } = useAuth();
 
   // Checking for a saved login when the app opens
   if (isLoading) {
@@ -21,7 +23,11 @@ export default function RootNavigator() {
     );
   }
 
-  return token ? <AppTabs /> : <AuthStack />;
+  if (!token) return <AuthStack />;
+  // "=== false" rather than "!": if the app opened offline, the user's
+  // details couldn't be loaded (user is null), and the app is shown as before
+  if (user?.emailVerified === false) return <VerifyEmailStack />;
+  return <AppTabs />;
 }
 
 const styles = StyleSheet.create({

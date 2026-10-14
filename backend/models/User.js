@@ -33,6 +33,24 @@ const userSchema = new mongoose.Schema(
       maxlength: [100, 'Name must be 100 characters or fewer.'],
     },
 
+    // True once the user has entered the code emailed to them, proving the
+    // address is theirs. Until then they can only verify, log out or delete
+    // the account (see middleware/auth.js). Accounts made before
+    // verification existed also count as unverified (Mongoose fills in the
+    // default when it loads them), so they're asked once too.
+    emailVerified: { type: Boolean, default: false },
+
+    // The current email verification code. Stored and limited the same way
+    // as passwordReset below; removed once the email is verified.
+    emailVerification: {
+      type: {
+        codeHash: String,
+        sentAt: Date,
+        attempts: { type: Number, default: 0 },
+      },
+      select: false,
+    },
+
     // When the password was last reset. Login tokens issued before this
     // stop working (see config/passport.js), so resetting a password logs
     // out anyone else using the account.
@@ -54,7 +72,8 @@ const userSchema = new mongoose.Schema(
   {
     timestamps: true,
     // What the API sends when a user is turned into JSON:
-    // { id, email, name, createdAt } with no password hash or Mongo internals
+    // { id, email, name, emailVerified, createdAt } with no password hash,
+    // codes or Mongo internals
     toJSON: {
       transform(doc, ret) {
         ret.id = ret._id.toString();
@@ -63,6 +82,7 @@ const userSchema = new mongoose.Schema(
         delete ret.passwordHash;
         delete ret.passwordChangedAt;
         delete ret.passwordReset;
+        delete ret.emailVerification;
         delete ret.updatedAt;
         return ret;
       },

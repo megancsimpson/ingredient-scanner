@@ -53,7 +53,7 @@ export default function RegisterScreen() {
 
     setSubmitting(true);
     try {
-      // On success RootNavigator switches to the app automatically
+      // On success RootNavigator switches to the verification screen automatically
       await register(form.name.trim(), form.email.trim(), form.password);
     } catch (err) {
       setError(err.message);

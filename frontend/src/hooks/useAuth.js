@@ -8,11 +8,12 @@ import { AuthContext } from '../context/AuthContext';
  *
  * @returns {{
  *   token: string | null,
- *   user: { id: string, name: string, email: string } | null,
+ *   user: { id: string, name: string, email: string, emailVerified: boolean } | null,
  *   isLoading: boolean,
  *   login: (email: string, password: string) => Promise<void>,
  *   register: (name: string, email: string, password: string) => Promise<void>,
  *   resetPassword: (email: string, code: string, password: string) => Promise<void>,
+ *   verifyEmail: (code: string) => Promise<void>,
  *   logout: () => Promise<void>,
  *   deleteAccount: () => Promise<void>,
  * }}

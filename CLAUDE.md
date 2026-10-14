@@ -23,7 +23,7 @@ This file gives Claude Code the context for this repository: the project backgro
 - The app is informational only — keep the disclaimer on ResultsScreen and AboutScreen.
 - The app must work on **both iPhone and Android**. Consider both platforms for every UI/UX change: keyboard behavior, safe areas (notch, home indicator, Android navigation bar), headers and tab bars, fonts, shadows (iOS `shadow*` vs. Android `elevation`) and permissions such as the camera. Use `Platform.OS` only where behavior genuinely differs, and explain why in a comment. The developer tests on an iPhone; when a change can't be checked on Android, say so.
 - Ingredients are flagged, not rated. Don't add ratings or a `rating` field.
-- Hosting is still open (see section 13 of the architecture), as is an optional welcome email. OCR uses Google Cloud Vision through `backend/services/ocrService.js`, and email (forgot password codes) uses Gmail through nodemailer in `backend/services/emailService.js`. Don't hard-code assumptions that make these hard to change.
+- Hosting is still open (see section 13 of the architecture). OCR uses Google Cloud Vision through `backend/services/ocrService.js`, and email (forgot password codes and welcome emails) uses Gmail through nodemailer in `backend/services/emailService.js`. Don't hard-code assumptions that make these hard to change.
 
 ---
 

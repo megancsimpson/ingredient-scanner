@@ -55,17 +55,76 @@ function assertConfigured() {
 async function sendPasswordResetCode(to, code, minutesValid) {
   assertConfigured();
 
+  await send({
+    to,
+    subject: `Your Ingredient Scanner code: ${code}`,
+    text:
+      `Your code to reset your Ingredient Scanner password is:\n\n` +
+      `${code}\n\n` +
+      `Enter it in the app within ${minutesValid} minutes.\n\n` +
+      `If you didn't ask to reset your password, you can ignore this email; ` +
+      `your password hasn't changed.`,
+  });
+}
+
+/**
+ * Emails a code that proves the address belongs to the person who signed up.
+ * @param {string} to the user's email address
+ * @param {string} name the user's name
+ * @param {string} code the 6-digit code
+ * @param {number} minutesValid how long the code works for
+ */
+async function sendVerificationCode(to, name, code, minutesValid) {
+  assertConfigured();
+
+  await send({
+    to,
+    subject: `Confirm your email for Ingredient Scanner: ${code}`,
+    text:
+      `Hi ${name},\n\n` +
+      `Thanks for signing up for Ingredient Scanner. Your code to confirm your ` +
+      `email address is:\n\n` +
+      `${code}\n\n` +
+      `Enter it in the app within ${minutesValid} minutes.\n\n` +
+      `If you didn't create an Ingredient Scanner account, you can ignore this ` +
+      `email; the account can't be used without this code.`,
+  });
+}
+
+/**
+ * Emails a newly verified user a short welcome. Optional: does nothing if
+ * email isn't set up.
+ * @param {string} to the user's email address
+ * @param {string} name the user's name
+ */
+async function sendWelcomeEmail(to, name) {
+  if (!isConfigured()) return;
+
+  await send({
+    to,
+    subject: 'Welcome to Ingredient Scanner',
+    text:
+      `Hi ${name},\n\n` +
+      `Welcome to Ingredient Scanner! Your account is ready.\n\n` +
+      `To check a product, open the Scan tab and take a photo of the ingredient list, ` +
+      `or paste it in. The app flags any ingredients on our pore-clogging list, which was ` +
+      `compiled by licensed estheticians from the Acne Clinic NYC and Face Reality lists. ` +
+      `You can save products to look back at later, and search the ingredient list in ` +
+      `the Ingredients tab.\n\n` +
+      `Ingredient Scanner is for information only and isn't a substitute for advice ` +
+      `from a skincare professional.\n\n` +
+      `The Ingredient Scanner team`,
+  });
+}
+
+// Sends one plain-text email from the app's address
+async function send({ to, subject, text }) {
   try {
     await getTransporter().sendMail({
       from: `"Ingredient Scanner" <${process.env.EMAIL_USER}>`,
       to,
-      subject: `Your Ingredient Scanner code: ${code}`,
-      text:
-        `Your code to reset your Ingredient Scanner password is:\n\n` +
-        `${code}\n\n` +
-        `Enter it in the app within ${minutesValid} minutes.\n\n` +
-        `If you didn't ask to reset your password, you can ignore this email; ` +
-        `your password hasn't changed.`,
+      subject,
+      text,
     });
   } catch (err) {
     // The details (e.g. wrong app password) are for the developer, not the user
@@ -74,4 +133,9 @@ async function sendPasswordResetCode(to, code, minutesValid) {
   }
 }
 
-module.exports = { assertConfigured, sendPasswordResetCode };
+module.exports = {
+  assertConfigured,
+  sendPasswordResetCode,
+  sendVerificationCode,
+  sendWelcomeEmail,
+};

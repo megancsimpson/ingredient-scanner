@@ -25,6 +25,30 @@ async function login(req, res) {
 }
 
 /**
+ * POST /api/auth/send-verification  (logged in, email not yet verified)
+ * Body:     { resend? }  true to replace a code that still works
+ * Response: 204 (no body)
+ *           502 email couldn't be sent, 503 email not set up
+ */
+async function sendVerification(req, res) {
+  const { resend } = req.body || {};
+  await authService.sendVerificationCode(req.user._id, { resend: resend === true });
+  res.status(204).end();
+}
+
+/**
+ * POST /api/auth/verify-email  (logged in, email not yet verified)
+ * Body:     { code }
+ * Response: 200 { user } (now with emailVerified: true)
+ *           400 wrong or expired code
+ */
+async function verifyEmail(req, res) {
+  const { code } = req.body || {};
+  const user = await authService.verifyEmail(req.user._id, code);
+  res.json({ user });
+}
+
+/**
  * POST /api/auth/forgot-password
  * Body:     { email }
  * Response: 200 { message } whether or not the email has an account
@@ -66,4 +90,13 @@ async function deleteMe(req, res) {
   res.status(204).end();
 }
 
-module.exports = { register, login, forgotPassword, resetPassword, me, deleteMe };
+module.exports = {
+  register,
+  login,
+  sendVerification,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
+  me,
+  deleteMe,
+};
