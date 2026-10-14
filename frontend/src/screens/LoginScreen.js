@@ -78,6 +78,16 @@ export default function LoginScreen({ navigation }) {
           onSubmitEditing={handleLogin}
         />
 
+        <Pressable
+          // Passes the typed email along so it doesn't have to be entered again
+          onPress={() => navigation.navigate('ForgotPassword', { email: email.trim() })}
+          accessibilityRole="link"
+          hitSlop={8}
+          style={styles.forgot}
+        >
+          <Text style={styles.link}>Forgot password?</Text>
+        </Pressable>
+
         {error && (
           <Text style={styles.error} accessibilityRole="alert">
             {error}
@@ -112,6 +122,8 @@ const styles = StyleSheet.create({
   container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   title: { fontSize: 28, fontWeight: 'bold', color: '#2f6f5e' },
   subtitle: { fontSize: 16, color: '#555', marginTop: 6, marginBottom: 28 },
+  // Right-aligned under the password field, where people look for it
+  forgot: { alignSelf: 'flex-end', marginTop: -4, marginBottom: 20 },
   error: { color: '#c0392b', fontSize: 14, marginBottom: 12 },
   footer: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 24 },
   footerText: { fontSize: 15, color: '#555' },

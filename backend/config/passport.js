@@ -19,7 +19,20 @@ passport.use(
       try {
         // The account may have been deleted since the token was issued
         const user = await User.findById(payload.sub);
-        return done(null, user || false);
+        if (!user) return done(null, false);
+
+        // Tokens issued before the password was last reset stop working, so
+        // a reset logs out every other device. "iat" (issued at) is in
+        // seconds, so the reset time is rounded down to seconds too; the
+        // token created right after the reset then still counts as newer.
+        if (
+          user.passwordChangedAt &&
+          payload.iat < Math.floor(user.passwordChangedAt.getTime() / 1000)
+        ) {
+          return done(null, false);
+        }
+
+        return done(null, user);
       } catch (err) {
         return done(err);
       }

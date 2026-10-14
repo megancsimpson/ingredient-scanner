@@ -32,6 +32,24 @@ const userSchema = new mongoose.Schema(
       trim: true,
       maxlength: [100, 'Name must be 100 characters or fewer.'],
     },
+
+    // When the password was last reset. Login tokens issued before this
+    // stop working (see config/passport.js), so resetting a password logs
+    // out anyone else using the account.
+    passwordChangedAt: Date,
+
+    // The current "forgot password" code, if one has been requested.
+    // Only a bcrypt hash of the code is stored, like the password, and it's
+    // left out of queries unless asked for. Removed once the password is reset.
+    passwordReset: {
+      type: {
+        codeHash: String,
+        sentAt: Date,
+        // Wrong guesses so far; the code stops working after a few
+        attempts: { type: Number, default: 0 },
+      },
+      select: false,
+    },
   },
   {
     timestamps: true,
@@ -43,6 +61,8 @@ const userSchema = new mongoose.Schema(
         delete ret._id;
         delete ret.__v;
         delete ret.passwordHash;
+        delete ret.passwordChangedAt;
+        delete ret.passwordReset;
         delete ret.updatedAt;
         return ret;
       },

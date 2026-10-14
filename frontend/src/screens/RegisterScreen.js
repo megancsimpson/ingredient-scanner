@@ -23,7 +23,7 @@ function validate({ name, email, password, confirmPassword }) {
   if (password.length < MIN_PASSWORD_LENGTH) {
     errors.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
   }
-  // There's no "forgot password" yet, so catching a typo here matters
+  // Catches a typo before it locks the user out of their new account
   if (confirmPassword !== password) errors.confirmPassword = "Passwords don't match.";
   return errors;
 }

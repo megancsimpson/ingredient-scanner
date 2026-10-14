@@ -59,7 +59,7 @@ export function AuthProvider({ children }) {
       .finally(() => setIsLoading(false));
   }, []);
 
-  // Shared by login and register: both return { token, user }
+  // Shared by login, register and resetPassword: all return { token, user }
   const startSession = useCallback(async ({ token: newToken, user: newUser }) => {
     await SecureStore.setItemAsync(TOKEN_KEY, newToken);
     api.setAuthToken(newToken);
@@ -77,6 +77,13 @@ export function AuthProvider({ children }) {
     [startSession]
   );
 
+  // Sets a new password with the emailed code and logs in
+  const resetPassword = useCallback(
+    async (email, code, password) =>
+      startSession(await api.resetPassword({ email, code, password })),
+    [startSession]
+  );
+
   // Deletes the account on the server, then clears the login on the device,
   // which takes the user back to the login screen
   const deleteAccount = useCallback(async () => {
@@ -87,8 +94,8 @@ export function AuthProvider({ children }) {
   // useMemo keeps the same object between renders unless something changes,
   // so screens using useAuth() don't re-render for no reason
   const value = useMemo(
-    () => ({ token, user, isLoading, login, register, logout, deleteAccount }),
-    [token, user, isLoading, login, register, logout, deleteAccount]
+    () => ({ token, user, isLoading, login, register, resetPassword, logout, deleteAccount }),
+    [token, user, isLoading, login, register, resetPassword, logout, deleteAccount]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

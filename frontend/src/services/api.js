@@ -98,6 +98,33 @@ export function login({ email, password }) {
 }
 
 /**
+ * "Forgot password", step 1: asks the server to email a 6-digit code.
+ * Succeeds whether or not the email has an account, so the app can't tell
+ * (and so can't reveal) which emails are registered.
+ * @param {string} email
+ * @returns {Promise<{ message: string }>}
+ */
+export function requestPasswordReset(email) {
+  return request('/api/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+/**
+ * "Forgot password", step 2: sets a new password using the emailed code.
+ * Returns a token, like login, so the user is logged in straight away.
+ * @param {{ email: string, code: string, password: string }} details
+ * @returns {Promise<{ token: string, user: User }>}
+ */
+export function resetPassword({ email, code, password }) {
+  return request('/api/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ email, code, password }),
+  });
+}
+
+/**
  * The logged-in user's profile.
  * @returns {Promise<{ user: User }>}
  */

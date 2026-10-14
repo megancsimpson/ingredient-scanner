@@ -22,6 +22,7 @@ The app is an informational tool and does not replace professional skincare advi
 | OCR | Google Cloud Vision API (`DOCUMENT_TEXT_DETECTION`) | Converting ingredient photos to text |
 | Gestures | react-native-gesture-handler, react-native-reanimated | Swipe to delete on the saved products list |
 | Camera and photos | expo-camera, expo-image-picker, expo-image-manipulator | Taking or choosing a photo and shrinking it before upload |
+| Email | nodemailer, Gmail (app password) | Sending "forgot password" codes |
 | Testing | Jest | Unit tests |
 
 ## 3. System architecture
@@ -51,7 +52,9 @@ App
     └── RootNavigator
         ├── Auth Stack (logged out)
         │   ├── LoginScreen
-        │   └── RegisterScreen
+        │   ├── RegisterScreen
+        │   ├── ForgotPasswordScreen
+        │   └── ResetPasswordScreen
         └── AppTabs (logged in)
             ├── Scan tab
             │   ├── ScanHomeScreen
@@ -81,7 +84,9 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 
 | Screen | Responsibility |
 |---|---|
-| LoginScreen / RegisterScreen | Collect credentials and call `login()` / `register()` from AuthContext |
+| LoginScreen / RegisterScreen | Collect credentials and call `login()` / `register()` from AuthContext. LoginScreen links to ForgotPasswordScreen, passing the email already typed |
+| ForgotPasswordScreen | Enter an email and ask the server to email a 6-digit code, then open ResetPasswordScreen |
+| ResetPasswordScreen | Enter the code and a new password (with confirmation); calls `resetPassword()` from AuthContext, which logs the user in. "Send a new code" is available after 60 seconds |
 | ScanHomeScreen | Choose between taking a photo or pasting an ingredient list |
 | CameraScreen | Take a photo (or choose one from the library), shrink it to 2000 px on the longest side, send it for OCR, then open ReviewTextScreen with the text. Centered framing guide, flashlight toggle, a "Blurry? Use your phone's camera" button (opens the phone's own Camera with `launchCameraAsync`, which has tap-to-focus and close-up handling that expo-camera lacks; this screen's preview is switched off meanwhile, since only one camera can run at a time), and a permission screen with "Open Settings" if the camera was refused. The camera preview only runs while the screen is focused |
 | ReviewTextScreen | Let the user correct OCR mistakes (or paste text) before analysis. For photos with no "Ingredients" heading, a notice explains that all the text is shown and asks the user to delete non-ingredients or retake the photo |
@@ -109,7 +114,7 @@ Each tab has its own stack, so a user's place within one tab is kept when switch
 | ChipSelect | ProductDetailsForm, SavedProductsScreen | Row of tappable chips where one can be selected (category picker, sort options); used instead of a native picker, which differs a lot between iOS and Android |
 | SavedProductRow | SavedProductsScreen | One saved product in the list: name, brand, category, date and flagged count; swipe left for Delete (`ReanimatedSwipeable` from react-native-gesture-handler) |
 | SearchBar | IngredientSearchScreen | Search input with its own clear button (iOS's built-in one doesn't exist on Android) |
-| TextField | SaveProductModal, LoginScreen, RegisterScreen | Labeled text input with error message |
+| TextField | SaveProductModal, LoginScreen, RegisterScreen, ForgotPasswordScreen, ResetPasswordScreen | Labeled text input with error message |
 | MenuRow | ProfileScreen | Tappable menu item |
 | Disclaimer | ResultsScreen, ProductDetailScreen, IngredientDetailScreen, FlaggingGuideScreen, AboutScreen | "Information only" notice (short everywhere; full on AboutScreen) |
 | LoadingOverlay | ReviewTextScreen, CameraScreen | Spinner while waiting for the server |
@@ -165,6 +170,8 @@ Separating OCR from analysis gives the user a chance to fix misread ingredients,
 |---|---|---|---|
 | POST | `/api/auth/register` | No | `{ name, email, password }` in; `201 { token, user }` out. `400` invalid input, `409` email already registered |
 | POST | `/api/auth/login` | No | `{ email, password }` in; `{ token, user }` out. `401` with the same message whether the email or password is wrong |
+| POST | `/api/auth/forgot-password` | No | `{ email }` in; `200 { message }` out whether or not the email has an account. If it has one, emails a 6-digit code (not more than once a minute). `502` email couldn't be sent, `503` email not set up |
+| POST | `/api/auth/reset-password` | No | `{ email, code, password }` in; `{ token, user }` out (logged in). `400` invalid password, or a code that is wrong, expired (15 minutes), used up (5 wrong guesses) or already used, all with the same message |
 | GET | `/api/auth/me` | Yes | `{ user }`: the current user's profile |
 | DELETE | `/api/auth/me` | Yes | Delete the current user's account and all their saved products; `204` |
 | POST | `/api/ocr` | Yes | `{ image }` (base64 JPEG/PNG) in; `{ text, ingredientsFound }` out. `text` is just the ingredient list when the photo has an "Ingredients" heading (`ingredientsFound: true`), otherwise all the text in the photo. `400` missing, too large or unreadable image; `422` no text found; `502`/`503` OCR service failed or not set up. Accepts bodies up to 8 MB (mounted before the app-wide 100 KB JSON parser; the login check runs before the body is read) |
@@ -200,6 +207,8 @@ Because they are pure functions with no database or network access in their core
 | `_id` | ObjectId | Primary key |
 | `email` | String | Required, unique, lowercase, trimmed, basic format check |
 | `passwordHash` | String | bcrypt hash (12 rounds); `select: false` so queries leave it out unless asked, and removed from JSON |
+| `passwordChangedAt` | Date | Set when the password is reset; login tokens issued before it stop working. Removed from JSON |
+| `passwordReset` | { codeHash, sentAt, attempts } | Current "forgot password" code: bcrypt hash, when it was sent, wrong guesses so far. `select: false`, removed from JSON, and deleted once used |
 | `name` | String | Required, trimmed, max 100 characters |
 | `createdAt`, `updatedAt` | Date | Automatic timestamps |
 
@@ -241,11 +250,12 @@ The current list has 358 entries with names and sources only; no aliases or note
 ## 9. Security
 
 - **Passwords** must be 8–72 characters (bcrypt ignores anything past 72 bytes), are hashed with bcrypt and are never stored or returned in plain text. Login errors don't reveal whether an email has an account.
+- **Password reset** uses a 6-digit code emailed to the user (a code, not a link, because a link would need deep-link setup on both iOS and Android). The code comes from Node's secure random generator, is stored only as a bcrypt hash, expires after 15 minutes, stops working after 5 wrong guesses and works once. Each guess is counted in the same database update that finds the code, so many guesses sent at once can't get past the limit. The forgot-password response is the same whether or not the email has an account, and a new code is emailed at most once a minute. Resetting logs out every other device (tokens issued before `passwordChangedAt` are rejected).
 - **JWTs** contain only the user ID (`sub`), are signed with `JWT_SECRET`, expire after 7 days, are stored on the device with `expo-secure-store` (iOS Keychain / Android Keystore), and are sent in the `Authorization: Bearer` header by `api.js`. If the server rejects a token (`401`), the app logs out automatically.
-- **Auth middleware** (`requireAuth`) verifies the token on every protected route, checks the user still exists, and attaches the user to the request as `req.user`.
+- **Auth middleware** (`requireAuth`) verifies the token on every protected route, checks the user still exists and the token isn't from before a password reset, and attaches the user to the request as `req.user`.
 - **Ownership checks:** saved products are always queried and deleted by both product ID and user ID. Another user's product returns the same `404` as one that doesn't exist, so responses don't reveal that it's there.
 - **Account deletion:** from the Profile tab after confirming. The server removes the User and all their SavedProducts; the app clears the stored token and returns to the login screen.
-- **Secrets** (MongoDB URI, JWT secret, OCR API key) are stored in a `.env` file excluded from Git during development, and in the hosting provider's environment variables once deployed.
+- **Secrets** (MongoDB URI, JWT secret, OCR API key, Gmail app password) are stored in a `.env` file excluded from Git during development, and in the hosting provider's environment variables once deployed.
 - **Validation** is enforced in Mongoose schemas so invalid data is rejected regardless of route.
 
 ## 10. Folder structure
@@ -267,7 +277,7 @@ ingredient-scanner/
 │   ├── config/              database connection, Passport setup
 │   ├── routes/              auth, ocr, analyze, products, ingredients
 │   ├── controllers/         one per route group
-│   ├── services/            ocrService, ingredientSection, analysisService, ingredientParser, ingredientMatcher
+│   ├── services/            ocrService, ingredientSection, analysisService, ingredientParser, ingredientMatcher, emailService
 │   ├── models/              User, SavedProduct, Ingredient
 │   ├── middleware/          auth.js, errorHandler.js
 │   ├── seed/                data/ingredients.json and seedIngredients.js
@@ -298,6 +308,7 @@ ingredient-scanner/
 | Decision | Reasoning |
 |---|---|
 | Email/password login instead of Google sign-in | Works on any device without developer accounts or fees; demonstrates building authentication directly |
+| Gmail with nodemailer for email | Free and needs no domain; the app only sends occasional "forgot password" codes, well under Gmail's daily limit. Uses an app password (needs 2-Step Verification on the Google account) kept in `.env`. Only `emailService` knows the provider, so it can be swapped for a service such as Resend or SendGrid |
 | OCR on the server, not the device | Keeps the OCR API key secret; simpler app setup |
 | Google Cloud Vision for OCR | Built for reading text in photos (Document AI is aimed at scanned business documents and needs more setup). `DOCUMENT_TEXT_DETECTION` suits dense text. 1,000 images a month free, then $1.50 per 1,000. Called with a restricted API key (Cloud Vision only) kept in `.env`; only `ocrService` knows the provider, so it can be swapped |
 | Review step after OCR | OCR errors would cause pore-clogging ingredients to be missed |
@@ -319,11 +330,8 @@ ingredient-scanner/
 
 ## 13. Open decisions
 
-- **Hosting.** The app will be deployed; where the Express API runs and how the mobile app is distributed are still to be decided. At deployment: set `GOOGLE_VISION_API_KEY` in the host's environment variables, add an IP address restriction to the key if the host has a fixed outbound IP, and keep a Google Cloud budget alert on the billing account.
-- **Email: forgot password and welcome email (to come back to; forgot password needed before deployment).** There is currently no way to recover an account, so a deployed app could lock users out for good.
-  - **Forgot password plan:** the user taps "Forgot password?" on LoginScreen and enters their email. The server emails a 6-digit code that expires after about 15 minutes, and the user enters the code and a new password in the app. A code is used instead of an email link because a link would need deep-link setup on both iOS and Android to open the right screen. New endpoints would be `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`, with the code stored hashed on the User and limited attempts. The forgot-password response should be the same whether or not the email has an account.
-  - **Welcome email (optional):** sent after registration, using the same email setup. Registration should still succeed if the email fails to send.
-  - **Email provider (to decide):** Gmail with an app password via `nodemailer` (free, no domain needed, daily sending limits) or a service such as Resend or SendGrid (more reliable; free tiers usually require a verified domain). Credentials go in `.env` like the other secrets. Keep the sending code in one `emailService` so the provider can be swapped.
+- **Hosting.** The app will be deployed; where the Express API runs and how the mobile app is distributed are still to be decided. At deployment: set `GOOGLE_VISION_API_KEY`, `EMAIL_USER` and `EMAIL_APP_PASSWORD` in the host's environment variables, add an IP address restriction to the Vision key if the host has a fixed outbound IP, and keep a Google Cloud budget alert on the billing account. Some hosts block outgoing email (SMTP) ports on free plans; check that forgot-password emails send from the deployed server, and if they can't, switch `emailService` to a service with an HTTP API such as Resend.
+- **Welcome email (optional, not built).** Sent after registration through `emailService`. Registration should still succeed if the email fails to send.
 
 ## 14. Future improvements (out of scope for now)
 
