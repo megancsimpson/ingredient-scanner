@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -48,6 +49,13 @@ export default function LoginScreen({ navigation }) {
       keyboardVerticalOffset={headerHeight}
     >
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        {/* The app icon; decorative, so screen readers skip it and read the title */}
+        <Image
+          source={require('../../assets/icon.png')}
+          style={styles.logo}
+          accessibilityIgnoresInvertColors
+          accessible={false}
+        />
         <Text style={styles.title}>Ingredient Scanner</Text>
         <Text style={styles.subtitle}>Log in to check your products.</Text>
 
@@ -120,6 +128,8 @@ const styles = StyleSheet.create({
   // flexGrow + center puts the form in the middle of the screen, while
   // still letting it scroll on small phones when the keyboard is open
   container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
+  // Rounded like an app icon on the home screen
+  logo: { width: 72, height: 72, borderRadius: 16, marginBottom: 16 },
   title: { fontSize: 28, fontWeight: 'bold', color: '#2f6f5e' },
   subtitle: { fontSize: 16, color: '#555', marginTop: 6, marginBottom: 28 },
   // Right-aligned under the password field, where people look for it

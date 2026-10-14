@@ -1,0 +1,6 @@
+<!-- Ingredient Scanner app icon (1024x1024). Source for frontend/assets icons. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><rect width="1024" height="1024" fill="#2f6f5e"/>
+    <g transform="translate(512 512) scale(0.86) translate(-512 -512)">
+      <path d="M512 130 C512 130 252 410 252 590 A260 260 0 0 0 772 590 C772 410 512 130 512 130 Z" fill="#ffffff"/>
+      <g stroke="#2f6f5e" color="#2f6f5e"><circle cx="492" cy="578" r="108" fill="none" stroke-width="50"/><line x1="560" y1="646" x2="650" y2="736" stroke-width="56"/><circle cx="650" cy="736" r="28" stroke="none" fill="currentColor"/></g>
+    </g></svg>

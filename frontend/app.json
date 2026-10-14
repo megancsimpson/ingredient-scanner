@@ -38,6 +38,15 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to use your camera to photograph ingredient lists.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#2f6f5e"
+        }
       ]
     ]
   }
