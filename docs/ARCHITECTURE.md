@@ -359,7 +359,7 @@ ingredient-scanner/
 |---|---|---|
 | API | Render web service, Starter instance | Root directory `backend`, build `npm ci`, start `npm start`, health check `/api/health`. Node version pinned with `engines` in `backend/package.json`. Redeploys automatically on every push to `main` |
 | Database | MongoDB Atlas, same cluster as development | The live API uses its own database, `ingredient-scanner-prod`; local development uses the default `test` database, so test data never mixes with real users. Atlas Network Access allows Render's outbound IP ranges |
-| Secrets | Render environment variables | `MONGODB_URI` (with the `ingredient-scanner-prod` database name), `JWT_SECRET` (different from development, so local logins don't work on the live API), `GOOGLE_VISION_API_KEY`, `EMAIL_USER`, `EMAIL_APP_PASSWORD`, `TRUST_PROXY_HOPS` (number of Render proxies, for the rate limits). Render sets `PORT` |
+| Secrets | Render environment variables | `MONGODB_URI` (with the `ingredient-scanner-prod` database name), `JWT_SECRET` (different from development, so local logins don't work on the live API), `GOOGLE_VISION_API_KEY`, `EMAIL_USER`, `EMAIL_APP_PASSWORD`, `TRUST_PROXY_HOPS` (number of Render proxies, for the rate limits; `2`, checked against a real client IP in October 2026). Render sets `PORT` |
 | Ingredient list | Loaded into the live database by running the seed script locally with the live `MONGODB_URI` | Run again after editing `ingredients.json` |
 
 **Branches:** `main` is what's live; day-to-day work happens on `dev` and is merged into `main` once tested.

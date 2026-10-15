@@ -200,7 +200,7 @@ The live API uses its own database, `ingredient-scanner-prod`, on the same Atlas
    3. Add an environment variable `TRUST_PROXY_HOPS` set to that number `N`. Render redeploys.
    4. After the next request, the same log line should show your own IP address as the client IP (compare with a "what is my IP" website).
 
-   Leave it unset locally, where there's no proxy. It's a fixed number rather than "trust everything", because trusting too many would let anyone fake their IP address by sending their own header.
+   It was `2` when this was set up (October 2026). Leave it unset locally, where there's no proxy. It's a fixed number rather than "trust everything", because trusting too many would let anyone fake their IP address by sending their own header.
 
 ### Using the app with the live API
 
