@@ -127,7 +127,7 @@ If you change `frontend/.env` later, restart with `npx expo start --clear` so th
 
 ## Tests
 
-The ingredient parser and matcher, the photo-text cleanup, the ingredient-list check, login and email codes, the login checks, input validation and rate limits are covered by Jest tests:
+The ingredient parser and matcher, the photo-text cleanup, the ingredient-list check, ingredient search, saved products (only the owner can see, edit or delete them; duplicates; what gets saved), login and email codes, the login checks, input validation and rate limits are covered by Jest tests:
 
 ```bash
 cd backend
