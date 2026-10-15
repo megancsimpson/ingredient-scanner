@@ -62,6 +62,22 @@ async function findDuplicate(userId, productName, brand, excludeId) {
   );
 }
 
+/**
+ * Rejects any field that was sent as something other than text, e.g. an
+ * object like { "$ne": "" }. Requests come from the app, but anyone can send
+ * their own, and an object in the wrong place can trick a database query
+ * into matching things it shouldn't ("NoSQL injection"). Checking the type
+ * here, before anything reaches the database, stops that. null and
+ * undefined are allowed: they mean "not sent" or "remove it".
+ */
+function checkTextFields(fields) {
+  for (const [label, value] of Object.entries(fields)) {
+    if (value !== undefined && value !== null && typeof value !== 'string') {
+      throw new HttpError(400, `${label} must be text.`);
+    }
+  }
+}
+
 // What the app can ask for when a product with the same name and brand is
 // already saved
 const DUPLICATE_OPTIONS = ['replace', 'keep'];
@@ -111,6 +127,7 @@ async function createProduct(
   if (rawText.length > MAX_TEXT_LENGTH) {
     throw new HttpError(400, `Ingredient list is too long (max ${MAX_TEXT_LENGTH} characters).`);
   }
+  checkTextFields({ 'Product name': productName, Brand: brand, Category: category, Source: source });
   checkDuplicateOption(onDuplicate);
 
   const duplicate = onDuplicate === 'keep' ? null : await findDuplicate(userId, productName, brand);
@@ -163,6 +180,7 @@ async function createProduct(
  */
 async function updateProduct(userId, productId, { productName, brand, category, onDuplicate }) {
   if (!mongoose.isValidObjectId(productId)) throw notFound();
+  checkTextFields({ 'Product name': productName, Brand: brand, Category: category });
   checkDuplicateOption(onDuplicate);
 
   // Only change the fields that were sent, and ignore anything else in the

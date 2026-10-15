@@ -1,4 +1,3 @@
-import { Platform, Pressable, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -24,23 +23,13 @@ const ProfileStack = createNativeStackNavigator();
 
 /**
  * Screen options for a form shown as a modal: a sheet that slides up on
- * iOS, a normal screen on Android. iOS modals have no back button, so a
- * Cancel button is added (the sheet can also be swiped down); Android shows
- * its usual back arrow.
+ * iOS, a normal screen on Android. The form has its own Cancel button next
+ * to Save (ProductDetailsForm), so the header doesn't add another. The
+ * sheet can also be swiped down on iOS, and Android shows its usual back
+ * arrow.
  */
 function modalOptions(title) {
-  return ({ navigation }) => ({
-    title,
-    presentation: 'modal',
-    headerLeft:
-      Platform.OS === 'ios'
-        ? () => (
-            <Pressable onPress={navigation.goBack} hitSlop={10} accessibilityRole="button">
-              <Text style={{ color: '#2f6f5e', fontSize: 17 }}>Cancel</Text>
-            </Pressable>
-          )
-        : undefined,
-  });
+  return { title, presentation: 'modal' };
 }
 
 /**

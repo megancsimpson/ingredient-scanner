@@ -33,6 +33,18 @@ const PRODUCT_CATEGORIES = [
   'other',
 ];
 
+// Product and brand names: letters (any language, accents included),
+// numbers, spaces and the punctuation real product names use, with at least
+// one letter. Real names need more than letters: "Dr. Jart+", "e.l.f.",
+// "No7", "L'Oréal", "La Roche-Posay", "Niacinamide 10% + Zinc 1%".
+// Blocks names that are only numbers or symbols, and characters like
+// < > { } $ @ * = that never appear in product names. ’ – — are the curly
+// apostrophe and dashes iPhones type automatically.
+//   (?=.*\p{L})  at least one letter somewhere
+//   \p{L} \p{M}  letters, and accent marks that combine with them
+//   \p{N}        numbers
+const NAME_PATTERN = /^(?=.*\p{L})[\p{L}\p{M}\p{N} '’\-–—.,&+%()/!#]+$/u;
+
 const flaggedSchema = new mongoose.Schema(
   { name: String, normalized: String, sources: [String], matches: [matchSchema] },
   { _id: false }
@@ -56,11 +68,13 @@ const savedProductSchema = new mongoose.Schema(
       required: [true, 'Product name is required.'],
       trim: true,
       maxlength: [100, 'Product name must be 100 characters or fewer.'],
+      match: [NAME_PATTERN, 'Please enter a valid product name.'],
     },
     brand: {
       type: String,
       trim: true,
       maxlength: [100, 'Brand must be 100 characters or fewer.'],
+      match: [NAME_PATTERN, 'Please enter a valid brand name.'],
     },
     // Optional; one of PRODUCT_CATEGORIES
     category: {

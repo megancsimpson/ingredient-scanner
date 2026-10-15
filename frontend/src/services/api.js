@@ -294,7 +294,9 @@ export function readIngredientPhoto(imageBase64) {
  * @returns {Promise<{
  *   ingredients: { name: string, normalized: string }[],
  *   flagged: { name: string, normalized: string, sources: string[],
- *              matches: { _id: string, name: string, sources: string[] }[] }[]
+ *              matches: { _id: string, name: string, sources: string[] }[] }[],
+ *   looksLikeIngredientList: boolean   the server's guess; false means the
+ *                                      text may not be an ingredient list
  * }>}
  */
 export function analyzeIngredients(text) {

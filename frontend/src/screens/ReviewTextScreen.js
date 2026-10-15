@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
 import Button from '../components/Button';
 import LoadingOverlay from '../components/LoadingOverlay';
@@ -38,7 +46,24 @@ export default function ReviewTextScreen({ navigation, route }) {
       const result = await analyzeIngredients(text);
       // Pass everything ResultsScreen (and later, saving) needs as params;
       // nothing is saved at this point
-      navigation.navigate('Results', { result, text, source });
+      const showResults = () => navigation.navigate('Results', { result, text, source });
+
+      // The server's guess that this isn't an ingredient list (e.g. random
+      // words or a product review). It's only a guess, so the user can
+      // carry on. The phone's own alert; on Android, the back button
+      // closes it, which is the same as "Edit text".
+      if (result.looksLikeIngredientList === false) {
+        Alert.alert(
+          "This doesn't look like an ingredient list",
+          'Check that this is the ingredient list from the product label. You can edit the text, or check it anyway.',
+          [
+            { text: 'Edit text', style: 'cancel' },
+            { text: 'Check anyway', onPress: showResults },
+          ]
+        );
+        return;
+      }
+      showResults();
     } catch (err) {
       setError(err.message);
     } finally {

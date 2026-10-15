@@ -93,8 +93,12 @@ export default function ResultsScreen({ navigation, route }) {
         />
       )}
 
-      <View style={styles.section}>
+      <View style={[styles.section, styles.buttons]}>
         <Button title="Save product" onPress={handleSave} disabled={ingredients.length === 0} />
+        {/* Done with this product without saving: back to the start of the
+            Scan tab, ready for the next one. (The header's back arrow goes
+            to the ingredient text instead, to fix it.) */}
+        <Button title="Cancel" variant="secondary" onPress={() => navigation.popToTop()} />
       </View>
 
       <View style={styles.section}>
@@ -108,6 +112,7 @@ const styles = StyleSheet.create({
   screen: { backgroundColor: '#fff' },
   container: { padding: 20 },
   section: { marginTop: 24 },
+  buttons: { gap: 12 },
   headerButton: { color: '#2f6f5e', fontSize: 17 },
   editBanner: {
     backgroundColor: '#eef6f3',

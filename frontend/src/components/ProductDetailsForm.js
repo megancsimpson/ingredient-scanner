@@ -1,19 +1,27 @@
-import { useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useHeaderHeight } from '@react-navigation/elements';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Keyboard,
+  LayoutAnimation,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CATEGORIES } from '../utils/categories';
 import Button from './Button';
 import ChipSelect from './ChipSelect';
 import TextField from './TextField';
 
 /**
- * Product name (required), brand (optional) and category (optional) fields
- * with a submit button.
+ * Product name (required), brand (optional) and category (optional) fields,
+ * with Cancel and submit buttons in a bar pinned to the bottom.
  * Used by SaveProductModal (new product) and EditProductModal (existing one)
  * so both forms look and behave the same.
  *
  * onSubmit receives the trimmed values. If it throws, the error's message is
- * shown above the button.
+ * shown above the buttons.
  *
  * @param {{
  *   initialName?: string,
@@ -36,8 +44,9 @@ export default function ProductDetailsForm({
   onCancel,
   children,
 }) {
-  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
   const brandRef = useRef(null);
+  const keyboardHeight = useIosKeyboardHeight();
 
   const [productName, setProductName] = useState(initialName);
   const [brand, setBrand] = useState(initialBrand);
@@ -61,11 +70,7 @@ export default function ProductDetailsForm({
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={headerHeight}
-    >
+    <View style={styles.flex}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <TextField
           label="Product name"
@@ -104,27 +109,83 @@ export default function ProductDetailsForm({
           />
         </View>
 
+        {children && <View style={styles.extra}>{children}</View>}
+      </ScrollView>
+
+      {/* Pinned below the scrolling fields, so Save and Cancel are always
+          visible, even with the keyboard open. They used to be under the
+          category chips, off the bottom of the screen. Cancel is also in
+          the header on iPhone; Android only shows a back arrow there.
+          With the keyboard open on iPhone, the bar sits just above it.
+          Otherwise the bottom padding keeps the buttons clear of the
+          iPhone home indicator and Android's navigation bar. */}
+      <View
+        style={[
+          styles.footer,
+          { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 12 : Math.max(insets.bottom, 16) },
+        ]}
+      >
         {error && (
           <Text style={styles.error} accessibilityRole="alert">
             {error}
           </Text>
         )}
-
         <View style={styles.buttons}>
-          <Button
-            title={submitting ? submittingLabel : submitLabel}
-            onPress={handleSubmit}
-            disabled={!canSubmit}
-          />
-          {/* Also in the header on iPhone, but easy to miss there, and
-              Android only shows a back arrow */}
-          <Button title="Cancel" variant="secondary" onPress={onCancel} disabled={submitting} />
+          <View style={styles.button}>
+            <Button title="Cancel" variant="secondary" onPress={onCancel} disabled={submitting} />
+          </View>
+          <View style={styles.button}>
+            <Button
+              title={submitting ? submittingLabel : submitLabel}
+              onPress={handleSubmit}
+              disabled={!canSubmit}
+            />
+          </View>
         </View>
-
-        {children && <View style={styles.extra}>{children}</View>}
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </View>
+    </View>
   );
+}
+
+/**
+ * The keyboard's height while it's open on iPhone (0 when closed, and
+ * always 0 on Android).
+ *
+ * Why not KeyboardAvoidingView: these forms open as a sheet on iPhone,
+ * which starts lower on the screen than KeyboardAvoidingView assumes, so
+ * it didn't lift the buttons far enough and the keyboard covered them. The
+ * sheet always reaches the bottom of the screen, so lifting the buttons by
+ * exactly the keyboard's height puts them just above it.
+ *
+ * Android resizes the screen for the keyboard itself (see ReviewTextScreen),
+ * so nothing is needed there.
+ */
+function useIosKeyboardHeight() {
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return undefined;
+
+    // "Will" events arrive as the keyboard starts moving, so the bar can
+    // slide up with it at the same speed
+    function update(event, newHeight) {
+      LayoutAnimation.configureNext({
+        duration: event.duration,
+        update: { type: LayoutAnimation.Types.keyboard },
+      });
+      setHeight(newHeight);
+    }
+    const show = Keyboard.addListener('keyboardWillShow', (event) =>
+      update(event, event.endCoordinates.height)
+    );
+    const hide = Keyboard.addListener('keyboardWillHide', (event) => update(event, 0));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
+  return height;
 }
 
 const styles = StyleSheet.create({
@@ -134,6 +195,15 @@ const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 8 },
   categoryField: { marginBottom: 24 },
   error: { color: '#c0392b', fontSize: 14, marginBottom: 12 },
-  buttons: { gap: 12 },
-  extra: { marginTop: 32 },
+  footer: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    backgroundColor: '#fff',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#ddd',
+  },
+  // Side by side, Cancel on the left like most iPhone and Android forms
+  buttons: { flexDirection: 'row', gap: 12 },
+  button: { flex: 1 },
+  extra: { marginTop: 8 },
 });
