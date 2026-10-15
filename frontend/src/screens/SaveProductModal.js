@@ -48,8 +48,10 @@ export default function SaveProductModal({ navigation, route }) {
       submitLabel="Save product"
       submittingLabel="Saving…"
       onSubmit={handleSave}
-      // Back to the results, which are kept
-      onCancel={navigation.goBack}
+      // Not saving this product: back to the start of the Scan tab, like
+      // Cancel on ResultsScreen. (Swiping the sheet down on iPhone, or the
+      // back arrow on Android, still returns to the results.)
+      onCancel={() => navigation.popToTop()}
     />
   );
 }
