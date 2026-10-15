@@ -121,6 +121,8 @@ function extractIngredientSection(text) {
  *     under the list without a period before it. Paragraphs are separated
  *     by blank lines, which ocrService adds from Vision's layout.
  *   - the start of the next section ("Directions", "Made in", ...)
+ *   - barcode digits, batch numbers or the "12M" symbol (see
+ *     findBarcodeNumbers)
  *
  * Other paragraph breaks don't end the list: Vision sometimes splits one
  * list into several paragraphs, e.g. where a long name wraps.
@@ -157,7 +159,54 @@ function findEnd(section) {
   const nextSection = section.match(NEXT_SECTION_PATTERN);
   if (nextSection) end = Math.min(end, nextSection.index);
 
+  const numbers = findBarcodeNumbers(section);
+  if (numbers !== -1) end = Math.min(end, numbers);
+
   return end;
+}
+
+/**
+ * Where barcode digits, batch numbers or the "12M" symbol (use within 12
+ * months of opening) start, or -1 if there are none. OCR reads these from
+ * the package too, and without this they end up stuck to the last
+ * ingredient: "Hexyl Cinnamal 2621 402139600 12M 8 40035 21996 7".
+ *
+ * Ingredients have numbers too ("CI 77491", "Polysorbate 20", "PEG-100"),
+ * so only these count:
+ *   - a line of nothing but numbers (and "12M") with at least 8 digits in
+ *     all, or with "12M". A short number alone on a line, like the "20" of
+ *     a wrapped "Polysorbate 20", doesn't count.
+ *   - a number of 6 or more digits partway along a line, which no
+ *     ingredient has (pigment numbers have 5). Numbers of 4 or more digits
+ *     just before it count too: "2621 402139600".
+ */
+function findBarcodeNumbers(section) {
+  const isNumber = (word) => /^\d+$/.test(word);
+  const isOpenedSymbol = (word) => /^\d{1,2}M$/i.test(word);
+
+  for (const line of section.matchAll(/[^\n]+/g)) {
+    const words = [...line[0].matchAll(/\S+/g)].map((word) => ({
+      text: word[0],
+      start: line.index + word.index,
+    }));
+    if (words.length === 0) continue;
+
+    const onlyNumbers = words.every((word) => isNumber(word.text) || isOpenedSymbol(word.text));
+    if (onlyNumbers) {
+      const digits = words.reduce((count, word) => count + word.text.replace(/\D/g, '').length, 0);
+      if (digits >= 8 || words.some((word) => isOpenedSymbol(word.text))) return line.index;
+    }
+
+    const long = words.findIndex((word) => isNumber(word.text) && word.text.length >= 6);
+    if (long !== -1) {
+      let first = long;
+      while (first > 0 && isNumber(words[first - 1].text) && words[first - 1].text.length >= 4) {
+        first -= 1;
+      }
+      return words[first].start;
+    }
+  }
+  return -1;
 }
 
 module.exports = { extractIngredientSection };

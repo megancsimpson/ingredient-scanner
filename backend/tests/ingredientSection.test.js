@@ -140,6 +140,40 @@ describe('extractIngredientSection', () => {
     });
   });
 
+  describe('barcodes, batch numbers and the "12M" symbol', () => {
+    const LIST = 'Ingredients: Water, Linalool,\nHexyl Cinnamal';
+
+    test.each([
+      ['a barcode in groups', '8 40035 21996 7'],
+      ['a barcode in one piece', '840035219967'],
+      ['a batch number', '2621 402139600'],
+      ['the "12M" symbol', '12M'],
+      ['all of them, on separate lines', '2621 402139600\n12M\n8 40035 21996 7'],
+    ])('ends before a line with %s', (_, numbers) => {
+      expect(extractIngredientSection(`${LIST}\n${numbers}`)).toBe('Water, Linalool,\nHexyl Cinnamal');
+    });
+
+    test('ends before them in their own paragraph', () => {
+      const text = `${LIST}\n\n2621 402139600\n\n8 40035 21996 7`;
+      expect(extractIngredientSection(text)).toBe('Water, Linalool,\nHexyl Cinnamal');
+    });
+
+    test('ends before a long number read onto the same line as the last ingredient', () => {
+      const text = 'Ingredients: Water, Linalool, Hexyl Cinnamal 2621 402139600 12M';
+      expect(extractIngredientSection(text)).toBe('Water, Linalool, Hexyl Cinnamal');
+    });
+
+    test.each([
+      ['pigment numbers', 'Mica,\nCI 77891, CI 77491, CI 77492'],
+      ['pigment numbers without commas', 'Iron Oxides (CI 77491 CI 77492)'],
+      ['a number wrapped onto its own line', 'Polysorbate\n20, Glycerin'],
+      ['numbers in names', 'PEG-100 Stearate, 1,2-Hexanediol, Red 40, Laureth-23'],
+      ['a short number alone on a line', 'Ceteareth-\n20'],
+    ])('keeps %s', (_, list) => {
+      expect(extractIngredientSection(`Ingredients: ${list}`)).toBe(list);
+    });
+  });
+
   describe('no ingredient list', () => {
     test.each([['Water, Glycerin, Shea Butter'], [''], ['GLOW SERUM 30 mL'], [null]])(
       'returns null for %p',
