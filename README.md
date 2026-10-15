@@ -140,7 +140,48 @@ The list is in [backend/seed/data/ingredients.json](backend/seed/data/ingredient
 
 ## Deployment
 
-The API will be hosted on Render. Deployment steps will be added here once it's live.
+**You don't need this section to run the project.** Everything in [Running it locally](#running-it-locally) works on your own computer for free. This section describes how the live version is hosted.
+
+The API runs on [Render](https://render.com) as a web service on the Starter plan. The paid plan is needed because Render's free plan blocks the ports Gmail uses to send email, and sleeps when idle. Every push to `main` redeploys it automatically, so day-to-day work happens on the `dev` branch and is merged into `main` once tested.
+
+The live API uses its own database, `ingredient-scanner-prod`, on the same Atlas cluster, so test accounts from local development never appear in the live app.
+
+### Setting up the API on Render
+
+1. **Create the service:** in Render, choose **New → Web Service**, connect the GitHub repo (give Render access to this repo only), and set:
+
+   | Setting | Value |
+   |---|---|
+   | Branch | `main` |
+   | Root Directory | `backend` |
+   | Build Command | `npm ci` |
+   | Start Command | `npm start` |
+   | Instance Type | Starter |
+   | Health Check Path (under Advanced) | `/api/health` |
+
+2. **Add the environment variables:** the same ones as `backend/.env` (see [Start the API](#2-start-the-api)), with two differences:
+   - **`MONGODB_URI`** uses the database name `ingredient-scanner-prod` (the part after `.mongodb.net/` and before `?`).
+   - **`JWT_SECRET`** is a new random string, not the development one.
+
+   Don't set `PORT`; Render sets it.
+
+3. **Let Render reach the database:** in Render, open the service and go to **Connect → Outbound**. Add each IP range listed there in Atlas under **Network Access → Add IP Address**. Then choose **Manual Deploy → Deploy latest commit** in Render.
+
+4. **Load the ingredient list into the live database:** from `backend` on your computer, run the seed script with the live connection string. Setting it on the command line overrides `.env` for that one command:
+
+   ```bash
+   MONGODB_URI='the-ingredient-scanner-prod-connection-string' npm run seed
+   ```
+
+   Run this again whenever `ingredients.json` changes.
+
+5. **Check it:** `https://<service-name>.onrender.com/api/health` should show `{"status":"ok"}`. The other addresses start with `/api/` and are for the app, so the bare address shows "Cannot GET /".
+
+### Using the app with the live API
+
+Set `EXPO_PUBLIC_API_URL` in `frontend/.env` to the Render address (`https://<service-name>.onrender.com`, with no port or slash at the end) and restart with `npx expo start --clear`. The app still loads through Expo Go from your computer, but all its requests go to Render, so the local API doesn't need to be running.
+
+Getting the app onto phones as an installable app, without Expo Go, is still to come.
 
 ## Acknowledgments
 

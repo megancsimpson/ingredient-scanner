@@ -318,6 +318,8 @@ ingredient-scanner/
 | Decision | Reasoning |
 |---|---|
 | Email/password login instead of Google sign-in | Works on any device without developer accounts or fees; demonstrates building authentication directly |
+| Render Starter ($7/month) for the API | Free plans that fit (Render Free, Railway Hobby) block outgoing email ports, which Gmail needs; Render Free also sleeps after 15 minutes idle and takes about a minute to wake, which would make the app's first request time out. Starter keeps the server always on and allows email with no code changes |
+| Separate live database | Same Atlas cluster (free), different database name, so test accounts and data never appear in the live app and local testing can't affect real users |
 | Gmail with nodemailer for email | Free and needs no domain; the app only sends occasional "forgot password" codes and welcome emails, well under Gmail's daily limit. Uses an app password (needs 2-Step Verification on the Google account) kept in `.env`. Only `emailService` knows the provider, so it can be swapped for a service such as Resend or SendGrid |
 | OCR on the server, not the device | Keeps the OCR API key secret; simpler app setup |
 | Google Cloud Vision for OCR | Built for reading text in photos (Document AI is aimed at scanned business documents and needs more setup). `DOCUMENT_TEXT_DETECTION` suits dense text. 1,000 images a month free, then $1.50 per 1,000. Called with a restricted API key (Cloud Vision only) kept in `.env`; only `ocrService` knows the provider, so it can be swapped |
@@ -338,9 +340,22 @@ ingredient-scanner/
 | One shared normalize function | Seed data and scanned text are normalized the same way, so formatting differences ("D&C Red 17" vs. "D & C Red # 17") don't cause missed matches |
 | Private repo, deployed app | Deployment is a project requirement; the repo stays private as agreed with the professor. During development the app runs locally and through Expo |
 
+## 12a. Deployment
+
+| Part | Where | Notes |
+|---|---|---|
+| API | Render web service, Starter instance | Root directory `backend`, build `npm ci`, start `npm start`, health check `/api/health`. Node version pinned with `engines` in `backend/package.json`. Redeploys automatically on every push to `main` |
+| Database | MongoDB Atlas, same cluster as development | The live API uses its own database, `ingredient-scanner-prod`; local development uses the default `test` database, so test data never mixes with real users. Atlas Network Access allows Render's outbound IP ranges |
+| Secrets | Render environment variables | `MONGODB_URI` (with the `ingredient-scanner-prod` database name), `JWT_SECRET` (different from development, so local logins don't work on the live API), `GOOGLE_VISION_API_KEY`, `EMAIL_USER`, `EMAIL_APP_PASSWORD`. Render sets `PORT` |
+| Ingredient list | Loaded into the live database by running the seed script locally with the live `MONGODB_URI` | Run again after editing `ingredients.json` |
+
+**Branches:** `main` is what's live; day-to-day work happens on `dev` and is merged into `main` once tested.
+
 ## 13. Open decisions
 
-- **Hosting.** The app will be deployed; where the Express API runs and how the mobile app is distributed are still to be decided. At deployment: set `GOOGLE_VISION_API_KEY`, `EMAIL_USER` and `EMAIL_APP_PASSWORD` in the host's environment variables, add an IP address restriction to the Vision key if the host has a fixed outbound IP, and keep a Google Cloud budget alert on the billing account. Some hosts block outgoing email (SMTP) ports on free plans; check that forgot-password emails send from the deployed server, and if they can't, switch `emailService` to a service with an HTTP API such as Resend.
+- **App distribution.** The API is live on Render (see section 12a); how the mobile app gets onto phones without Expo Go is still to be decided, most likely EAS Build (an installable Android build; TestFlight on iPhone, which needs an Apple Developer account).
+- **Vision key restriction (to do).** Render's outbound IP ranges are fixed, so the Google Vision API key can be restricted to them in Google Cloud. Keep a Google Cloud budget alert on the billing account.
+
 ## 14. Future improvements (out of scope for now)
 
 - Google and Apple sign-in
