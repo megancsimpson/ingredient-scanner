@@ -192,7 +192,7 @@ The live API uses its own database, `ingredient-scanner-prod`, on the same Atlas
 
    Run this again whenever `ingredients.json` changes.
 
-5. **Check it:** `https://<service-name>.onrender.com/api/health` should show `{"status":"ok"}`. The other addresses start with `/api/` and are for the app, so the bare address shows "Cannot GET /".
+5. **Check it:** `https://<service-name>.onrender.com/api/health` should show `{"status":"ok"}`. The other addresses start with `/api/` and are for the app, so the bare address shows `{"error":"Not found."}`.
 
 6. **Set `TRUST_PROXY_HOPS` for the rate limits:** requests reach the server through Render's proxies, which pass on each user's real IP address in the `X-Forwarded-For` header. `TRUST_PROXY_HOPS` tells the server how many proxies to look past. Without it, everyone looks like the same visitor to the limits counted per IP address. To find the number:
    1. After a deploy, use the app once (any screen that loads data).

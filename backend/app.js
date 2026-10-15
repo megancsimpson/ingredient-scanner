@@ -75,6 +75,14 @@ for (const [path, router] of Object.entries(routers)) {
   if (path !== '/api/ocr') app.use(path, router);
 }
 
+// Any address no route above answered: reply in the same { error } shape as
+// every other error. Express's default is an HTML page ("Cannot GET /...")
+// that the app can't read and that tells anyone probing the server it runs
+// Express.
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found.' });
+});
+
 // Must come after all routes so it can catch their errors
 app.use(errorHandler);
 

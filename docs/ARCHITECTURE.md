@@ -194,7 +194,7 @@ In the Auth column, "Yes" needs a login token and a verified email (`requireAuth
 
 Any endpoint can also return `429` with an error message when a rate limit is reached (see section 9).
 
-Every error response has the same shape, `{ "error": "message for the user" }`, sometimes with extra details for the app (e.g. `duplicate` on a `409` from `POST /api/products`). The `errorHandler` middleware catches unexpected errors, logs them on the server and returns a generic `500` message so internal details never reach the app.
+Every error response has the same shape, `{ "error": "message for the user" }`, sometimes with extra details for the app (e.g. `duplicate` on a `409` from `POST /api/products`). An address no route answers gets `404 { "error": "Not found." }` rather than Express's default HTML page. The `errorHandler` middleware catches unexpected errors, logs them on the server and returns a generic `500` message so internal details never reach the app.
 
 ### 7.3 Ingredient parsing and matching
 
