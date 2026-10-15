@@ -9,8 +9,11 @@ jest.mock('../services/productService');
 
 const User = require('../models/User');
 const emailService = require('../services/emailService');
+const productService = require('../services/productService');
 const {
   register,
+  login,
+  deleteAccount,
   sendVerificationCode,
   verifyEmail,
   requestPasswordReset,
@@ -46,6 +49,120 @@ describe('register', () => {
     // The verification screen asks for the code; the welcome comes after
     expect(emailService.sendVerificationCode).not.toHaveBeenCalled();
     expect(emailService.sendWelcomeEmail).not.toHaveBeenCalled();
+  });
+
+  test('stores only a bcrypt hash of the password', async () => {
+    User.exists.mockResolvedValue(false);
+    User.create.mockImplementation(async (fields) => fakeUser(fields));
+
+    await register({ name: 'Sam', email: 'sam@example.com', password: 'a-good-password' });
+
+    const saved = User.create.mock.calls[0][0];
+    expect(saved).not.toHaveProperty('password');
+    expect(await bcrypt.compare('a-good-password', saved.passwordHash)).toBe(true);
+  });
+
+  test('refuses an email that already has an account (409), ignoring capitals', async () => {
+    User.exists.mockResolvedValue(true);
+
+    await expect(
+      register({ name: 'Sam', email: ' SAM@example.com', password: 'a-good-password' })
+    ).rejects.toMatchObject({ status: 409 });
+    expect(User.exists).toHaveBeenCalledWith({ email: 'sam@example.com' });
+    expect(User.create).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['too short', 'short', 'Password must be at least 8 characters.'],
+    // bcrypt ignores anything past 72 bytes; "é" is 2 bytes, so this is 74
+    ['over 72 bytes', 'é'.repeat(37), 'Password must be 72 characters or fewer.'],
+    ['missing', undefined, 'Password must be at least 8 characters.'],
+  ])('refuses a password that is %s, before touching the database', async (_, password, message) => {
+    await expect(register({ name: 'Sam', email: 'sam@example.com', password })).rejects.toMatchObject({
+      status: 400,
+      message,
+    });
+    expect(User.exists).not.toHaveBeenCalled();
+  });
+});
+
+describe('login', () => {
+  const PASSWORD = 'a-good-password';
+  let passwordHash;
+  beforeAll(async () => {
+    // A low cost factor keeps the test fast; the real app uses 12
+    passwordHash = await bcrypt.hash(PASSWORD, 4);
+  });
+
+  test('logs in with the right password, ignoring capitals and spaces in the email', async () => {
+    User.findOne.mockReturnValue(query(fakeUser({ passwordHash })));
+
+    const result = await login({ email: '  Sam@Example.COM ', password: PASSWORD });
+
+    expect(User.findOne).toHaveBeenCalledWith({ email: 'sam@example.com' });
+    // The hash is normally left out of queries, so login asks for it
+    expect(User.findOne.mock.results[0].value.select).toHaveBeenCalledWith('+passwordHash');
+    expect(jwt.verify(result.token, 'test-secret').sub).toBe('user1');
+  });
+
+  test('gives a login token that expires after 7 days', async () => {
+    User.findOne.mockReturnValue(query(fakeUser({ passwordHash })));
+
+    const { token } = await login({ email: 'sam@example.com', password: PASSWORD });
+
+    const { iat, exp } = jwt.verify(token, 'test-secret');
+    expect(exp - iat).toBe(7 * 24 * 60 * 60);
+  });
+
+  test('gives the same message for a wrong password and an unknown email', async () => {
+    // So the response doesn't reveal which emails have accounts
+    const expected = { status: 401, message: 'Incorrect email or password.' };
+
+    User.findOne.mockReturnValue(query(fakeUser({ passwordHash })));
+    await expect(login({ email: 'sam@example.com', password: 'wrong-password' })).rejects.toMatchObject(expected);
+
+    User.findOne.mockReturnValue(query(null));
+    await expect(login({ email: 'nobody@example.com', password: PASSWORD })).rejects.toMatchObject(expected);
+  });
+
+  test.each([[''], [undefined], [{ $ne: '' }]])(
+    'refuses a missing or non-text password (%p) without touching the database',
+    async (password) => {
+      await expect(login({ email: 'sam@example.com', password })).rejects.toMatchObject({ status: 401 });
+      expect(User.findOne).not.toHaveBeenCalled();
+    }
+  );
+
+  test('looks up a non-text email as an empty one, so it matches no account', async () => {
+    User.findOne.mockReturnValue(query(null));
+
+    await expect(login({ email: { $ne: '' }, password: PASSWORD })).rejects.toMatchObject({
+      status: 401,
+    });
+    expect(User.findOne).toHaveBeenCalledWith({ email: '' });
+  });
+});
+
+describe('deleteAccount', () => {
+  test('deletes the user’s products first, then the account', async () => {
+    // If something fails partway, the account still exists and the user can
+    // try again, rather than products being left with no owner
+    const order = [];
+    productService.deleteAllForUser.mockImplementation(async () => order.push('products'));
+    User.deleteOne.mockImplementation(async () => order.push('account'));
+
+    await deleteAccount('user1');
+
+    expect(order).toEqual(['products', 'account']);
+    expect(productService.deleteAllForUser).toHaveBeenCalledWith('user1');
+    expect(User.deleteOne).toHaveBeenCalledWith({ _id: 'user1' });
+  });
+
+  test('keeps the account if deleting the products fails', async () => {
+    productService.deleteAllForUser.mockRejectedValue(new Error('database down'));
+
+    await expect(deleteAccount('user1')).rejects.toThrow('database down');
+    expect(User.deleteOne).not.toHaveBeenCalled();
   });
 });
 

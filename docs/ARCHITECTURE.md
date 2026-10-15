@@ -293,7 +293,8 @@ ingredient-scanner/
 │       ├── services/        api.js (all HTTP calls)
 │       └── utils/           formatting helpers
 ├── backend/         Node + Express API
-│   ├── index.js
+│   ├── index.js             starts the server: settings check, MongoDB connection, listen
+│   ├── app.js               the Express app (middleware and routes), loaded by index.js and the tests
 │   ├── config/              database connection, Passport setup
 │   ├── routes/              auth, ocr, analyze, products, ingredients
 │   ├── controllers/         one per route group
