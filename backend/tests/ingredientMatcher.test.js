@@ -46,6 +46,12 @@ describe('matchIngredients', () => {
       expect(flaggedNames('Hydrogenated Coconut Oil')).toEqual(['Hydrogenated Coconut Oil']);
     });
 
+    test('flags a name written with accents, as on French labels', () => {
+      // Accents are removed before comparing (utils/normalize.js), so an
+      // accented spelling still matches the list's unaccented one
+      expect(flaggedNames('Eau, Glycérine, Myristate d’Isopropyle, Lauréth-4')).toEqual(['Lauréth-4']);
+    });
+
     test('matches whole words only', () => {
       // "laureth 4" is not in "laureth 40", and "coconut" is not in "coconutty"
       expect(flaggedNames('Laureth-40, Coconutty Extract')).toEqual([]);
