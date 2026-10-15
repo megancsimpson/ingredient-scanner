@@ -145,7 +145,7 @@ export default function CameraScreen({ navigation }) {
 
       {/* The tip stays at the top of the camera view */}
       <Text style={[styles.tip, styles.tipTop]} pointerEvents="none">
-        Fill the frame with the ingredient list, in good light
+        Fit the whole ingredient list in the frame, in good light
       </Text>
 
       <Pressable

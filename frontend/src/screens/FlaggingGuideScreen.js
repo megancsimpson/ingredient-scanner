@@ -45,6 +45,7 @@ const SECTIONS = [
   {
     heading: 'Getting accurate results',
     paragraphs: [
+      'Photos work best when the whole ingredient list fits in one shot, like on the back of a flat box. For round bottles and tubes, or lists that wrap around the container, paste the list instead. You can usually copy it from the brand’s or store’s website.',
       'Check the ingredient text before analyzing it. A misread or misspelled ingredient can be missed.',
       'Results show whether an ingredient is present, not how much of it there is or how the product is made, which also affect how it works on your skin.',
     ],
