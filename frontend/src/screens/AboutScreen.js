@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Constants from 'expo-constants';
 import Disclaimer from '../components/Disclaimer';
+import { TEXT_WRAP_FIX } from '../utils/textWrapFix';
 
 // The version from app.json ("expo.version"), so it's never out of date here
 const APP_VERSION = Constants.expoConfig?.version ?? '';
@@ -53,5 +54,5 @@ const styles = StyleSheet.create({
   version: { fontSize: 14, color: '#666', marginTop: 4 },
   section: { marginTop: 24 },
   heading: { fontSize: 17, fontWeight: '600', color: '#222', marginBottom: 6 },
-  body: { fontSize: 15, color: '#444', lineHeight: 22 },
+  body: { fontSize: 15, color: '#444', lineHeight: 22, ...TEXT_WRAP_FIX },
 });

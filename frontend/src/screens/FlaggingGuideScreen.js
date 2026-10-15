@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Disclaimer from '../components/Disclaimer';
+import { TEXT_WRAP_FIX } from '../utils/textWrapFix';
 
 // Each section of the guide: a heading, one or more paragraphs, and an
 // optional bulleted list shown after the paragraphs.
@@ -89,7 +90,8 @@ const styles = StyleSheet.create({
   container: { padding: 20, paddingTop: 4 },
   section: { marginTop: 20 },
   heading: { fontSize: 17, fontWeight: '600', color: '#222', marginBottom: 6 },
-  body: { fontSize: 15, color: '#444', lineHeight: 22, marginBottom: 8 },
+  // A long page, so paragraphs can sit far down it (see textWrapFix.js)
+  body: { fontSize: 15, color: '#444', lineHeight: 22, marginBottom: 8, ...TEXT_WRAP_FIX },
   bulletRow: { flexDirection: 'row', gap: 8, paddingLeft: 4 },
   bulletText: { flex: 1 },
 });

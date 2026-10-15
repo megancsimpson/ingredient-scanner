@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { TEXT_WRAP_FIX } from '../utils/textWrapFix';
 
 const SHORT_TEXT =
   'For information only. This is not medical advice; ask a licensed esthetician or dermatologist about your skin.';
@@ -27,5 +28,6 @@ export default function Disclaimer({ variant = 'short' }) {
 
 const styles = StyleSheet.create({
   box: { backgroundColor: '#f2f2f2', borderRadius: 8, padding: 12 },
-  text: { fontSize: 13, color: '#555', lineHeight: 18 },
+  // Below long ingredient lists this can sit far down the page (see textWrapFix.js)
+  text: { fontSize: 13, color: '#555', lineHeight: 18, ...TEXT_WRAP_FIX },
 });
