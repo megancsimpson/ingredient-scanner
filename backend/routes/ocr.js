@@ -1,12 +1,14 @@
 const express = require('express');
 const { ocr } = require('../controllers/ocrController');
 const { requireAuth } = require('../middleware/auth');
+const { photoLimit } = require('../middleware/rateLimits');
 
 const router = express.Router();
 
 // Photos are much bigger than the other requests, so this route reads JSON
 // bodies up to 8 MB (index.js mounts it before the app-wide 100 KB limit).
-// The login check comes first, so only logged-in users can send large bodies.
-router.post('/', requireAuth, express.json({ limit: '8mb' }), ocr);
+// The login check comes first, so only logged-in users can send large bodies,
+// then the daily photo limit (middleware/rateLimits.js), which counts per user.
+router.post('/', requireAuth, photoLimit, express.json({ limit: '8mb' }), ocr);
 
 module.exports = router;

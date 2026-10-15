@@ -22,6 +22,7 @@ The app is an informational tool and does not replace professional skincare advi
 | OCR | Google Cloud Vision API (`DOCUMENT_TEXT_DETECTION`) | Converting ingredient photos to text |
 | Gestures | react-native-gesture-handler, react-native-reanimated | Swipe to delete on the saved products list |
 | Camera and photos | expo-camera, expo-image-picker, expo-image-manipulator | Taking or choosing a photo and shrinking it before upload |
+| Rate limiting | express-rate-limit | Limits on logins, sign-ups, emailed codes, photo scans and all API requests |
 | Email | nodemailer, Gmail (app password) | Sending verification and "forgot password" codes, and welcome emails |
 | Testing | Jest | Unit tests |
 
@@ -191,6 +192,8 @@ In the Auth column, "Yes" needs a login token and a verified email (`requireAuth
 | GET | `/api/ingredients?search=` | Yes | `{ ingredients }` A to Z: those whose name or alias contains the search, plus those that would flag the search text if it were on a label (same rule as the matcher). Empty search returns all; `400` over 200 characters |
 | GET | `/api/ingredients/:id` | Yes | `{ ingredient }`: `{ id, name, aliases, sources, notes? }`; `404` if not found |
 
+Any endpoint can also return `429` with an error message when a rate limit is reached (see section 9).
+
 Every error response has the same shape, `{ "error": "message for the user" }`, sometimes with extra details for the app (e.g. `duplicate` on a `409` from `POST /api/products`). The `errorHandler` middleware catches unexpected errors, logs them on the server and returns a generic `500` message so internal details never reach the app.
 
 ### 7.3 Ingredient parsing and matching
@@ -271,6 +274,7 @@ The current list has 358 entries with names and sources only; no aliases or note
 - **Account deletion:** from the Profile tab after confirming. The server removes the User and all their SavedProducts; the app clears the stored token and returns to the login screen.
 - **Secrets** (MongoDB URI, JWT secret, OCR API key, Gmail app password) are stored in a `.env` file excluded from Git during development, and in the hosting provider's environment variables once deployed.
 - **Validation** is enforced in Mongoose schemas so invalid data is rejected regardless of route.
+- **Rate limits** (`middleware/rateLimits.js`, express-rate-limit): 10 wrong passwords per email and IP in 15 minutes (successful logins don't count); 20 new accounts per IP an hour; 10 emailed codes per IP an hour (on top of the one-a-minute limit per account); 20 code entries per IP in 15 minutes (on top of 5 guesses per code); 50 photo scans per user a day, which caps the Google Vision bill; and 1,000 requests per IP in 15 minutes for the whole API (the health check is left out, since Render calls it every few seconds). Limits return `429` with the usual `{ error }`. Wrong passwords are counted per email as well as IP, so one person can't lock out others on the same network, and photos per user, so a shared IP doesn't share a photo limit. Counts are kept in memory, so they reset on restart; several servers would need a shared store such as Redis. On Render, requests come through proxies, so `trust proxy` is set from `TRUST_PROXY_HOPS` (the number of proxies, read from a one-time log of the `X-Forwarded-For` header) to make `req.ip` the user's real address. It's a fixed number, not `true`, so users can't fake their address with their own header.
 - **Input types:** every value from a request is checked to be text (or a valid ID) before it reaches a database query. An object such as `{ "$ne": "" }` sent in place of text could otherwise change what a query matches (NoSQL injection). Product fields are checked in `productService`; emails, codes, IDs and searches are converted or checked in their services. Mongoose's `sanitizeFilter` option was considered, but it also blocks the app's own query operators (`$lt`, `$ne`), so explicit checks are used instead. Saved text is only ever displayed as text by React Native, never run as code.
 - **No offensive-word filter (considered and decided against):** saved products are private, so only the person who typed a name ever sees it, and a filter would protect no one. Word filters also misfire on innocent names (the "Scunthorpe problem"): real products such as "Shea Butter", Sol de Janeiro's "Bum Bum Cream" and "Dickinson's Witch Hazel" contain words on common banned lists, so a filter would wrongly tell users their product name is offensive. A filter should be reconsidered if products are ever shared between users (see section 14).
 
@@ -295,7 +299,7 @@ ingredient-scanner/
 │   ├── controllers/         one per route group
 │   ├── services/            ocrService, ingredientSection, analysisService, ingredientParser, ingredientMatcher, ingredientListCheck, emailService
 │   ├── models/              User, SavedProduct, Ingredient
-│   ├── middleware/          auth.js, errorHandler.js
+│   ├── middleware/          auth.js, errorHandler.js, rateLimits.js
 │   ├── seed/                data/ingredients.json and seedIngredients.js
 │   ├── utils/               normalize.js (shared by seed script and parser)
 │   └── tests/               Jest unit tests
@@ -355,7 +359,7 @@ ingredient-scanner/
 |---|---|---|
 | API | Render web service, Starter instance | Root directory `backend`, build `npm ci`, start `npm start`, health check `/api/health`. Node version pinned with `engines` in `backend/package.json`. Redeploys automatically on every push to `main` |
 | Database | MongoDB Atlas, same cluster as development | The live API uses its own database, `ingredient-scanner-prod`; local development uses the default `test` database, so test data never mixes with real users. Atlas Network Access allows Render's outbound IP ranges |
-| Secrets | Render environment variables | `MONGODB_URI` (with the `ingredient-scanner-prod` database name), `JWT_SECRET` (different from development, so local logins don't work on the live API), `GOOGLE_VISION_API_KEY`, `EMAIL_USER`, `EMAIL_APP_PASSWORD`. Render sets `PORT` |
+| Secrets | Render environment variables | `MONGODB_URI` (with the `ingredient-scanner-prod` database name), `JWT_SECRET` (different from development, so local logins don't work on the live API), `GOOGLE_VISION_API_KEY`, `EMAIL_USER`, `EMAIL_APP_PASSWORD`, `TRUST_PROXY_HOPS` (number of Render proxies, for the rate limits). Render sets `PORT` |
 | Ingredient list | Loaded into the live database by running the seed script locally with the live `MONGODB_URI` | Run again after editing `ingredients.json` |
 
 **Branches:** `main` is what's live; day-to-day work happens on `dev` and is merged into `main` once tested.

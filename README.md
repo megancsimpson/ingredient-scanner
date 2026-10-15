@@ -127,12 +127,29 @@ If you change `frontend/.env` later, restart with `npx expo start --clear` so th
 
 ## Tests
 
-The ingredient parser and matcher, the photo-text cleanup, login and email codes, and the login checks are covered by Jest unit tests:
+The ingredient parser and matcher, the photo-text cleanup, the ingredient-list check, login and email codes, the login checks, input validation and rate limits are covered by Jest tests:
 
 ```bash
 cd backend
 npm test
 ```
+
+## Rate limits
+
+The API limits how often one person can make certain requests, using [express-rate-limit](https://github.com/express-rate-limit/express-rate-limit). This stops password guessing, flooding inboxes with emailed codes, and running up the Google Vision bill (photo scans cost money after the first 1,000 a month). The limits are in [backend/middleware/rateLimits.js](backend/middleware/rateLimits.js):
+
+| What | Limit | Counted per |
+|---|---|---|
+| Wrong passwords | 10 in 15 minutes (successful logins don't count) | Email address and IP address |
+| New accounts | 20 an hour | IP address |
+| Emailed codes (verification, forgot password) | 10 an hour (plus 1 a minute per account) | IP address |
+| Entering codes | 20 in 15 minutes (plus 5 wrong guesses per code) | IP address |
+| Photo scans | 50 a day | Logged-in user |
+| Any API request | 1,000 in 15 minutes | IP address |
+
+Going over a limit returns `429` with a message the app shows, e.g. "Too many login attempts. Please wait 15 minutes and try again." Counting wrong passwords per email means one person's mistakes can't lock out someone else on the same network, and counting photos per user means people sharing an IP address don't share a photo limit.
+
+The counts are kept in the server's memory, so they reset when the server restarts (including every deploy). That's fine with one server; several servers would need a shared store such as Redis.
 
 ## Updating the ingredient list
 
@@ -176,6 +193,14 @@ The live API uses its own database, `ingredient-scanner-prod`, on the same Atlas
    Run this again whenever `ingredients.json` changes.
 
 5. **Check it:** `https://<service-name>.onrender.com/api/health` should show `{"status":"ok"}`. The other addresses start with `/api/` and are for the app, so the bare address shows "Cannot GET /".
+
+6. **Set `TRUST_PROXY_HOPS` for the rate limits:** requests reach the server through Render's proxies, which pass on each user's real IP address in the `X-Forwarded-For` header. `TRUST_PROXY_HOPS` tells the server how many proxies to look past. Without it, everyone looks like the same visitor to the limits counted per IP address. To find the number:
+   1. After a deploy, use the app once (any screen that loads data).
+   2. In Render, open **Logs** and find the line starting `X-Forwarded-For has N address(es)`.
+   3. Add an environment variable `TRUST_PROXY_HOPS` set to that number `N`. Render redeploys.
+   4. After the next request, the same log line should show your own IP address as the client IP (compare with a "what is my IP" website).
+
+   Leave it unset locally, where there's no proxy. It's a fixed number rather than "trust everything", because trusting too many would let anyone fake their IP address by sending their own header.
 
 ### Using the app with the live API
 
