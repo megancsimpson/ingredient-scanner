@@ -369,6 +369,12 @@ ingredient-scanner/
 
 - **App distribution.** The API is live on Render (see section 12a); how the mobile app gets onto phones without Expo Go is still to be decided, most likely EAS Build (an installable Android build; TestFlight on iPhone, which needs an Apple Developer account).
 - **Vision key restriction (to do).** Render's outbound IP ranges are fixed, so the Google Vision API key can be restricted to them in Google Cloud. Keep a Google Cloud budget alert on the billing account.
+- **Tests still to add (to do):**
+  - **Photo endpoint** (`ocrController`, `ocrService.extractText`): missing or oversized photo (`400`), no text found (`422`), and Google Vision failing, timing out, rejecting the image (`400`) or not being set up (`503`).
+  - **Analyze endpoint** (`analyzeController`): missing text, text over 10,000 characters, and text with no ingredients (`400`).
+  - **Email service** (`emailService`): not set up (`503`), Gmail failing (`502`), the welcome email skipped quietly when email isn't set up, and the emails including the code and how long it works.
+  - **Other rate limits:** check the sign-up, emailed-code, code-entry and overall limits are attached to their routes (only the login and photo limits are tested).
+  - **The app (frontend):** no tests yet. Start with the Saved list's sorting, grouping and "Non pore-clogging" filter (`utils/organizeProducts.js`) and date formatting; needs Jest set up for Expo (`jest-expo`) first.
 
 ## 14. Future improvements (out of scope for now)
 
