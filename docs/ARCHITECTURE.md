@@ -333,7 +333,7 @@ ingredient-scanner/
 | Separate live database | Same Atlas cluster (free), different database name, so test accounts and data never appear in the live app and local testing can't affect real users |
 | Gmail with nodemailer for email | Free and needs no domain; the app only sends occasional "forgot password" codes and welcome emails, well under Gmail's daily limit. Uses an app password (needs 2-Step Verification on the Google account) kept in `.env`. Only `emailService` knows the provider, so it can be swapped for a service such as Resend or SendGrid |
 | OCR on the server, not the device | Keeps the OCR API key secret; simpler app setup |
-| Google Cloud Vision for OCR | Built for reading text in photos (Document AI is aimed at scanned business documents and needs more setup). `DOCUMENT_TEXT_DETECTION` suits dense text. 1,000 images a month free, then $1.50 per 1,000. Called with a restricted API key (Cloud Vision only) kept in `.env`; only `ocrService` knows the provider, so it can be swapped |
+| Google Cloud Vision for OCR | Built for reading text in photos (Document AI is aimed at scanned business documents and needs more setup). `DOCUMENT_TEXT_DETECTION` suits dense text. 1,000 images a month free, then $1.50 per 1,000. Called with an API key kept in `.env` and restricted in Google Cloud to the Cloud Vision API and to Render's outbound IP ranges plus the developer's home IP, so a leaked key can't be used from anywhere else (anyone running the project locally makes their own key). Keep a Google Cloud budget alert on the billing account; only `ocrService` knows the provider, so it can be swapped |
 | Review step after OCR | OCR errors would cause pore-clogging ingredients to be missed |
 | Snapshot of results in saved products | Preserves what the user saw; avoids extra lookups |
 | Fixed list of product categories | Users pick from a list rather than typing, so grouping by category works (no "Moisturizer" vs. "moisturiser"). Codes are stored, not display names, so names can change without updating saved products |
@@ -368,7 +368,6 @@ ingredient-scanner/
 ## 13. Open decisions
 
 - **App distribution.** The API is live on Render (see section 12a); how the mobile app gets onto phones without Expo Go is still to be decided, most likely EAS Build (an installable Android build; TestFlight on iPhone, which needs an Apple Developer account).
-- **Vision key restriction (to do).** Render's outbound IP ranges are fixed, so the Google Vision API key can be restricted to them in Google Cloud. Keep a Google Cloud budget alert on the billing account.
 - **Tests still to add (to do):**
   - **Photo endpoint** (`ocrController`, `ocrService.extractText`): missing or oversized photo (`400`), no text found (`422`), and Google Vision failing, timing out, rejecting the image (`400`) or not being set up (`503`).
   - **Analyze endpoint** (`analyzeController`): missing text, text over 10,000 characters, and text with no ingredients (`400`).
