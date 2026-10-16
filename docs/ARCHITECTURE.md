@@ -24,7 +24,7 @@ The app is an informational tool and does not replace professional skincare advi
 | Camera and photos | expo-camera, expo-image-picker, expo-image-manipulator | Taking or choosing a photo and shrinking it before upload |
 | Rate limiting | express-rate-limit | Limits on logins, sign-ups, emailed codes, photo scans and all API requests |
 | Email | nodemailer, Gmail (app password) | Sending verification and "forgot password" codes, and welcome emails |
-| Testing | Jest | Unit tests |
+| Testing | Jest, jest-expo | Unit tests for the server and the app (`jest-expo` runs Jest with React Native set up for tests) |
 
 ## 3. System architecture
 
@@ -284,6 +284,7 @@ The current list has 358 entries with names and sources only; no aliases or note
 ingredient-scanner/
 ├── frontend/        React Native (Expo) app
 │   ├── App.js
+│   ├── __tests__/       Jest unit tests (jest-expo)
 │   └── src/
 │       ├── navigation/      RootNavigator, AuthStack, AppTabs
 │       ├── screens/         one file per screen
@@ -369,7 +370,7 @@ ingredient-scanner/
 
 - **App distribution.** The API is live on Render (see section 12a); how the mobile app gets onto phones without Expo Go is still to be decided, most likely EAS Build (an installable Android build; TestFlight on iPhone, which needs an Apple Developer account).
 - **Tests still to add (to do):**
-  - **The app (frontend):** no tests yet. Start with the Saved list's sorting, grouping and "Non pore-clogging" filter (`utils/organizeProducts.js`) and date formatting; needs Jest set up for Expo (`jest-expo`) first.
+  - **The app's screens and components:** the app's helper functions are tested (`frontend/__tests__/`, with `jest-expo`), but its screens and components aren't. Those would need React Native Testing Library (`@testing-library/react-native`).
 
 ## 14. Future improvements (out of scope for now)
 

@@ -134,6 +134,13 @@ cd backend
 npm test
 ```
 
+The app has its own Jest tests (using `jest-expo`, Expo's setup for running Jest with React Native). They cover the Saved list's sorting, grouping and "Non pore-clogging" filter, date formatting, the category list (including that it matches the server's), and the "Already saved" question:
+
+```bash
+cd frontend
+npm test
+```
+
 ## Rate limits
 
 The API limits how often one person can make certain requests, using [express-rate-limit](https://github.com/express-rate-limit/express-rate-limit). This stops password guessing, flooding inboxes with emailed codes, and running up the Google Vision bill (photo scans cost money after the first 1,000 a month). The limits are in [backend/middleware/rateLimits.js](backend/middleware/rateLimits.js):
