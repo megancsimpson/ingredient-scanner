@@ -1,5 +1,9 @@
+import { ImageManipulator, __fake } from 'expo-image-manipulator';
+import { preparePhoto } from '../src/utils/preparePhoto';
+
 // Replace Expo's image tool with a fake, since there are no real photos in
-// a test. It records how the photo was resized and saved.
+// a test. It records how the photo was resized and saved. (Jest moves
+// jest.mock above the imports, so the imports above get the fake.)
 jest.mock('expo-image-manipulator', () => {
   const saveAsync = jest.fn();
   const context = { resize: jest.fn(), renderAsync: jest.fn(() => Promise.resolve({ saveAsync })) };
@@ -10,9 +14,6 @@ jest.mock('expo-image-manipulator', () => {
     __fake: { context, saveAsync },
   };
 });
-
-import { ImageManipulator, __fake } from 'expo-image-manipulator';
-import { preparePhoto } from '../src/utils/preparePhoto';
 
 const { context, saveAsync } = __fake;
 

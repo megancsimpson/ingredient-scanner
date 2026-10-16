@@ -26,7 +26,7 @@ To see how much of the code the tests run, add `-- --coverage` (for example `npm
 
 ### Automatic runs on GitHub
 
-Both test suites also run on GitHub on every push and pull request, using GitHub Actions ([.github/workflows/tests.yml](../.github/workflows/tests.yml)). Each commit shows a ✓ if all tests passed or a ✗ if any failed, and the **Actions** tab on GitHub has the full output. This catches a broken test even when it wasn't run locally, and before anything is merged into `main` (which redeploys the live API).
+Both test suites also run on GitHub on every push and pull request, along with ESLint (`npm run lint`, which checks the code for common mistakes), using GitHub Actions ([.github/workflows/tests.yml](../.github/workflows/tests.yml)). Each commit shows a ✓ if all tests passed or a ✗ if any failed, and the **Actions** tab on GitHub has the full output. This catches a broken test even when it wasn't run locally, and before anything is merged into `main` (which redeploys the live API).
 
 ### Results (October 2026)
 

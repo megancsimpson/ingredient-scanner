@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -34,10 +34,14 @@ export default function ReviewTextScreen({ navigation, route }) {
 
   // If this screen is already open and receives new text (e.g. a list sent
   // from the Ingredients search), show the new text. useState only uses
-  // initialText the first time the screen appears.
-  useEffect(() => {
+  // initialText the first time the screen appears. This compares while
+  // drawing rather than in a useEffect, which would draw the old text first:
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  const [shownInitialText, setShownInitialText] = useState(initialText);
+  if (initialText !== shownInitialText) {
+    setShownInitialText(initialText);
     if (initialText) setText(initialText);
-  }, [initialText]);
+  }
 
   async function handleCheck() {
     setError(null);

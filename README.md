@@ -37,6 +37,7 @@ Built as a capstone project for an AI Software Development bootcamp.
 | Email | nodemailer with Gmail |
 | Rate limiting | express-rate-limit |
 | Tests | Jest (server), jest-expo (app) |
+| Code checks | ESLint, GitHub Actions (runs lint and tests on every push) |
 | Hosting | Render (API), MongoDB Atlas (database) |
 
 The full design (screens, data flow, API endpoints, data models, security and the reasons behind the main decisions) is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
@@ -154,7 +155,7 @@ Forgot your password? Tap **Forgot password?** on the login screen, and the app 
 
 ## Tests
 
-How the app is tested (unit tests, the manual checklist for iPhone and Android, and the bugs found and fixed) is in [docs/TESTING.md](docs/TESTING.md). Both test suites also run automatically on GitHub (GitHub Actions) on every push.
+How the app is tested (unit tests, the manual checklist for iPhone and Android, and the bugs found and fixed) is in [docs/TESTING.md](docs/TESTING.md). Both test suites also run automatically on GitHub (GitHub Actions) on every push, along with ESLint, which checks the code for common mistakes. To run ESLint yourself, use `npm run lint` in `backend` or `frontend`.
 
 The ingredient parser and matcher, name normalizing, the seed script and the ingredient list itself (every entry loads, has a known source and no accidental duplicates), the photo-text cleanup, the ingredient-list check, ingredient search, saved products (only the owner can see, edit or delete them; duplicates; what gets saved), login, sign-up and email codes, login tokens, every route's login check (found automatically, so new routes are checked too), input validation, the photo and analyze endpoints (including Google Vision failing, timing out or not being set up), sending email (with Gmail faked), what each endpoint passes on and sends back (the user always comes from the login token, never the request; saved products never include their owner's ID) and rate limits (what each one allows and that it's on the right routes) are covered by Jest tests:
 

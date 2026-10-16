@@ -251,7 +251,7 @@ function cleanName(piece) {
       .replace(/\s+/g, ' ')
       // "+/- CI 77891" (from "May Contain [+/- CI 77891, ...]") -> "CI 77891"
       .replace(/^\s*\+\s*\/\s*-\s*/, '')
-      .replace(/^[\s.:\-]+|[\s.:\-]+$/g, '')
+      .replace(/^[\s.:-]+|[\s.:-]+$/g, '')
   );
 }
 

@@ -25,6 +25,7 @@ The app is an informational tool and does not replace professional skincare advi
 | Rate limiting | express-rate-limit | Limits on logins, sign-ups, emailed codes, photo scans and all API requests |
 | Email | nodemailer, Gmail (app password) | Sending verification and "forgot password" codes, and welcome emails |
 | Testing | Jest, jest-expo | Unit tests for the server and the app (`jest-expo` runs Jest with React Native set up for tests) |
+| Code checks | ESLint (`eslint-config-expo` for the app, ESLint's recommended rules for the server), GitHub Actions | Catching common mistakes (`npm run lint`); lint and tests run on GitHub on every push |
 
 ## 3. System architecture
 

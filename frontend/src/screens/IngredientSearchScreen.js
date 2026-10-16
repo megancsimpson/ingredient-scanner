@@ -27,9 +27,20 @@ export default function IngredientSearchScreen({ navigation }) {
   // in the search bar.
   const latestSearch = useRef(0);
 
+  // The spinner is turned on where the search changes (typing, "Try again"),
+  // and this effect turns it off when the newest search finishes
+  function changeQuery(text) {
+    setQuery(text);
+    setLoading(true);
+  }
+
+  function retry() {
+    setLoading(true);
+    setRetryCount((count) => count + 1);
+  }
+
   useEffect(() => {
     const searchNumber = ++latestSearch.current;
-    setLoading(true);
 
     const timer = setTimeout(async () => {
       try {
@@ -68,7 +79,7 @@ export default function IngredientSearchScreen({ navigation }) {
       <View style={styles.header}>
         <SearchBar
           value={query}
-          onChangeText={setQuery}
+          onChangeText={changeQuery}
           placeholder="Search ingredients"
         />
         <Text style={styles.hint}>
@@ -97,7 +108,7 @@ export default function IngredientSearchScreen({ navigation }) {
             <Button
               title="Try again"
               variant="secondary"
-              onPress={() => setRetryCount((count) => count + 1)}
+              onPress={retry}
             />
           </View>
         </View>

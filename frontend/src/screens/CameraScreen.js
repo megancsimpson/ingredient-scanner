@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -32,11 +32,14 @@ export default function CameraScreen({ navigation }) {
   // True while the phone's own Camera is open (see openPhoneCamera)
   const [phoneCameraOpen, setPhoneCameraOpen] = useState(false);
 
-  // The preview restarts when the user comes back to this screen, so the
-  // shutter waits for it to be ready again
-  useEffect(() => {
-    if (!isFocused) setCameraReady(false);
-  }, [isFocused]);
+  // The preview stops when the user leaves this screen and restarts when
+  // they come back, so the shutter waits for it to be ready again.
+  // useFocusEffect's cleanup runs when the screen loses focus.
+  useFocusEffect(
+    useCallback(() => {
+      return () => setCameraReady(false);
+    }, [])
+  );
 
   // Shrinks the photo, sends it for OCR and moves on to the review step
   async function readPhoto(photo) {
@@ -87,8 +90,10 @@ export default function CameraScreen({ navigation }) {
     }
 
     // Only one camera can run at a time, so this screen's preview is turned
-    // off while the phone's Camera is open
+    // off while the phone's Camera is open. It restarts afterwards, so the
+    // shutter waits for it to be ready again.
     setPhoneCameraOpen(true);
+    setCameraReady(false);
     setTorchOn(false);
     try {
       const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 });

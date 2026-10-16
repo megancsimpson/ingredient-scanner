@@ -8,9 +8,9 @@ const HttpError = require('../utils/httpError');
  * Express 5 passes errors from async controllers here automatically.
  * It must be registered after all routes in index.js.
  */
-// "next" is unused, but Express only treats a function as an error handler
-// when it takes all four arguments
-function errorHandler(err, req, res, next) {
+// "_next" is unused, but Express only treats a function as an error handler
+// when it takes all four arguments. The _ tells ESLint it's unused on purpose.
+function errorHandler(err, req, res, _next) {
   // The request body wasn't valid JSON (thrown by express.json())
   if (err.type === 'entity.parse.failed') {
     return res.status(400).json({ error: 'Request body must be valid JSON.' });
