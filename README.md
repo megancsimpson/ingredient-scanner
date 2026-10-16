@@ -134,7 +134,7 @@ cd backend
 npm test
 ```
 
-The app has its own Jest tests (using `jest-expo`, Expo's setup for running Jest with React Native). They cover the Saved list's sorting, grouping and "Non pore-clogging" filter, date formatting, the category list (including that it matches the server's), and the "Already saved" question:
+The app has its own Jest tests (using `jest-expo`, Expo's setup for running Jest with React Native). They cover every call to the server (`services/api.js`: the right address and body, sending the login token, error messages, and logging out when the login stops working), shrinking photos before they're sent, the Saved list's sorting, grouping and "Non pore-clogging" filter, date formatting, the category list (including that it matches the server's), and the "Already saved" question:
 
 ```bash
 cd frontend
