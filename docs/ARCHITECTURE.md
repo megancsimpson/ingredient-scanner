@@ -328,6 +328,52 @@ ingredient-scanner/
 | **Modularization** | Reusable UI components mirrored as Figma components in the wireframes; one module per responsibility on the server |
 | **Single source of truth** | The server owns saved data; the app refetches rather than keeping a separate copy |
 
+## 11a. How the frameworks and libraries are used
+
+The features each library is used for beyond the basics, where to find them, and why.
+
+### App (React Native, Expo)
+
+| Library | Feature | Where | Why |
+|---|---|---|---|
+| React | Context with `useMemo` and `useCallback` | [AuthContext.js](../frontend/src/context/AuthContext.js) | Shares login state app-wide; memoizing the value and functions stops every screen redrawing when the provider does |
+| React | Custom hooks | [useAuth.js](../frontend/src/hooks/useAuth.js), [useSavedProducts.js](../frontend/src/hooks/useSavedProducts.js) | Reusable stateful logic (loading, errors, refetching) kept out of the screens |
+| React | `useRef` for values that shouldn't redraw | [IngredientSearchScreen.js](../frontend/src/screens/IngredientSearchScreen.js), [SavedProductsScreen.js](../frontend/src/screens/SavedProductsScreen.js) | Numbering searches so a slow, out-of-date response is ignored; remembering which row is swiped open |
+| React | Adjusting state when a prop changes, without an effect | [ReviewTextScreen.js](../frontend/src/screens/ReviewTextScreen.js) | React's recommended pattern; avoids drawing the old text first |
+| React Navigation | Separate stacks nested in bottom tabs, chosen by login state | [RootNavigator.js](../frontend/src/navigation/RootNavigator.js), [AppTabs.js](../frontend/src/navigation/AppTabs.js) | Each tab keeps its place; logged-out users can't reach app screens |
+| React Navigation | `presentation: 'modal'` | [AppTabs.js](../frontend/src/navigation/AppTabs.js) | Save and Edit forms open as a sheet on iOS and a full screen on Android |
+| React Navigation | Navigating into another tab's stack (`initial: false`), `popToTop` | [IngredientSearchScreen.js](../frontend/src/screens/IngredientSearchScreen.js), [ResultsScreen.js](../frontend/src/screens/ResultsScreen.js) | Sending a pasted list from Ingredients to the Scan tab with Back still working; Cancel returning to a fresh scan |
+| React Navigation | `useFocusEffect`, `useIsFocused` | [useSavedProducts.js](../frontend/src/hooks/useSavedProducts.js), [CameraScreen.js](../frontend/src/screens/CameraScreen.js) | Refetching saved products when the tab is opened; running the camera only while its screen is showing |
+| React Navigation | Header buttons set from the screen (`useLayoutEffect` + `setOptions`), `useHeaderHeight` | [ResultsScreen.js](../frontend/src/screens/ResultsScreen.js), [LoginScreen.js](../frontend/src/screens/LoginScreen.js) | The Edit/Done button changes with the screen's state; forms move above the keyboard below the header |
+| react-native-gesture-handler, react-native-reanimated | `ReanimatedSwipeable` with accessibility actions | [SavedProductRow.js](../frontend/src/components/SavedProductRow.js) | Swipe left to delete, with a Delete action for screen reader users who can't swipe |
+| react-native-safe-area-context | `useSafeAreaInsets` | [ProductDetailsForm.js](../frontend/src/components/ProductDetailsForm.js) | The pinned Save/Cancel bar clears the home indicator and Android navigation bar |
+| React Native | `SectionList`, `KeyboardAvoidingView`, `Platform.OS` where behavior differs | [SavedProductsScreen.js](../frontend/src/screens/SavedProductsScreen.js), [LoginScreen.js](../frontend/src/screens/LoginScreen.js) | Grouped Saved list with headings; keyboard handling that differs between iOS and Android |
+| expo-camera, expo-image-picker | `CameraView` with torch, `launchCameraAsync`, permission states | [CameraScreen.js](../frontend/src/screens/CameraScreen.js) | In-app camera plus the phone's own camera for close-ups; a Settings link when permission was refused |
+| expo-image-manipulator | Context API (`manipulate` → `resize` → `renderAsync` → `saveAsync`) | [preparePhoto.js](../frontend/src/utils/preparePhoto.js) | Shrinks photos to 2000 px before upload |
+| expo-secure-store | Encrypted storage | [AuthContext.js](../frontend/src/context/AuthContext.js) | The login token is kept in the iPhone Keychain or Android Keystore, not plain storage |
+| expo-constants | App config at run time | [AboutScreen.js](../frontend/src/screens/AboutScreen.js) | Shows the version from `app.json` |
+
+### Server (Node, Express)
+
+| Library | Feature | Where | Why |
+|---|---|---|---|
+| Express 5 | Routers, middleware chains, async errors passed to one error handler | [app.js](../backend/app.js), [routes/](../backend/routes/), [errorHandler.js](../backend/middleware/errorHandler.js) | Every error becomes the same `{ error }` JSON without try/catch in each controller |
+| Express 5 | A route-level body parser mounted before the app-wide one; `trust proxy` | [routes/ocr.js](../backend/routes/ocr.js), [app.js](../backend/app.js) | Photos get an 8 MB limit, after the login check, while everything else stays at 100 KB; real user IPs behind Render's proxies |
+| Passport (passport-jwt) | A JWT strategy with extra checks | [config/passport.js](../backend/config/passport.js), [middleware/auth.js](../backend/middleware/auth.js) | Rejects tokens issued before a password reset; separate checks for "logged in" and "logged in and verified" |
+| Mongoose | Schema validation (`match`, `enum`, `maxlength`), `toJSON` transforms, `select: false`, indexes | [models/](../backend/models/) | Invalid data is rejected whatever the route; responses never include password hashes or owners' IDs |
+| Mongoose | Collation, `lean()`, `findOneAndUpdate` with `$inc` | [productService.js](../backend/services/productService.js), [analysisService.js](../backend/services/analysisService.js), [authService.js](../backend/services/authService.js) | Duplicate names found ignoring capitals; faster read-only queries; counting code guesses in the same update that finds the code, so many guesses at once can't get past the limit |
+| express-rate-limit | Custom keys (email + IP, per user), `skipSuccessfulRequests`, custom handler | [rateLimits.js](../backend/middleware/rateLimits.js) | One person's wrong passwords can't lock out others on the same network; photo limits per account |
+| bcrypt, jsonwebtoken, Node `crypto` | Password and code hashing, signed tokens with expiry, `randomInt` | [authService.js](../backend/services/authService.js) | Secure passwords, logins and emailed codes |
+| Node `fetch` | `AbortSignal.timeout` | [ocrService.js](../backend/services/ocrService.js) | Gives up on Google Vision after 20 seconds instead of waiting forever |
+| nodemailer | Gmail transport created on first use | [emailService.js](../backend/services/emailService.js) | The server starts without email set up; only this file knows the provider |
+
+### Testing
+
+| Library | Feature | Where | Why |
+|---|---|---|---|
+| Jest, jest-expo | Module mocks (`jest.mock`), spies, `test.each`, a real HTTP server on a free port | [backend/tests/](../backend/tests/), [frontend/\_\_tests\_\_/](../frontend/__tests__/) | Tests run without MongoDB, Google or Gmail; every route's login check is found and tested automatically |
+| ESLint, GitHub Actions | Lint and tests on every push | [.github/workflows/tests.yml](../.github/workflows/tests.yml) | Catches mistakes and broken tests before they're merged |
+
 ## 12. Key decisions
 
 | Decision | Reasoning |

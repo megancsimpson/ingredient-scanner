@@ -40,7 +40,7 @@ Built as a capstone project for an AI Software Development bootcamp.
 | Code checks | ESLint, GitHub Actions (runs lint and tests on every push) |
 | Hosting | Render (API), MongoDB Atlas (database) |
 
-The full design (screens, data flow, API endpoints, data models, security and the reasons behind the main decisions) is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+The full design (screens, data flow, API endpoints, data models, security and the reasons behind the main decisions) is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Section 11a there lists which features of each library are used, where, and why.
 
 ## Project structure
 
