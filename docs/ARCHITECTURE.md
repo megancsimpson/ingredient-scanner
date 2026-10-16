@@ -379,6 +379,7 @@ ingredient-scanner/
 - Edit profile and change password
 - Privacy policy screen
 - Re-check a saved product against the latest ingredient list
+- A larger ingredient database with information about each pore-clogging ingredient (what it is, why it can clog pores, other label names), using the existing `notes` and `aliases` fields
 - Shared, searchable database of products submitted by users
 - Social features for sharing and discovering products with friends
 - Barcode scanning to look up products

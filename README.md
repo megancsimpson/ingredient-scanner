@@ -1,5 +1,7 @@
 # Ingredient Scanner
 
+## Project Overview
+
 A mobile app for iPhone and Android that checks skincare and cosmetic ingredient lists for pore-clogging ingredients. Take a photo of a product's ingredient list (or paste the list in), and the app flags any ingredient on a list of known pore-clogging ingredients.
 
 The ingredient list was compiled by licensed estheticians at a day spa from the Acne Clinic NYC and Face Reality pore-clogging ingredient lists. The idea came from working with those estheticians.
@@ -10,23 +12,32 @@ Built as a capstone project for an AI Software Development bootcamp.
 
 ## Features
 
-- **Scan or paste:** photograph an ingredient list (text is read with Google Cloud Vision) or paste one in, then correct any misread words before checking.
-- **Flagging:** each ingredient is checked against the 358-entry list, including keywords such as "Coconut" that flag every ingredient containing them. Ingredients are flagged, not rated.
-- **Saved products:** save results with a name, brand and category; sort, group, filter to products with no flagged ingredients, edit, and swipe to delete.
+- **Scan or paste:** photograph an ingredient list (text is read with Google Cloud Vision) or paste one in, then correct any misread words before checking. Photos of a whole package keep only the ingredient list, not the brand, directions or address.
+- **Flagging:** each ingredient is checked against the 358-entry list, including keywords such as "Coconut" that flag every ingredient containing them. Ingredients are flagged, not rated, and each flag shows which source list it came from.
+- **Checks on what's entered:** a warning when the text doesn't look like an ingredient list, and the option to remove pieces that aren't ingredients from the results.
+- **Saved products:** save results with a name, brand and category; sort, group, filter to products with no flagged ingredients, edit, and swipe to delete. Saving the same product twice asks whether to replace it or keep both.
 - **Ingredient search:** look up any ingredient to see whether it's on the list and which source list it came from.
 - **Accounts:** email and password login, email verification, forgot password with an emailed code, and account deletion.
+- **Guide and About:** how flagging works and tips for accurate results, plus the data source and disclaimer.
+- **iPhone and Android:** one app for both, tested on each.
 
-## Tech stack
+## Technologies Used
 
 | Part | Technology |
 |---|---|
-| Mobile app | React Native with Expo, JavaScript, React Navigation |
+| Mobile app | React Native with Expo, JavaScript |
+| Navigation | React Navigation (stacks and bottom tabs) |
+| Camera and photos | expo-camera, expo-image-picker, expo-image-manipulator (shrinks photos before upload) |
+| Login storage on the phone | expo-secure-store (iPhone Keychain, Android Keystore) |
+| Swipe to delete | react-native-gesture-handler, react-native-reanimated |
 | API | Node.js, Express |
 | Database | MongoDB Atlas with Mongoose |
 | Login | Passport.js (JWT), bcrypt |
 | Photo text (OCR) | Google Cloud Vision API |
 | Email | nodemailer with Gmail |
-| Tests | Jest |
+| Rate limiting | express-rate-limit |
+| Tests | Jest (server), jest-expo (app) |
+| Hosting | Render (API), MongoDB Atlas (database) |
 
 The full design (screens, data flow, API endpoints, data models, security and the reasons behind the main decisions) is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -36,10 +47,10 @@ The full design (screens, data flow, API endpoints, data models, security and th
 ingredient-scanner/
 ├── frontend/   React Native (Expo) app
 ├── backend/    Node + Express API, Jest tests and the ingredient list
-└── docs/       ARCHITECTURE.md
+└── docs/       ARCHITECTURE.md, TESTING.md
 ```
 
-## Running it locally
+## Installation Instructions
 
 The app runs on your phone through **Expo Go** and talks to the API running on your computer, so the phone and computer must be on the **same Wi-Fi network**.
 
@@ -125,6 +136,22 @@ Scan the QR code with the iPhone Camera app, or from inside Expo Go on Android. 
 
 If you change `frontend/.env` later, restart with `npx expo start --clear` so the new address is picked up.
 
+## Usage
+
+1. **Create an account.** Sign up with your name, email and a password (8 or more characters). The app emails you a 6-digit code; enter it to finish signing up.
+2. **Check a product** on the **Scan** tab:
+   - **Take a photo** of the ingredient list. Photos work best when the whole list fits in one shot, as on a flat box. If the photo is blurry, use **"Blurry? Use your phone's camera"**, which opens the phone's own camera with tap to focus. You can also choose a photo you've already taken.
+   - **Or tap Paste ingredient list** and paste it in, for example from the brand's website. This works best for round bottles, where the list wraps around out of view.
+3. **Review the text.** Fix any words the photo misread, and delete anything that isn't an ingredient. Then tap **Check ingredients**.
+4. **Read the results.** Flagged ingredients are listed first, with the source list each one comes from, followed by the full ingredient list with flagged ones highlighted. Tap **Edit** to remove pieces that aren't ingredients.
+5. **Save the product** (optional) with a name, and a brand and category if you like. Saved products are on the **Saved** tab, where you can sort them, group them by brand or category, show only "Non pore-clogging" products, edit them, or swipe left to delete.
+6. **Look up an ingredient** on the **Ingredients** tab to see whether it's on the list and where it came from. It checks one ingredient at a time; to check a whole list, use the Scan tab.
+7. **Profile** has **How flagging works** (what a flag means and tips for accurate results), **About**, log out and delete account.
+
+Forgot your password? Tap **Forgot password?** on the login screen, and the app emails you a code to set a new one.
+
+> A flag means the ingredient is on a published pore-clogging list. It isn't a rating or a diagnosis, and no flags doesn't guarantee a product won't clog pores.
+
 ## Tests
 
 How the app is tested (unit tests, the manual checklist for iPhone and Android, and the bugs found and fixed) is in [docs/TESTING.md](docs/TESTING.md).
@@ -166,7 +193,7 @@ The list is in [backend/seed/data/ingredients.json](backend/seed/data/ingredient
 
 ## Deployment
 
-**You don't need this section to run the project.** Everything in [Running it locally](#running-it-locally) works on your own computer for free. This section describes how the live version is hosted.
+**You don't need this section to run the project.** Everything in [Installation Instructions](#installation-instructions) works on your own computer for free. This section describes how the live version is hosted.
 
 The API runs on [Render](https://render.com) as a web service on the Starter plan. The paid plan is needed because Render's free plan blocks the ports Gmail uses to send email, and sleeps when idle. Every push to `main` redeploys it automatically, so day-to-day work happens on the `dev` branch and is merged into `main` once tested.
 
@@ -216,6 +243,17 @@ The live API uses its own database, `ingredient-scanner-prod`, on the same Atlas
 Set `EXPO_PUBLIC_API_URL` in `frontend/.env` to the Render address (`https://<service-name>.onrender.com`, with no port or slash at the end) and restart with `npx expo start --clear`. The app still loads through Expo Go from your computer, but all its requests go to Render, so the local API doesn't need to be running.
 
 Getting the app onto phones as an installable app, without Expo Go, is still to come.
+
+## Future Improvements
+
+- **Installable app:** builds that install on phones without Expo Go (EAS Build for Android; TestFlight on iPhone).
+- **Edit profile and change password** from the Profile tab.
+- **Privacy policy screen.**
+- **A larger ingredient database with information about each pore-clogging ingredient:** what it is, why it can clog pores, and other names it goes by on labels. The database already has `notes` and `aliases` fields for this, which are empty for now.
+- **Barcode scanning** to look up a product instead of photographing its ingredient list.
+- **Shared product database:** a searchable list of products and results submitted by users.
+- **Social features** for sharing and discovering products with friends.
+
 
 ## Acknowledgments
 
