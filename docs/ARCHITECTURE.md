@@ -308,6 +308,7 @@ ingredient-scanner/
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   └── TESTING.md       how the app is tested: unit tests, device checklist, bugs fixed
+├── .github/workflows/tests.yml   runs both test suites on GitHub on every push
 ├── CLAUDE.md        Project context for Claude Code (imports ARCHITECTURE.md)
 └── README.md
 ```

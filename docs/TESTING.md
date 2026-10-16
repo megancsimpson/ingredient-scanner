@@ -24,6 +24,10 @@ npm test
 
 To see how much of the code the tests run, add `-- --coverage` (for example `npm test -- --coverage`). A table of every file is printed at the end.
 
+### Automatic runs on GitHub
+
+Both test suites also run on GitHub on every push and pull request, using GitHub Actions ([.github/workflows/tests.yml](../.github/workflows/tests.yml)). Each commit shows a ✓ if all tests passed or a ✗ if any failed, and the **Actions** tab on GitHub has the full output. This catches a broken test even when it wasn't run locally, and before anything is merged into `main` (which redeploys the live API).
+
 ### Results (October 2026)
 
 | Part | Test files | Tests | Code covered (lines) |
