@@ -127,7 +127,7 @@ If you change `frontend/.env` later, restart with `npx expo start --clear` so th
 
 ## Tests
 
-The ingredient parser and matcher, name normalizing, the seed script and the ingredient list itself (every entry loads, has a known source and no accidental duplicates), the photo-text cleanup, the ingredient-list check, ingredient search, saved products (only the owner can see, edit or delete them; duplicates; what gets saved), login, sign-up and email codes, login tokens, every route's login check (found automatically, so new routes are checked too), input validation and rate limits are covered by Jest tests:
+The ingredient parser and matcher, name normalizing, the seed script and the ingredient list itself (every entry loads, has a known source and no accidental duplicates), the photo-text cleanup, the ingredient-list check, ingredient search, saved products (only the owner can see, edit or delete them; duplicates; what gets saved), login, sign-up and email codes, login tokens, every route's login check (found automatically, so new routes are checked too), input validation, the photo and analyze endpoints (including Google Vision failing, timing out or not being set up), sending email (with Gmail faked) and rate limits (what each one allows and that it's on the right routes) are covered by Jest tests:
 
 ```bash
 cd backend
