@@ -306,7 +306,8 @@ ingredient-scanner/
 │   ├── utils/               normalize.js (shared by seed script and parser)
 │   └── tests/               Jest unit tests
 ├── docs/
-│   └── ARCHITECTURE.md
+│   ├── ARCHITECTURE.md
+│   └── TESTING.md       how the app is tested: unit tests, device checklist, bugs fixed
 ├── CLAUDE.md        Project context for Claude Code (imports ARCHITECTURE.md)
 └── README.md
 ```
