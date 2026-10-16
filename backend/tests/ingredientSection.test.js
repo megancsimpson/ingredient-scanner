@@ -48,6 +48,26 @@ describe('extractIngredientSection', () => {
       expect(extractIngredientSection(text)).toBe('Aloe Leaf Juice, Shea Butter');
     });
 
+    test('ignores "ingredients" at the end of a line in the middle of a sentence', () => {
+      // From a real moisturizer: the sentence wrapped right after
+      // "ingredients", which used to look like a heading with no colon, so
+      // the rest of the sentence was added to the start of the list
+      const text = [
+        'A rich, hydrating cream made with ingredients',
+        'that promote healing and flexibility, perfect for',
+        'the dry winter months.',
+        '',
+        'Ingredients: Water, Glycerin, Squalane.',
+      ].join('\n');
+      expect(extractIngredientSection(text)).toBe('Water, Glycerin, Squalane');
+    });
+
+    test('still finds a heading with no colon when it is the whole line', () => {
+      expect(extractIngredientSection('Hydrating cream\nIngredients\nWater, Glycerin.')).toBe('Water, Glycerin');
+      expect(extractIngredientSection('Inactive Ingredients\nWater, Glycerin.')).toBe('Water, Glycerin');
+      expect(extractIngredientSection('  INGREDIENTS/INGRÉDIENTS  \nAQUA, GLYCERIN.')).toBe('AQUA, GLYCERIN');
+    });
+
     test('ignores "Key ingredients" highlights', () => {
       const text = 'Key ingredients: Niacinamide, Zinc\nIngredients: Water, Niacinamide, Zinc PCA.';
       expect(extractIngredientSection(text)).toBe('Water, Niacinamide, Zinc PCA');

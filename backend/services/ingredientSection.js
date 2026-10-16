@@ -9,15 +9,25 @@
  * This is a pure function, tested in tests/ingredientSection.test.js.
  */
 
-// An "Ingredients" heading, in English or French, ending with a colon or a
-// line break so marketing text ("made with natural ingredients like aloe")
-// isn't mistaken for one:
-//   "Ingredients:"  "INGREDIENTS" + new line  "Ingrédients :"
-//   "Ingredients/Ingrédients:"  "Inactive Ingredients:"
-// Not after "key", "featured", "hero" or "star": those introduce a few
-// highlighted ingredients, not the full list.
-const HEADING_PATTERN =
-  /(?<!\b(?:key|featured|hero|star|natural)\s+)\b(?:(?:in)?active\s+)?ingr[eé]dients?\b(?:\s*[/|]\s*ingr[eé]dients?\b)?[ \t]*(?::|\n)/gi;
+// The words of an "Ingredients" heading, in English or French:
+//   "Ingredients"  "Ingrédients"  "Ingredients/Ingrédients"  "Inactive Ingredients"
+const HEADING_WORDS = String.raw`(?:(?:in)?active\s+)?ingr[eé]dients?\b(?:\s*[/|]\s*ingr[eé]dients?\b)?`;
+
+// A heading is either:
+//   - the words followed by a colon, anywhere: "Ingredients:" "Ingrédients :"
+//     (not after "key", "featured", "hero", "star" or "natural": those
+//     introduce a few highlighted ingredients, not the full list), or
+//   - the words alone on their own line, with no colon: "INGREDIENTS"
+// Without a colon, the words must be the whole line, because marketing text
+// can wrap right after the word "ingredients" ("made with ingredients" /
+// "that promote healing..."), and that line isn't a heading. "made with
+// natural ingredients like aloe" has neither, so it's never a heading.
+const HEADING_PATTERN = new RegExp(
+  String.raw`(?<!\b(?:key|featured|hero|star|natural)\s+)\b${HEADING_WORDS}[ \t]*:` +
+    '|' +
+    String.raw`(?<=^|\n)[ \t]*${HEADING_WORDS}[ \t]*\n`,
+  'gi'
+);
 
 // Things that start a new section of the label, so the list has ended.
 // They count only at the start of a line or after a period.
