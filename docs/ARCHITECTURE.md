@@ -285,6 +285,8 @@ The current list has 358 entries with names and sources only; no aliases or note
 ingredient-scanner/
 ├── frontend/        React Native (Expo) app
 │   ├── App.js
+│   ├── app.json         app name, icons, splash screen, Android package, permissions
+│   ├── eas.json         EAS Build settings (the `preview` profile builds the Android APK)
 │   ├── __tests__/       Jest unit tests (jest-expo)
 │   └── src/
 │       ├── navigation/      RootNavigator, AuthStack, AppTabs
@@ -402,6 +404,7 @@ The features each library is used for beyond the basics, where to find them, and
 | No offensive-word filter | Saved products are private, and filters misfire on real product names; see section 9 |
 | Ingredient search reuses the parser and matcher | The list is small, so it's searched in memory with the same rules as scanning; searching a full label name shows exactly the entries that would flag it |
 | One shared normalize function | Seed data and scanned text are normalized the same way, so formatting differences ("D&C Red 17" vs. "D & C Red # 17") don't cause missed matches |
+| Android APK through EAS Build, not app stores | Free, and installs on any Android phone from a link. The Play Store needs a $25 developer account and review, and an iPhone build needs a $99-a-year Apple Developer account, which a school project doesn't justify. The build is aimed at the live API, so it works anywhere, not just on the developer's Wi-Fi |
 | Private repo, deployed app | Deployment is a project requirement; the repo stays private as agreed with the professor. During development the app runs locally and through Expo |
 
 ## 12a. Deployment
@@ -412,12 +415,13 @@ The features each library is used for beyond the basics, where to find them, and
 | Database | MongoDB Atlas, same cluster as development | The live API uses its own database, `ingredient-scanner-prod`; local development uses the default `test` database, so test data never mixes with real users. Atlas Network Access allows Render's outbound IP ranges |
 | Secrets | Render environment variables | `MONGODB_URI` (with the `ingredient-scanner-prod` database name), `JWT_SECRET` (different from development, so local logins don't work on the live API), `GOOGLE_VISION_API_KEY`, `EMAIL_USER`, `EMAIL_APP_PASSWORD`, `TRUST_PROXY_HOPS` (number of Render proxies, for the rate limits; `2`, checked against a real client IP in October 2026). Render sets `PORT` |
 | Ingredient list | Loaded into the live database by running the seed script locally with the live `MONGODB_URI` | Run again after editing `ingredients.json` |
+| Android app | EAS Build (Expo's build servers), `preview` profile in `frontend/eas.json` | Builds an APK that installs directly on Android phones and the emulator, without Expo Go or the Play Store. Package name `com.megancsimpson.ingredientscanner`. The live API address (`EXPO_PUBLIC_API_URL`) is an EAS environment variable in the `preview` environment on expo.dev, not in the repo (`frontend/.env` is gitignored, so it isn't uploaded). Expo keeps the signing key. Build with `npx eas-cli@latest build -p android --profile preview`; a new build is needed for app changes, not for server changes |
+| iPhone app | Not built | TestFlight needs an Apple Developer account ($99 a year); on iPhone the app is shown through Expo Go pointed at the live API |
 
 **Branches:** `main` is what's live; day-to-day work happens on `dev` and is merged into `main` once tested.
 
 ## 13. Open decisions
 
-- **App distribution.** The API is live on Render (see section 12a); how the mobile app gets onto phones without Expo Go is still to be decided, most likely EAS Build (an installable Android build; TestFlight on iPhone, which needs an Apple Developer account).
 - **Tests still to add (to do):**
   - **The app's screens and components:** the app's helper functions are tested (`frontend/__tests__/`, with `jest-expo`), but its screens and components aren't. Those would need React Native Testing Library (`@testing-library/react-native`).
 

@@ -243,11 +243,33 @@ The live API uses its own database, `ingredient-scanner-prod`, on the same Atlas
 
 Set `EXPO_PUBLIC_API_URL` in `frontend/.env` to the Render address (`https://<service-name>.onrender.com`, with no port or slash at the end) and restart with `npx expo start --clear`. The app still loads through Expo Go from your computer, but all its requests go to Render, so the local API doesn't need to be running.
 
-Getting the app onto phones as an installable app, without Expo Go, is still to come.
+### Building the Android app
+
+The Android app is built as an APK, a file that installs straight onto an Android phone without Expo Go or the Play Store. It's built on Expo's servers with [EAS Build](https://docs.expo.dev/build/introduction/), which is free with an Expo account. The settings are in [frontend/eas.json](frontend/eas.json), and the build always talks to the live API, so it works on any network.
+
+1. **Log in and link the project** (once): from `frontend`, run `npx eas-cli@latest login`, then `npx eas-cli@latest init`. `init` saves the project's ID in `app.json`. If you're building your own copy, also change `android.package` in `app.json` to your own name, since each package name belongs to one Expo account.
+2. **Give the build the API address** (once): `frontend/.env` isn't uploaded to Expo's servers (it's gitignored), so the address is stored on expo.dev instead:
+
+   ```bash
+   npx eas-cli@latest env:set preview --name EXPO_PUBLIC_API_URL --value https://<service-name>.onrender.com --visibility plaintext
+   ```
+
+3. **Build:**
+
+   ```bash
+   npx eas-cli@latest build -p android --profile preview
+   ```
+
+   The first build asks to create an Android signing key; say yes and Expo keeps it. Builds wait in a queue on the free plan, usually 10 to 30 minutes in all. When it's done, the build page on expo.dev shows a download link and a QR code.
+4. **Install:** open the link on an Android phone and allow installing from the browser when asked (Android asks for any app not from the Play Store). On the Android emulator, drag the `.apk` file onto the emulator window.
+
+A new build is needed whenever the app's code changes. Changes to the server don't need one, since Render redeploys those.
+
+There's no iPhone build: installing outside the App Store needs TestFlight and a paid Apple Developer account. On iPhone, the app runs through Expo Go with the live API as described above.
 
 ## Future Improvements
 
-- **Installable app:** builds that install on phones without Expo Go (EAS Build for Android; TestFlight on iPhone).
+- **iPhone app and app stores:** an installable iPhone build through TestFlight, and publishing to the App Store and Google Play.
 - **Edit profile and change password** from the Profile tab.
 - **Privacy policy screen.**
 - **A larger ingredient database with information about each pore-clogging ingredient:** what it is, why it can clog pores, and other names it goes by on labels. The database already has `notes` and `aliases` fields for this, which are empty for now.
