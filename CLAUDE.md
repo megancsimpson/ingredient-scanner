@@ -9,7 +9,7 @@ This file gives Claude Code the context for this repository: the project backgro
 - **What it is:** A capstone school project for an AI Software Development bootcamp — a React Native mobile app that checks skincare and cosmetic ingredient lists (photographed via OCR or pasted as text) against a database of known pore-clogging ingredients, flagging any matches (no ratings).
 - **Where the idea came from:** Working with the estheticians at a day spa. The ingredient list was compiled by licensed estheticians from that spa, using the Acne Clinic NYC and Face Reality pore-clogging ingredient lists.
 - **Deliverables:** Design, development and testing phases; a deployed app, a GitHub repo, a README and a devlog.
-- **Repo and deployment:** The GitHub repo stays **private** (agreed with the professor). The app will be deployed, as required by the project. During development it runs locally and on real devices through Expo.
+- **Repo and deployment:** The GitHub repo is **public**, as the assignment requires, so anything committed (including history) is visible to everyone: never commit secrets, real URLs or personal data. The API is deployed on Render and the Android app is an APK built with EAS. The professor tests on an Android phone. During development the app runs locally and on real devices through Expo.
 - **Developer level:** Learning JavaScript and full-stack development. Explain non-obvious code and decisions clearly, and prefer readable, conventional code over clever shortcuts.
 
 ## Working guidelines for Claude Code

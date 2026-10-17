@@ -409,7 +409,7 @@ The features each library is used for beyond the basics, where to find them, and
 | Ingredient search reuses the parser and matcher | The list is small, so it's searched in memory with the same rules as scanning; searching a full label name shows exactly the entries that would flag it |
 | One shared normalize function | Seed data and scanned text are normalized the same way, so formatting differences ("D&C Red 17" vs. "D & C Red # 17") don't cause missed matches |
 | Android APK through EAS Build, not app stores | Free, and installs on any Android phone from a link. The Play Store needs a $25 developer account and review, and an iPhone build needs a $99-a-year Apple Developer account, which a school project doesn't justify. The build is aimed at the live API, so it works anywhere, not just on the developer's Wi-Fi |
-| Private repo, deployed app | Deployment is a project requirement; the repo stays private as agreed with the professor. During development the app runs locally and through Expo |
+| Public repo, deployed app | The assignment requires both. Secrets live only in `.env` files (gitignored) and the hosting providers' settings, so nothing private is in the repo or its history. During development the app runs locally and through Expo |
 
 ## 12a. Deployment
 
