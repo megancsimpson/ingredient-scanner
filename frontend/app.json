@@ -10,12 +10,16 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.megancsimpson.ingredientscanner",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -48,6 +52,12 @@
           "backgroundColor": "#2f6f5e"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "05087ca9-0d12-4e3e-8340-c89d39ed2c3d"
+      }
+    },
+    "owner": "megancsimpson"
   }
 }
