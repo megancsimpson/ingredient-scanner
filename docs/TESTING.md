@@ -86,6 +86,22 @@ The app is a mobile app for iPhone and Android, built with React Native. It isn'
 
 The app is set to portrait only and to light mode only (`app.json`), so the checklist includes checking that it stays readable when the phone itself is in dark mode.
 
+### The installed Android app (APK)
+
+The checklist below was run in Expo Go. The installable Android app (an APK from EAS Build, see the README) runs the same code, but as a standalone app with its own native parts, permissions and connection to the live API. So it was checked separately on the Pixel 10 emulator, focusing on what could differ in a real build (October 2026, all passed):
+
+| Check | Why it could differ |
+|---|---|
+| Splash screen and app icon | Only shown in a real build, not in Expo Go |
+| Sign up and log in against the live API; verification and forgot password emails arrive | The build gets the live API address from EAS, not from `frontend/.env` |
+| Still logged in after closing and reopening the app | Secure storage belongs to the app itself, not to Expo Go |
+| Camera permission asked, refused ("Open Settings") and the flashlight; choosing a photo from the library and reading it | The app asks for its own permissions, separately from Expo Go |
+| Paste a list, flagging, and the "doesn't look like an ingredient list" warning | Checks the build talks to the live server correctly |
+| Save, edit and "Already saved"; the Save/Cancel bar above the keyboard | Keyboard handling in a standalone app |
+| Swipe to delete on the Saved tab | Uses the gesture and animation libraries' native code |
+| Ingredient search, details, and sending a pasted list to the Scan tab | Navigation between tabs |
+| Android back button on screens and in the Delete account dialog | Android only |
+
 ## 3. Manual test checklist
 
 Each check is done on both platforms. Mark **Pass**, or **Fail** with a short note (and fix it, then add the bug to section 4).
