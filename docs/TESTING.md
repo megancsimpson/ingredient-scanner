@@ -32,7 +32,7 @@ Both test suites also run on GitHub on every push and pull request, along with E
 
 | Part | Test files | Tests | Code covered (lines) |
 |---|---|---|---|
-| Server (`backend/tests/`) | 20 | 413 | 96% |
+| Server (`backend/tests/`) | 20 | 415 | 96% |
 | App (`frontend/__tests__/`) | 6 | 74 | Helper functions and server calls (see below) |
 
 All tests pass.
