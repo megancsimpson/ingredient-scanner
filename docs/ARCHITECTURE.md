@@ -4,6 +4,10 @@
 - Architecture diagrams (component tree, data flow, data models): [FigJam board](https://www.figma.com/board/evxkEbVpD1bLMzt06rK5Z0)
 - Screen wireframes and clickable prototype: [Figma wireframes](https://www.figma.com/design/7JIwblEbEnfJgthkhXWP2N)
 
+Both files keep earlier versions to show how the design changed. The sections that match the app are named **"(current, October 2026)"**:
+- **FigJam board** (on the far right): Component Tree, Data Flow v3, Data Models and Deployment.
+- **Wireframes** (the row below the originals on Page 1): Components, Login & Register, and the Scan, Saved, Ingredients and Profile flows. The clickable prototype still uses the original screens.
+
 ## 1. Overview
 
 Ingredient Scanner is a mobile app that checks skincare and cosmetic products for potentially pore-clogging ingredients. A user photographs an ingredient list (or pastes one in), the app converts the photo to text with OCR, and the server compares each ingredient against a database of known pore-clogging ingredients and flags any matches. Users can save checked products to review later and search the ingredient database directly.
